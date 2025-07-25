@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { AttackCalculation, Relic } from '../types/relic'
+import type { AttackCalculationResult, Relic } from '../types/relic'
 
 // Props
 interface Props {
-  calculationResult: AttackCalculation | null
+  calculationResult: AttackCalculationResult | null
   selectedRelics: Relic[]
 }
 

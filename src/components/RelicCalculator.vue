@@ -1,63 +1,84 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { Relic, AttackCalculation, CalculatorState } from '../types/relic'
+import type { Relic, AttackCalculationResult } from '../types/relic'
 import { SAMPLE_RELICS } from '../types/relic'
 import RelicSelector from './RelicSelector.vue'
 import AttackDisplay from './AttackDisplay.vue'
 
 // Reactive state
-const calculatorState = ref<CalculatorState>({
-  selectedRelics: [],
+const calculatorState = ref({
+  selectedRelics: [] as Relic[],
   baseAttackPower: 100,
   characterLevel: 1,
-  weaponType: 'straight-sword',
-  calculationResult: null
+  weaponType: 'straight-sword'
 })
 
 // Calculate attack power based on selected relics
-const calculateAttackPower = (): AttackCalculation => {
+const calculateAttackPower = (): AttackCalculationResult => {
   let totalMultiplier = 1.0
   let flatBonuses = 0
-  const breakdown: AttackCalculation['breakdown'] = []
+  const breakdown: any[] = []
 
   calculatorState.value.selectedRelics.forEach(relic => {
     relic.effects.forEach(effect => {
-      if (effect.percentage) {
-        const multiplierValue = effect.percentage / 100
+      const effectValue = typeof effect.value === 'number' ? effect.value : 0
+      
+      if (effect.type === 'attack_percentage') {
+        const multiplierValue = effectValue / 100
         totalMultiplier += multiplierValue
         breakdown.push({
+          step: breakdown.length + 1,
+          description: `${relic.name} - ${effect.name}`,
+          operation: 'add',
+          value: effectValue,
+          runningTotal: totalMultiplier,
           relicName: relic.name,
-          effectName: effect.name,
-          value: effect.percentage,
-          type: 'percentage'
+          effectName: effect.name
         })
-      } else if (effect.multiplier) {
-        totalMultiplier *= effect.multiplier
+      } else if (effect.type === 'attack_multiplier') {
+        totalMultiplier *= (1 + effectValue / 100)
         breakdown.push({
+          step: breakdown.length + 1,
+          description: `${relic.name} - ${effect.name}`,
+          operation: 'multiply',
+          value: effectValue,
+          runningTotal: totalMultiplier,
           relicName: relic.name,
-          effectName: effect.name,
-          value: effect.multiplier,
-          type: 'multiplier'
+          effectName: effect.name
         })
-      } else if (effect.flatBonus) {
-        flatBonuses += effect.flatBonus
+      } else if (effect.type === 'attack_flat') {
+        flatBonuses += effectValue
         breakdown.push({
+          step: breakdown.length + 1,
+          description: `${relic.name} - ${effect.name}`,
+          operation: 'add',
+          value: effectValue,
+          runningTotal: flatBonuses,
           relicName: relic.name,
-          effectName: effect.name,
-          value: effect.flatBonus,
-          type: 'flat'
+          effectName: effect.name
         })
       }
     })
   })
 
-  const finalAttack = Math.round((calculatorState.value.baseAttackPower * totalMultiplier) + flatBonuses)
+  const finalAttackPower = Math.round((calculatorState.value.baseAttackPower * totalMultiplier) + flatBonuses)
 
   return {
-    baseAttack: calculatorState.value.baseAttackPower,
     totalMultiplier,
-    flatBonuses,
-    finalAttack,
+    baseMultiplier: 1.0,
+    stackingBonuses: [],
+    conditionalEffects: [],
+    warningsAndErrors: [],
+    damageByType: { 
+      physical: finalAttackPower,
+      magical: 0,
+      fire: 0,
+      ice: 0,
+      lightning: 0,
+      dark: 0,
+      holy: 0
+    },
+    finalAttackPower,
     breakdown
   }
 }
