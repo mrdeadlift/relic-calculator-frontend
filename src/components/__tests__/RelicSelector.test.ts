@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import RelicSelector from '../RelicSelector.vue'
-import { createTestEnvironment, TestDataFactory } from '../../test/helpers/test-utils'
+import {
+  createTestEnvironment,
+  TestDataFactory,
+} from '../../test/helpers/test-utils'
 import { useRelicsStore } from '../../stores/relics'
 
 describe('RelicSelector', () => {
@@ -60,24 +63,24 @@ describe('RelicSelector', () => {
       const store = useRelicsStore()
       // Mock relics data
       store.relics = [
-        TestDataFactory.createRelic({ 
-          id: 'relic-1', 
-          name: 'Attack Relic', 
-          category: 'Attack', 
-          rarity: 'common' 
+        TestDataFactory.createRelic({
+          id: 'relic-1',
+          name: 'Attack Relic',
+          category: 'Attack',
+          rarity: 'common',
         }),
-        TestDataFactory.createRelic({ 
-          id: 'relic-2', 
-          name: 'Defense Relic', 
-          category: 'Defense', 
-          rarity: 'rare' 
+        TestDataFactory.createRelic({
+          id: 'relic-2',
+          name: 'Defense Relic',
+          category: 'Defense',
+          rarity: 'rare',
         }),
-        TestDataFactory.createRelic({ 
-          id: 'relic-3', 
-          name: 'Critical Relic', 
-          category: 'Critical', 
-          rarity: 'legendary' 
-        })
+        TestDataFactory.createRelic({
+          id: 'relic-3',
+          name: 'Critical Relic',
+          category: 'Critical',
+          rarity: 'legendary',
+        }),
       ]
       store.loading = false
     })
@@ -118,11 +121,11 @@ describe('RelicSelector', () => {
       // Add more test data with overlapping criteria
       const store = useRelicsStore()
       store.relics.push(
-        TestDataFactory.createRelic({ 
-          id: 'relic-4', 
-          name: 'Rare Attack Relic', 
-          category: 'Attack', 
-          rarity: 'rare' 
+        TestDataFactory.createRelic({
+          id: 'relic-4',
+          name: 'Rare Attack Relic',
+          category: 'Attack',
+          rarity: 'rare',
         })
       )
 
@@ -146,10 +149,10 @@ describe('RelicSelector', () => {
 
       const categoryFilter = wrapper.find('[data-testid="category-filter"]')
       const searchInput = wrapper.find('[data-testid="search-input"]')
-      
+
       expect((categoryFilter.element as HTMLSelectElement).value).toBe('')
       expect((searchInput.element as HTMLInputElement).value).toBe('')
-      
+
       // All relics should be visible
       const visibleRelics = wrapper.findAll('.relic-card:not(.hidden)')
       expect(visibleRelics.length).toBe(3)
@@ -162,7 +165,7 @@ describe('RelicSelector', () => {
       store.relics = [
         TestDataFactory.createRelic({ id: 'relic-1', name: 'Test Relic 1' }),
         TestDataFactory.createRelic({ id: 'relic-2', name: 'Test Relic 2' }),
-        TestDataFactory.createRelic({ id: 'relic-3', name: 'Test Relic 3' })
+        TestDataFactory.createRelic({ id: 'relic-3', name: 'Test Relic 3' }),
       ]
       store.loading = false
     })
@@ -174,7 +177,7 @@ describe('RelicSelector', () => {
       await user.clickButton(firstRelic)
 
       assert.expectElementHasClass(firstRelic, 'selected')
-      
+
       const store = useRelicsStore()
       expect(store.selectedRelics).toContain('relic-1')
     })
@@ -183,15 +186,15 @@ describe('RelicSelector', () => {
       const { wrapper, user, assert } = createTestEnvironment(RelicSelector)
 
       const firstRelic = wrapper.find('.relic-card')
-      
+
       // Select
       await user.clickButton(firstRelic)
       assert.expectElementHasClass(firstRelic, 'selected')
-      
+
       // Deselect
       await user.clickButton(firstRelic)
       expect(firstRelic.classes()).not.toContain('selected')
-      
+
       const store = useRelicsStore()
       expect(store.selectedRelics).not.toContain('relic-1')
     })
@@ -200,15 +203,24 @@ describe('RelicSelector', () => {
       const { wrapper, user, assert } = createTestEnvironment(RelicSelector)
 
       // Initially no selection
-      assert.expectTextContent('[data-testid="selection-counter"]', '0 / 9 selected')
+      assert.expectTextContent(
+        '[data-testid="selection-counter"]',
+        '0 / 9 selected'
+      )
 
       // Select one relic
       await user.clickButton('.relic-card:first-child')
-      assert.expectTextContent('[data-testid="selection-counter"]', '1 / 9 selected')
+      assert.expectTextContent(
+        '[data-testid="selection-counter"]',
+        '1 / 9 selected'
+      )
 
       // Select another relic
       await user.clickButton('.relic-card:nth-child(2)')
-      assert.expectTextContent('[data-testid="selection-counter"]', '2 / 9 selected')
+      assert.expectTextContent(
+        '[data-testid="selection-counter"]',
+        '2 / 9 selected'
+      )
     })
 
     it('should disable selection when maximum reached', async () => {
@@ -228,7 +240,10 @@ describe('RelicSelector', () => {
       await user.clickButton(unselectedRelic)
 
       expect(unselectedRelic.classes()).not.toContain('selected')
-      assert.expectTextContent('[data-testid="max-selection-warning"]', 'Maximum 9 relics can be selected')
+      assert.expectTextContent(
+        '[data-testid="max-selection-warning"]',
+        'Maximum 9 relics can be selected'
+      )
     })
 
     it('should handle conflicting relic selection', async () => {
@@ -236,22 +251,22 @@ describe('RelicSelector', () => {
 
       const store = useRelicsStore()
       store.relics = [
-        TestDataFactory.createRelic({ 
-          id: 'relic-1', 
+        TestDataFactory.createRelic({
+          id: 'relic-1',
           name: 'Conflicting Relic 1',
-          conflicts: ['relic-2']
+          conflicts: ['relic-2'],
         }),
-        TestDataFactory.createRelic({ 
-          id: 'relic-2', 
-          name: 'Conflicting Relic 2'
-        })
+        TestDataFactory.createRelic({
+          id: 'relic-2',
+          name: 'Conflicting Relic 2',
+        }),
       ]
 
       await wrapper.vm.$nextTick()
 
       // Select first relic
       await user.clickButton('.relic-card:first-child')
-      
+
       // Try to select conflicting relic
       await user.clickButton('.relic-card:nth-child(2)')
 
@@ -264,11 +279,11 @@ describe('RelicSelector', () => {
   describe('bulk actions', () => {
     beforeEach(async () => {
       const store = useRelicsStore()
-      store.relics = Array.from({ length: 15 }, (_, i) => 
-        TestDataFactory.createRelic({ 
-          id: `bulk-relic-${i}`, 
+      store.relics = Array.from({ length: 15 }, (_, i) =>
+        TestDataFactory.createRelic({
+          id: `bulk-relic-${i}`,
           name: `Bulk Relic ${i}`,
-          category: i < 8 ? 'Attack' : 'Defense'
+          category: i < 8 ? 'Attack' : 'Defense',
         })
       )
       store.loading = false
@@ -281,7 +296,10 @@ describe('RelicSelector', () => {
 
       const store = useRelicsStore()
       expect(store.selectedRelics.length).toBe(9) // Limited to maximum
-      assert.expectTextContent('[data-testid="selection-counter"]', '9 / 9 selected')
+      assert.expectTextContent(
+        '[data-testid="selection-counter"]',
+        '9 / 9 selected'
+      )
     })
 
     it('should select all filtered relics', async () => {
@@ -289,13 +307,13 @@ describe('RelicSelector', () => {
 
       // Filter by category
       await user.selectOption('[data-testid="category-filter"]', 'Attack')
-      
+
       // Select all filtered
       await user.clickButton('[data-testid="select-all"]')
 
       const store = useRelicsStore()
       expect(store.selectedRelics.length).toBe(8) // 8 Attack relics
-      
+
       // All selected should be Attack category
       const selectedObjects = store.selectedRelicObjects
       expect(selectedObjects.every(r => r.category === 'Attack')).toBe(true)
@@ -314,8 +332,11 @@ describe('RelicSelector', () => {
 
       const store = useRelicsStore()
       expect(store.selectedRelics.length).toBe(0)
-      assert.expectTextContent('[data-testid="selection-counter"]', '0 / 9 selected')
-      
+      assert.expectTextContent(
+        '[data-testid="selection-counter"]',
+        '0 / 9 selected'
+      )
+
       // No relic cards should have selected class
       const selectedCards = wrapper.findAll('.relic-card.selected')
       expect(selectedCards.length).toBe(0)
@@ -343,10 +364,10 @@ describe('RelicSelector', () => {
               value: 1.25,
               stackingRule: 'multiplicative',
               damageTypes: ['physical'],
-              conditions: []
-            }
-          ]
-        })
+              conditions: [],
+            },
+          ],
+        }),
       ]
       store.loading = false
     })
@@ -355,12 +376,25 @@ describe('RelicSelector', () => {
       const { wrapper, assert } = createTestEnvironment(RelicSelector)
 
       const relicCard = wrapper.find('.relic-card')
-      
+
       assert.expectTextContent(relicCard, 'Display Test Relic')
-      assert.expectTextContent(relicCard, 'A relic for testing display features')
-      assert.expectElementAttribute(relicCard.find('.relic-icon img'), 'src', '/icons/test-relic.png')
-      assert.expectElementHasClass(relicCard.find('.relic-rarity'), 'rarity-legendary')
-      assert.expectElementHasClass(relicCard.find('.relic-category'), 'category-attack')
+      assert.expectTextContent(
+        relicCard,
+        'A relic for testing display features'
+      )
+      assert.expectElementAttribute(
+        relicCard.find('.relic-icon img'),
+        'src',
+        '/icons/test-relic.png'
+      )
+      assert.expectElementHasClass(
+        relicCard.find('.relic-rarity'),
+        'rarity-legendary'
+      )
+      assert.expectElementHasClass(
+        relicCard.find('.relic-category'),
+        'category-attack'
+      )
     })
 
     it('should show difficulty indicator', async () => {
@@ -368,7 +402,7 @@ describe('RelicSelector', () => {
 
       const difficultyBar = wrapper.find('.difficulty-bar')
       const difficultyFill = difficultyBar.find('.difficulty-fill')
-      
+
       assert.expectElementExists(difficultyBar)
       expect(difficultyFill.attributes('style')).toContain('width: 80%') // 8/10 * 100%
     })
@@ -400,13 +434,13 @@ describe('RelicSelector', () => {
   describe('performance', () => {
     it('should handle large numbers of relics efficiently', async () => {
       const store = useRelicsStore()
-      
+
       // Create 1000 test relics
       const startTime = performance.now()
-      store.relics = Array.from({ length: 1000 }, (_, i) => 
-        TestDataFactory.createRelic({ 
-          id: `perf-relic-${i}`, 
-          name: `Performance Relic ${i}` 
+      store.relics = Array.from({ length: 1000 }, (_, i) =>
+        TestDataFactory.createRelic({
+          id: `perf-relic-${i}`,
+          name: `Performance Relic ${i}`,
         })
       )
       store.loading = false
@@ -419,7 +453,7 @@ describe('RelicSelector', () => {
 
       // Should render within reasonable time (2 seconds)
       expect(renderTime).toBeLessThan(2000)
-      
+
       // Should still show relics (with virtualization)
       expect(wrapper.findAll('.relic-card').length).toBeGreaterThan(0)
     })
@@ -428,7 +462,7 @@ describe('RelicSelector', () => {
       const { wrapper, user } = createTestEnvironment(RelicSelector)
 
       const searchInput = wrapper.find('[data-testid="search-input"]')
-      
+
       // Type rapidly
       await user.typeInInput(searchInput, 'a')
       await user.typeInInput(searchInput, 'at')
@@ -467,7 +501,7 @@ describe('RelicSelector', () => {
       const store = useRelicsStore()
       store.relics = [
         TestDataFactory.createRelic({ id: 'kbd-relic-1' }),
-        TestDataFactory.createRelic({ id: 'kbd-relic-2' })
+        TestDataFactory.createRelic({ id: 'kbd-relic-2' }),
       ]
       store.loading = false
 
@@ -493,7 +527,12 @@ describe('RelicSelector', () => {
       const { wrapper, user } = createTestEnvironment(RelicSelector)
 
       const store = useRelicsStore()
-      store.relics = [TestDataFactory.createRelic({ id: 'sr-relic', name: 'Screen Reader Relic' })]
+      store.relics = [
+        TestDataFactory.createRelic({
+          id: 'sr-relic',
+          name: 'Screen Reader Relic',
+        }),
+      ]
       store.loading = false
 
       await wrapper.vm.$nextTick()

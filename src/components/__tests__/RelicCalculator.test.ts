@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import RelicCalculator from '../RelicCalculator.vue'
-import { createTestEnvironment, TestDataFactory } from '../../test/helpers/test-utils'
+import {
+  createTestEnvironment,
+  TestDataFactory,
+} from '../../test/helpers/test-utils'
 import { useRelicsStore } from '../../stores/relics'
 import { useCalculationStore } from '../../stores/calculations'
 
@@ -43,7 +46,7 @@ describe('RelicCalculator', () => {
       relicsStore.relics = [
         TestDataFactory.createRelic({ id: 'relic-1', category: 'Attack' }),
         TestDataFactory.createRelic({ id: 'relic-2', category: 'Defense' }),
-        TestDataFactory.createRelic({ id: 'relic-3', category: 'Critical' })
+        TestDataFactory.createRelic({ id: 'relic-3', category: 'Critical' }),
       ]
       relicsStore.selectedRelics = ['relic-1', 'relic-2']
     })
@@ -61,8 +64,10 @@ describe('RelicCalculator', () => {
       const { wrapper, user, assert } = createTestEnvironment(RelicCalculator)
 
       // Start calculation
-      const calculatePromise = user.clickButton('[data-testid="calculate-button"]')
-      
+      const calculatePromise = user.clickButton(
+        '[data-testid="calculate-button"]'
+      )
+
       // Should show loading immediately
       assert.expectLoadingState(true)
       assert.expectElementExists('[data-testid="calculating-spinner"]')
@@ -72,7 +77,9 @@ describe('RelicCalculator', () => {
 
     it('should handle calculation errors gracefully', async () => {
       const calculationStore = useCalculationStore()
-      vi.spyOn(calculationStore, 'calculate').mockRejectedValue(new Error('Calculation failed'))
+      vi.spyOn(calculationStore, 'calculate').mockRejectedValue(
+        new Error('Calculation failed')
+      )
 
       const { wrapper, user, assert } = createTestEnvironment(RelicCalculator)
 
@@ -105,13 +112,15 @@ describe('RelicCalculator', () => {
 
       await user.clickButton('[data-testid="calculate-button"]')
 
-      expect(calculateSpy).toHaveBeenCalledWith(expect.objectContaining({
-        context: expect.objectContaining({
-          attackType: 'critical',
-          weaponType: 'sword',
-          playerLevel: 50
+      expect(calculateSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          context: expect.objectContaining({
+            attackType: 'critical',
+            weaponType: 'sword',
+            playerLevel: 50,
+          }),
         })
-      }))
+      )
     })
   })
 
@@ -119,17 +128,17 @@ describe('RelicCalculator', () => {
     beforeEach(async () => {
       const relicsStore = useRelicsStore()
       const calculationStore = useCalculationStore()
-      
+
       relicsStore.selectedRelics = ['relic-1', 'relic-2']
       calculationStore.lastResult = TestDataFactory.createCalculationResult({
         attackMultipliers: {
           total: 2.5,
           base: 1.0,
           synergy: 0.8,
-          conditional: 0.7
+          conditional: 0.7,
         },
         efficiency: 0.85,
-        obtainmentDifficulty: 6
+        obtainmentDifficulty: 6,
       })
     })
 
@@ -155,7 +164,9 @@ describe('RelicCalculator', () => {
       const { wrapper, assert } = createTestEnvironment(RelicCalculator)
 
       assert.expectElementExists('[data-testid="relic-details"]')
-      expect(wrapper.findAll('[data-testid="relic-detail-item"]').length).toBe(2)
+      expect(wrapper.findAll('[data-testid="relic-detail-item"]').length).toBe(
+        2
+      )
     })
 
     it('should show export options for results', () => {
@@ -176,26 +187,39 @@ describe('RelicCalculator', () => {
       await user.typeInInput('[data-testid="player-level-input"]', '75')
 
       // Context should be saved automatically
-      const savedContext = JSON.parse(localStorage.getItem('calculationContext') || '{}')
+      const savedContext = JSON.parse(
+        localStorage.getItem('calculationContext') || '{}'
+      )
       expect(savedContext.attackType).toBe('critical')
       expect(savedContext.playerLevel).toBe(75)
     })
 
     it('should restore context from localStorage', () => {
       // Pre-populate localStorage
-      localStorage.setItem('calculationContext', JSON.stringify({
-        attackType: 'normal',
-        weaponType: 'bow',
-        playerLevel: 60
-      }))
+      localStorage.setItem(
+        'calculationContext',
+        JSON.stringify({
+          attackType: 'normal',
+          weaponType: 'bow',
+          playerLevel: 60,
+        })
+      )
 
       const { wrapper, assert } = createTestEnvironment(RelicCalculator)
 
-      const attackTypeSelect = wrapper.find('[data-testid="attack-type-select"]')
-      const weaponTypeSelect = wrapper.find('[data-testid="weapon-type-select"]')
-      const playerLevelInput = wrapper.find('[data-testid="player-level-input"]')
+      const attackTypeSelect = wrapper.find(
+        '[data-testid="attack-type-select"]'
+      )
+      const weaponTypeSelect = wrapper.find(
+        '[data-testid="weapon-type-select"]'
+      )
+      const playerLevelInput = wrapper.find(
+        '[data-testid="player-level-input"]'
+      )
 
-      expect((attackTypeSelect.element as HTMLSelectElement).value).toBe('normal')
+      expect((attackTypeSelect.element as HTMLSelectElement).value).toBe(
+        'normal'
+      )
       expect((weaponTypeSelect.element as HTMLSelectElement).value).toBe('bow')
       expect((playerLevelInput.element as HTMLInputElement).value).toBe('60')
     })
@@ -210,10 +234,16 @@ describe('RelicCalculator', () => {
       // Reset
       await user.clickButton('[data-testid="reset-context"]')
 
-      const attackTypeSelect = wrapper.find('[data-testid="attack-type-select"]')
-      const playerLevelInput = wrapper.find('[data-testid="player-level-input"]')
+      const attackTypeSelect = wrapper.find(
+        '[data-testid="attack-type-select"]'
+      )
+      const playerLevelInput = wrapper.find(
+        '[data-testid="player-level-input"]'
+      )
 
-      expect((attackTypeSelect.element as HTMLSelectElement).value).toBe('normal')
+      expect((attackTypeSelect.element as HTMLSelectElement).value).toBe(
+        'normal'
+      )
       expect((playerLevelInput.element as HTMLInputElement).value).toBe('1')
     })
   })
@@ -239,11 +269,13 @@ describe('RelicCalculator', () => {
       await user.clickButton('[data-testid="include-breakdown"]')
       await user.clickButton('[data-testid="calculate-button"]')
 
-      expect(calculateSpy).toHaveBeenCalledWith(expect.objectContaining({
-        options: expect.objectContaining({
-          includeBreakdown: true
+      expect(calculateSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          options: expect.objectContaining({
+            includeBreakdown: true,
+          }),
         })
-      }))
+      )
     })
 
     it('should include performance metrics option', async () => {
@@ -256,11 +288,13 @@ describe('RelicCalculator', () => {
       await user.clickButton('[data-testid="include-performance"]')
       await user.clickButton('[data-testid="calculate-button"]')
 
-      expect(calculateSpy).toHaveBeenCalledWith(expect.objectContaining({
-        options: expect.objectContaining({
-          includePerformance: true
+      expect(calculateSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          options: expect.objectContaining({
+            includePerformance: true,
+          }),
         })
-      }))
+      )
     })
   })
 
@@ -284,7 +318,9 @@ describe('RelicCalculator', () => {
 
       await wrapper.trigger('keydown', { key: 'r', ctrlKey: true })
 
-      const playerLevelInput = wrapper.find('[data-testid="player-level-input"]')
+      const playerLevelInput = wrapper.find(
+        '[data-testid="player-level-input"]'
+      )
       expect((playerLevelInput.element as HTMLInputElement).value).toBe('1')
     })
   })
@@ -293,9 +329,15 @@ describe('RelicCalculator', () => {
     it('should have proper form labels', () => {
       const { wrapper } = createTestEnvironment(RelicCalculator)
 
-      const attackTypeSelect = wrapper.find('[data-testid="attack-type-select"]')
-      const weaponTypeSelect = wrapper.find('[data-testid="weapon-type-select"]')
-      const playerLevelInput = wrapper.find('[data-testid="player-level-input"]')
+      const attackTypeSelect = wrapper.find(
+        '[data-testid="attack-type-select"]'
+      )
+      const weaponTypeSelect = wrapper.find(
+        '[data-testid="weapon-type-select"]'
+      )
+      const playerLevelInput = wrapper.find(
+        '[data-testid="player-level-input"]'
+      )
 
       expect(attackTypeSelect.attributes('aria-label')).toBeTruthy()
       expect(weaponTypeSelect.attributes('aria-label')).toBeTruthy()
@@ -323,7 +365,7 @@ describe('RelicCalculator', () => {
 
       // Tab navigation should work
       await wrapper.trigger('keydown', { key: 'Tab' })
-      
+
       // Should be able to reach calculate button via keyboard
       expect(calculateButton.attributes('tabindex')).not.toBe('-1')
     })
@@ -333,8 +375,10 @@ describe('RelicCalculator', () => {
     it('should debounce context input changes', async () => {
       const { wrapper, user } = createTestEnvironment(RelicCalculator)
 
-      const playerLevelInput = wrapper.find('[data-testid="player-level-input"]')
-      
+      const playerLevelInput = wrapper.find(
+        '[data-testid="player-level-input"]'
+      )
+
       // Type rapidly
       await user.typeInInput(playerLevelInput, '1')
       await user.typeInInput(playerLevelInput, '12')
@@ -344,7 +388,9 @@ describe('RelicCalculator', () => {
       await new Promise(resolve => setTimeout(resolve, 300))
 
       // Should only save context once after debounce
-      const savedContext = JSON.parse(localStorage.getItem('calculationContext') || '{}')
+      const savedContext = JSON.parse(
+        localStorage.getItem('calculationContext') || '{}'
+      )
       expect(savedContext.playerLevel).toBe(123)
     })
 
@@ -355,8 +401,8 @@ describe('RelicCalculator', () => {
           id: `effect-${i}`,
           name: `Effect ${i}`,
           description: `Test effect ${i}`,
-          value: i * 0.1
-        }))
+          value: i * 0.1,
+        })),
       })
 
       const startTime = performance.now()
@@ -366,7 +412,9 @@ describe('RelicCalculator', () => {
       const renderTime = endTime - startTime
       expect(renderTime).toBeLessThan(1000) // Should render within 1 second
 
-      expect(wrapper.findAll('[data-testid="effect-item"]').length).toBeGreaterThan(0)
+      expect(
+        wrapper.findAll('[data-testid="effect-item"]').length
+      ).toBeGreaterThan(0)
     })
   })
 })

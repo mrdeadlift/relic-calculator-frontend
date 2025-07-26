@@ -8,8 +8,8 @@ describe('BaseButton', () => {
     it('should render with default props', () => {
       const wrapper = mount(BaseButton, {
         slots: {
-          default: 'Click me'
-        }
+          default: 'Click me',
+        },
       })
 
       expect(wrapper.text()).toBe('Click me')
@@ -21,11 +21,11 @@ describe('BaseButton', () => {
     it('should render with custom variant', () => {
       const wrapper = mount(BaseButton, {
         props: {
-          variant: 'secondary'
+          variant: 'secondary',
         },
         slots: {
-          default: 'Secondary Button'
-        }
+          default: 'Secondary Button',
+        },
       })
 
       expect(wrapper.classes()).toContain('btn-secondary')
@@ -35,11 +35,11 @@ describe('BaseButton', () => {
     it('should render with custom size', () => {
       const wrapper = mount(BaseButton, {
         props: {
-          size: 'large'
+          size: 'large',
         },
         slots: {
-          default: 'Large Button'
-        }
+          default: 'Large Button',
+        },
       })
 
       expect(wrapper.classes()).toContain('btn-large')
@@ -49,11 +49,11 @@ describe('BaseButton', () => {
     it('should render as disabled when disabled prop is true', () => {
       const wrapper = mount(BaseButton, {
         props: {
-          disabled: true
+          disabled: true,
         },
         slots: {
-          default: 'Disabled Button'
-        }
+          default: 'Disabled Button',
+        },
       })
 
       expect(wrapper.classes()).toContain('btn-disabled')
@@ -63,11 +63,11 @@ describe('BaseButton', () => {
     it('should render loading state', () => {
       const wrapper = mount(BaseButton, {
         props: {
-          loading: true
+          loading: true,
         },
         slots: {
-          default: 'Loading Button'
-        }
+          default: 'Loading Button',
+        },
       })
 
       expect(wrapper.classes()).toContain('btn-loading')
@@ -77,11 +77,11 @@ describe('BaseButton', () => {
     it('should render with icon', () => {
       const wrapper = mount(BaseButton, {
         props: {
-          icon: 'plus'
+          icon: 'plus',
         },
         slots: {
-          default: 'Add Item'
-        }
+          default: 'Add Item',
+        },
       })
 
       expect(wrapper.find('.btn-icon').exists()).toBe(true)
@@ -92,8 +92,8 @@ describe('BaseButton', () => {
       const wrapper = mount(BaseButton, {
         props: {
           icon: 'close',
-          iconOnly: true
-        }
+          iconOnly: true,
+        },
       })
 
       expect(wrapper.classes()).toContain('btn-icon-only')
@@ -105,8 +105,8 @@ describe('BaseButton', () => {
     it('should emit click event when clicked', async () => {
       const { wrapper, user } = createTestEnvironment(BaseButton, {
         slots: {
-          default: 'Click me'
-        }
+          default: 'Click me',
+        },
       })
 
       await user.clickButton('button')
@@ -118,11 +118,11 @@ describe('BaseButton', () => {
     it('should not emit click event when disabled', async () => {
       const { wrapper, user } = createTestEnvironment(BaseButton, {
         props: {
-          disabled: true
+          disabled: true,
         },
         slots: {
-          default: 'Disabled Button'
-        }
+          default: 'Disabled Button',
+        },
       })
 
       await user.clickButton('button')
@@ -133,11 +133,11 @@ describe('BaseButton', () => {
     it('should not emit click event when loading', async () => {
       const { wrapper, user } = createTestEnvironment(BaseButton, {
         props: {
-          loading: true
+          loading: true,
         },
         slots: {
-          default: 'Loading Button'
-        }
+          default: 'Loading Button',
+        },
       })
 
       await user.clickButton('button')
@@ -148,8 +148,8 @@ describe('BaseButton', () => {
     it('should handle keyboard events', async () => {
       const wrapper = mount(BaseButton, {
         slots: {
-          default: 'Keyboard Button'
-        }
+          default: 'Keyboard Button',
+        },
       })
 
       await wrapper.trigger('keydown.enter')
@@ -162,8 +162,8 @@ describe('BaseButton', () => {
     it('should handle focus and blur events', async () => {
       const wrapper = mount(BaseButton, {
         slots: {
-          default: 'Focus Button'
-        }
+          default: 'Focus Button',
+        },
       })
 
       await wrapper.trigger('focus')
@@ -178,11 +178,11 @@ describe('BaseButton', () => {
     it('should have correct ARIA attributes', () => {
       const wrapper = mount(BaseButton, {
         props: {
-          disabled: true
+          disabled: true,
         },
         slots: {
-          default: 'Accessible Button'
-        }
+          default: 'Accessible Button',
+        },
       })
 
       expect(wrapper.attributes('role')).toBe('button')
@@ -192,11 +192,11 @@ describe('BaseButton', () => {
     it('should have correct ARIA attributes for loading state', () => {
       const wrapper = mount(BaseButton, {
         props: {
-          loading: true
+          loading: true,
         },
         slots: {
-          default: 'Loading Button'
-        }
+          default: 'Loading Button',
+        },
       })
 
       expect(wrapper.attributes('aria-busy')).toBe('true')
@@ -206,11 +206,11 @@ describe('BaseButton', () => {
     it('should support custom ARIA label', () => {
       const wrapper = mount(BaseButton, {
         props: {
-          ariaLabel: 'Custom aria label'
+          ariaLabel: 'Custom aria label',
         },
         slots: {
-          default: 'Button'
-        }
+          default: 'Button',
+        },
       })
 
       expect(wrapper.attributes('aria-label')).toBe('Custom aria label')
@@ -219,11 +219,11 @@ describe('BaseButton', () => {
     it('should support aria-describedby', () => {
       const wrapper = mount(BaseButton, {
         props: {
-          ariaDescribedby: 'description-id'
+          ariaDescribedby: 'description-id',
         },
         slots: {
-          default: 'Button'
-        }
+          default: 'Button',
+        },
       })
 
       expect(wrapper.attributes('aria-describedby')).toBe('description-id')
@@ -231,17 +231,24 @@ describe('BaseButton', () => {
   })
 
   describe('variants', () => {
-    const variants = ['primary', 'secondary', 'success', 'warning', 'danger', 'info']
+    const variants = [
+      'primary',
+      'secondary',
+      'success',
+      'warning',
+      'danger',
+      'info',
+    ]
 
     variants.forEach(variant => {
       it(`should render ${variant} variant correctly`, () => {
         const wrapper = mount(BaseButton, {
           props: {
-            variant: variant as any
+            variant: variant as any,
           },
           slots: {
-            default: `${variant} Button`
-          }
+            default: `${variant} Button`,
+          },
         })
 
         expect(wrapper.classes()).toContain(`btn-${variant}`)
@@ -256,11 +263,11 @@ describe('BaseButton', () => {
       it(`should render ${size} size correctly`, () => {
         const wrapper = mount(BaseButton, {
           props: {
-            size: size as any
+            size: size as any,
           },
           slots: {
-            default: `${size} Button`
-          }
+            default: `${size} Button`,
+          },
         })
 
         expect(wrapper.classes()).toContain(`btn-${size}`)
@@ -279,11 +286,11 @@ describe('BaseButton', () => {
     it('should handle multiple class names', () => {
       const wrapper = mount(BaseButton, {
         props: {
-          class: 'custom-class another-class'
+          class: 'custom-class another-class',
         },
         slots: {
-          default: 'Multi-class Button'
-        }
+          default: 'Multi-class Button',
+        },
       })
 
       expect(wrapper.classes()).toContain('custom-class')
@@ -295,8 +302,8 @@ describe('BaseButton', () => {
       const clickHandler = vi.fn()
       const wrapper = mount(BaseButton, {
         slots: {
-          default: 'Rapid Click'
-        }
+          default: 'Rapid Click',
+        },
       })
 
       wrapper.vm.$emit = clickHandler
@@ -312,11 +319,11 @@ describe('BaseButton', () => {
     it('should maintain state during loading transitions', async () => {
       const wrapper = mount(BaseButton, {
         props: {
-          loading: false
+          loading: false,
         },
         slots: {
-          default: 'Loading Test'
-        }
+          default: 'Loading Test',
+        },
       })
 
       // Initially not loading
@@ -339,16 +346,16 @@ describe('BaseButton', () => {
     it('should not cause memory leaks', () => {
       const wrapper = mount(BaseButton, {
         slots: {
-          default: 'Performance Test'
-        }
+          default: 'Performance Test',
+        },
       })
 
       // Mount and unmount multiple times
       for (let i = 0; i < 100; i++) {
         const tempWrapper = mount(BaseButton, {
           slots: {
-            default: `Test ${i}`
-          }
+            default: `Test ${i}`,
+          },
         })
         tempWrapper.unmount()
       }
@@ -362,11 +369,11 @@ describe('BaseButton', () => {
           variant: 'primary',
           size: 'medium',
           disabled: false,
-          loading: false
+          loading: false,
         },
         slots: {
-          default: 'Update Test'
-        }
+          default: 'Update Test',
+        },
       })
 
       // Update multiple props rapidly
@@ -374,7 +381,7 @@ describe('BaseButton', () => {
         variant: 'secondary',
         size: 'large',
         disabled: true,
-        loading: true
+        loading: true,
       })
 
       expect(wrapper.classes()).toContain('btn-secondary')

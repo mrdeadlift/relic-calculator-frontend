@@ -8,13 +8,13 @@ import type { Component } from 'vue'
  */
 export function mountWithPinia(component: Component, options: any = {}) {
   const pinia = createPinia()
-  
+
   const wrapper = mount(component, {
     global: {
       plugins: [pinia],
-      ...options.global
+      ...options.global,
     },
-    ...options
+    ...options,
   })
 
   return wrapper
@@ -25,7 +25,7 @@ export function mountWithPinia(component: Component, options: any = {}) {
  */
 export const MockComponent = {
   name: 'MockComponent',
-  template: '<div data-testid="mock-component"><slot /></div>'
+  template: '<div data-testid="mock-component"><slot /></div>',
 }
 
 /**
@@ -50,9 +50,9 @@ export const mockRouter = {
       name: 'home',
       params: {},
       query: {},
-      meta: {}
-    }
-  }
+      meta: {},
+    },
+  },
 }
 
 /**
@@ -63,7 +63,7 @@ export function mockFetch(response: any, status = 200) {
     ok: status >= 200 && status < 300,
     status,
     json: () => Promise.resolve(response),
-    text: () => Promise.resolve(JSON.stringify(response))
+    text: () => Promise.resolve(JSON.stringify(response)),
   })
 }
 
@@ -80,7 +80,11 @@ export const mockLocalStorage = {
 /**
  * Mock file for upload testing
  */
-export function createMockFile(name: string, content: string, type: string = 'text/plain') {
+export function createMockFile(
+  name: string,
+  content: string,
+  type: string = 'text/plain'
+) {
   const file = new File([content], name, { type })
   return file
 }
@@ -122,12 +126,12 @@ export class UserInteraction {
   async uploadFile(selector: string, file: File) {
     const input = this.wrapper.find(selector)
     expect(input.exists()).toBe(true)
-    
+
     Object.defineProperty(input.element, 'files', {
       value: [file],
       writable: false,
     })
-    
+
     await input.trigger('change')
     await waitForUpdate()
   }
@@ -206,7 +210,7 @@ export class TestDataFactory {
       obtainmentDifficulty: 5,
       effects: [],
       conflicts: [],
-      ...overrides
+      ...overrides,
     }
   }
 
@@ -220,7 +224,7 @@ export class TestDataFactory {
       createdAt: new Date(),
       updatedAt: new Date(),
       isPublic: false,
-      ...overrides
+      ...overrides,
     }
   }
 
@@ -230,7 +234,7 @@ export class TestDataFactory {
         total: 2.0,
         base: 1.0,
         synergy: 0.5,
-        conditional: 0.5
+        conditional: 0.5,
       },
       efficiency: 0.8,
       obtainmentDifficulty: 5,
@@ -242,10 +246,10 @@ export class TestDataFactory {
         clientSide: false,
         performance: {
           duration: 100,
-          relicCount: 3
-        }
+          relicCount: 3,
+        },
       },
-      ...overrides
+      ...overrides,
     }
   }
 }
@@ -276,7 +280,11 @@ export class AsyncTestHelpers {
     throw new Error('Condition was not met within timeout')
   }
 
-  static async waitForElement(wrapper: VueWrapper, selector: string, timeout = 5000) {
+  static async waitForElement(
+    wrapper: VueWrapper,
+    selector: string,
+    timeout = 5000
+  ) {
     const start = Date.now()
     while (Date.now() - start < timeout) {
       await wrapper.vm.$nextTick()
@@ -303,6 +311,6 @@ export function createTestEnvironment(component: Component, options: any = {}) {
     user,
     assert,
     async,
-    unmount: () => wrapper.unmount()
+    unmount: () => wrapper.unmount(),
   }
 }

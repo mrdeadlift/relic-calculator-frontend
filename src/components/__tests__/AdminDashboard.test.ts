@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import AdminDashboard from '../AdminDashboard.vue'
-import { createTestEnvironment, TestDataFactory } from '../../test/helpers/test-utils'
+import {
+  createTestEnvironment,
+  TestDataFactory,
+} from '../../test/helpers/test-utils'
 import { useRelicsStore } from '../../stores/relics'
 
 describe('AdminDashboard', () => {
@@ -43,7 +46,7 @@ describe('AdminDashboard', () => {
       store.relics = [
         TestDataFactory.createRelic({ id: 'relic-1', name: 'Test Relic 1' }),
         TestDataFactory.createRelic({ id: 'relic-2', name: 'Test Relic 2' }),
-        TestDataFactory.createRelic({ id: 'relic-3', name: 'Test Relic 3' })
+        TestDataFactory.createRelic({ id: 'relic-3', name: 'Test Relic 3' }),
       ]
     })
 
@@ -242,9 +245,9 @@ describe('AdminDashboard', () => {
       const mockWebSocket = {
         send: vi.fn(),
         close: vi.fn(),
-        addEventListener: vi.fn()
+        addEventListener: vi.fn(),
       }
-      
+
       global.WebSocket = vi.fn(() => mockWebSocket) as any
 
       assert.expectElementExists('[data-testid="realtime-indicator"]')
@@ -271,7 +274,10 @@ describe('AdminDashboard', () => {
       const { wrapper, assert } = createTestEnvironment(AdminDashboard)
 
       assert.expectElementExists('[data-testid="access-denied"]')
-      assert.expectTextContent('[data-testid="permission-message"]', 'Admin access required')
+      assert.expectTextContent(
+        '[data-testid="permission-message"]',
+        'Admin access required'
+      )
     })
 
     it('should log admin actions', async () => {
@@ -305,21 +311,26 @@ describe('AdminDashboard', () => {
       // Mock high response time
       const mockMetrics = {
         responseTime: 5000, // 5 seconds
-        memoryUsage: 95,    // 95%
-        activeConnections: 1000
+        memoryUsage: 95, // 95%
+        activeConnections: 1000,
       }
 
       const { wrapper, assert } = createTestEnvironment(AdminDashboard)
 
       // Simulate receiving metrics
-      window.dispatchEvent(new CustomEvent('performance-update', { 
-        detail: mockMetrics 
-      }))
+      window.dispatchEvent(
+        new CustomEvent('performance-update', {
+          detail: mockMetrics,
+        })
+      )
 
       await wrapper.vm.$nextTick()
 
       assert.expectElementExists('[data-testid="performance-alert"]')
-      assert.expectTextContent('[data-testid="alert-message"]', 'High response time detected')
+      assert.expectTextContent(
+        '[data-testid="alert-message"]',
+        'High response time detected'
+      )
     })
   })
 

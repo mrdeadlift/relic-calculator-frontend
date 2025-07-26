@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import BuildManager from '../BuildManager.vue'
-import { createTestEnvironment, TestDataFactory } from '../../test/helpers/test-utils'
+import {
+  createTestEnvironment,
+  TestDataFactory,
+} from '../../test/helpers/test-utils'
 import { useBuildsStore } from '../../stores/builds'
 import { useRelicsStore } from '../../stores/relics'
 
@@ -27,7 +30,10 @@ describe('BuildManager', () => {
       const { wrapper, assert } = createTestEnvironment(BuildManager)
 
       assert.expectElementExists('[data-testid="empty-builds-state"]')
-      assert.expectTextContent('[data-testid="empty-message"]', 'No builds found')
+      assert.expectTextContent(
+        '[data-testid="empty-message"]',
+        'No builds found'
+      )
       assert.expectElementExists('[data-testid="create-first-build"]')
     })
 
@@ -36,7 +42,7 @@ describe('BuildManager', () => {
       buildsStore.builds = [
         TestDataFactory.createBuild({ name: 'Build 1', id: 'build-1' }),
         TestDataFactory.createBuild({ name: 'Build 2', id: 'build-2' }),
-        TestDataFactory.createBuild({ name: 'Build 3', id: 'build-3' })
+        TestDataFactory.createBuild({ name: 'Build 3', id: 'build-3' }),
       ]
 
       const { wrapper, assert } = createTestEnvironment(BuildManager)
@@ -65,15 +71,20 @@ describe('BuildManager', () => {
 
       await user.clickButton('[data-testid="create-build-button"]')
       await user.typeInInput('[data-testid="build-name-input"]', 'New Build')
-      await user.typeInInput('[data-testid="build-description"]', 'Test build description')
+      await user.typeInInput(
+        '[data-testid="build-description"]',
+        'Test build description'
+      )
       await user.clickButton('[data-testid="save-build"]')
 
       const buildsStore = useBuildsStore()
-      expect(buildsStore.builds).toContainEqual(expect.objectContaining({
-        name: 'New Build',
-        description: 'Test build description',
-        relics: ['relic-1', 'relic-2']
-      }))
+      expect(buildsStore.builds).toContainEqual(
+        expect.objectContaining({
+          name: 'New Build',
+          description: 'Test build description',
+          relics: ['relic-1', 'relic-2'],
+        })
+      )
     })
 
     it('should validate build name', async () => {
@@ -90,11 +101,11 @@ describe('BuildManager', () => {
     beforeEach(() => {
       const buildsStore = useBuildsStore()
       buildsStore.builds = [
-        TestDataFactory.createBuild({ 
-          id: 'build-1', 
+        TestDataFactory.createBuild({
+          id: 'build-1',
           name: 'Editable Build',
-          description: 'Original description'
-        })
+          description: 'Original description',
+        }),
       ]
     })
 
@@ -104,16 +115,28 @@ describe('BuildManager', () => {
       await user.clickButton('[data-testid="edit-build-build-1"]')
 
       assert.expectElementExists('[data-testid="edit-build-modal"]')
-      assert.expectFormFieldValue('[data-testid="build-name-input"]', 'Editable Build')
-      assert.expectFormFieldValue('[data-testid="build-description"]', 'Original description')
+      assert.expectFormFieldValue(
+        '[data-testid="build-name-input"]',
+        'Editable Build'
+      )
+      assert.expectFormFieldValue(
+        '[data-testid="build-description"]',
+        'Original description'
+      )
     })
 
     it('should update build details', async () => {
       const { wrapper, user } = createTestEnvironment(BuildManager)
 
       await user.clickButton('[data-testid="edit-build-build-1"]')
-      await user.typeInInput('[data-testid="build-name-input"]', 'Updated Build Name')
-      await user.typeInInput('[data-testid="build-description"]', 'Updated description')
+      await user.typeInInput(
+        '[data-testid="build-name-input"]',
+        'Updated Build Name'
+      )
+      await user.typeInInput(
+        '[data-testid="build-description"]',
+        'Updated description'
+      )
       await user.clickButton('[data-testid="save-build"]')
 
       const buildsStore = useBuildsStore()
@@ -142,7 +165,7 @@ describe('BuildManager', () => {
       const buildsStore = useBuildsStore()
       buildsStore.builds = [
         TestDataFactory.createBuild({ id: 'build-1', name: 'Build to Delete' }),
-        TestDataFactory.createBuild({ id: 'build-2', name: 'Build to Keep' })
+        TestDataFactory.createBuild({ id: 'build-2', name: 'Build to Keep' }),
       ]
     })
 
@@ -152,7 +175,10 @@ describe('BuildManager', () => {
       await user.clickButton('[data-testid="delete-build-build-1"]')
 
       assert.expectElementExists('[data-testid="confirm-delete-modal"]')
-      assert.expectTextContent('[data-testid="delete-message"]', 'Build to Delete')
+      assert.expectTextContent(
+        '[data-testid="delete-message"]',
+        'Build to Delete'
+      )
     })
 
     it('should delete build after confirmation', async () => {
@@ -183,10 +209,22 @@ describe('BuildManager', () => {
     beforeEach(() => {
       const buildsStore = useBuildsStore()
       buildsStore.builds = [
-        TestDataFactory.createBuild({ name: 'Attack Build', combatStyle: 'melee' }),
-        TestDataFactory.createBuild({ name: 'Defense Build', combatStyle: 'ranged' }),
-        TestDataFactory.createBuild({ name: 'Critical Build', combatStyle: 'melee' }),
-        TestDataFactory.createBuild({ name: 'Hybrid Build', combatStyle: 'hybrid' })
+        TestDataFactory.createBuild({
+          name: 'Attack Build',
+          combatStyle: 'melee',
+        }),
+        TestDataFactory.createBuild({
+          name: 'Defense Build',
+          combatStyle: 'ranged',
+        }),
+        TestDataFactory.createBuild({
+          name: 'Critical Build',
+          combatStyle: 'melee',
+        }),
+        TestDataFactory.createBuild({
+          name: 'Hybrid Build',
+          combatStyle: 'hybrid',
+        }),
       ]
     })
 
@@ -195,7 +233,9 @@ describe('BuildManager', () => {
 
       await user.typeInInput('[data-testid="search-builds"]', 'attack')
 
-      const visibleBuilds = wrapper.findAll('[data-testid^="build-item-"]:not(.hidden)')
+      const visibleBuilds = wrapper.findAll(
+        '[data-testid^="build-item-"]:not(.hidden)'
+      )
       expect(visibleBuilds.length).toBe(1)
     })
 
@@ -204,7 +244,9 @@ describe('BuildManager', () => {
 
       await user.selectOption('[data-testid="combat-style-filter"]', 'melee')
 
-      const visibleBuilds = wrapper.findAll('[data-testid^="build-item-"]:not(.hidden)')
+      const visibleBuilds = wrapper.findAll(
+        '[data-testid^="build-item-"]:not(.hidden)'
+      )
       expect(visibleBuilds.length).toBe(2) // Attack Build and Critical Build
     })
 
@@ -214,7 +256,9 @@ describe('BuildManager', () => {
       await user.typeInInput('[data-testid="search-builds"]', 'build')
       await user.selectOption('[data-testid="combat-style-filter"]', 'ranged')
 
-      const visibleBuilds = wrapper.findAll('[data-testid^="build-item-"]:not(.hidden)')
+      const visibleBuilds = wrapper.findAll(
+        '[data-testid^="build-item-"]:not(.hidden)'
+      )
       expect(visibleBuilds.length).toBe(1) // Only Defense Build
     })
 
@@ -231,7 +275,9 @@ describe('BuildManager', () => {
       expect((searchInput.element as HTMLInputElement).value).toBe('')
       expect((styleFilter.element as HTMLSelectElement).value).toBe('')
 
-      const visibleBuilds = wrapper.findAll('[data-testid^="build-item-"]:not(.hidden)')
+      const visibleBuilds = wrapper.findAll(
+        '[data-testid^="build-item-"]:not(.hidden)'
+      )
       expect(visibleBuilds.length).toBe(4) // All builds visible
     })
   })
@@ -240,11 +286,11 @@ describe('BuildManager', () => {
     beforeEach(() => {
       const buildsStore = useBuildsStore()
       buildsStore.builds = [
-        TestDataFactory.createBuild({ 
-          id: 'build-1', 
+        TestDataFactory.createBuild({
+          id: 'build-1',
           name: 'Test Build',
-          relics: ['relic-1', 'relic-2', 'relic-3']
-        })
+          relics: ['relic-1', 'relic-2', 'relic-3'],
+        }),
       ]
     })
 
@@ -254,7 +300,11 @@ describe('BuildManager', () => {
 
       await user.clickButton('[data-testid="load-build-build-1"]')
 
-      expect(relicsStore.selectedRelics).toEqual(['relic-1', 'relic-2', 'relic-3'])
+      expect(relicsStore.selectedRelics).toEqual([
+        'relic-1',
+        'relic-2',
+        'relic-3',
+      ])
     })
 
     it('should show confirmation when loading over existing selection', async () => {
@@ -266,7 +316,10 @@ describe('BuildManager', () => {
       await user.clickButton('[data-testid="load-build-build-1"]')
 
       assert.expectElementExists('[data-testid="confirm-load-modal"]')
-      assert.expectTextContent('[data-testid="load-message"]', 'current selection will be replaced')
+      assert.expectTextContent(
+        '[data-testid="load-message"]',
+        'current selection will be replaced'
+      )
     })
 
     it('should duplicate build', async () => {
@@ -276,8 +329,10 @@ describe('BuildManager', () => {
 
       const buildsStore = useBuildsStore()
       expect(buildsStore.builds.length).toBe(2)
-      
-      const duplicatedBuild = buildsStore.builds.find(b => b.name === 'Test Build (Copy)')
+
+      const duplicatedBuild = buildsStore.builds.find(
+        b => b.name === 'Test Build (Copy)'
+      )
       expect(duplicatedBuild).toBeDefined()
       expect(duplicatedBuild?.relics).toEqual(['relic-1', 'relic-2', 'relic-3'])
     })
@@ -287,11 +342,11 @@ describe('BuildManager', () => {
     beforeEach(() => {
       const buildsStore = useBuildsStore()
       buildsStore.builds = [
-        TestDataFactory.createBuild({ 
-          id: 'build-1', 
+        TestDataFactory.createBuild({
+          id: 'build-1',
           name: 'Shareable Build',
-          isPublic: false
-        })
+          isPublic: false,
+        }),
       ]
     })
 
@@ -316,7 +371,7 @@ describe('BuildManager', () => {
 
       assert.expectElementExists('[data-testid="share-modal"]')
       assert.expectElementExists('[data-testid="share-link"]')
-      
+
       const shareLink = wrapper.find('[data-testid="share-link"]')
       expect(shareLink.attributes('value')).toContain('build-1')
     })
@@ -329,8 +384,8 @@ describe('BuildManager', () => {
       // Mock clipboard API
       Object.assign(navigator, {
         clipboard: {
-          writeText: vi.fn().mockResolvedValue(undefined)
-        }
+          writeText: vi.fn().mockResolvedValue(undefined),
+        },
       })
 
       const { wrapper, user, assert } = createTestEnvironment(BuildManager)
@@ -339,7 +394,10 @@ describe('BuildManager', () => {
       await user.clickButton('[data-testid="copy-link"]')
 
       expect(navigator.clipboard.writeText).toHaveBeenCalled()
-      assert.expectTextContent('[data-testid="copy-success"]', 'Link copied to clipboard')
+      assert.expectTextContent(
+        '[data-testid="copy-success"]',
+        'Link copied to clipboard'
+      )
     })
   })
 
@@ -347,7 +405,7 @@ describe('BuildManager', () => {
     beforeEach(() => {
       const buildsStore = useBuildsStore()
       buildsStore.builds = [
-        TestDataFactory.createBuild({ id: 'build-1', name: 'Export Build' })
+        TestDataFactory.createBuild({ id: 'build-1', name: 'Export Build' }),
       ]
     })
 
@@ -368,23 +426,29 @@ describe('BuildManager', () => {
       const { wrapper, user, assert } = createTestEnvironment(BuildManager)
 
       const importData = JSON.stringify([
-        TestDataFactory.createBuild({ name: 'Imported Build' })
+        TestDataFactory.createBuild({ name: 'Imported Build' }),
       ])
-      const mockFile = new File([importData], 'builds.json', { type: 'application/json' })
+      const mockFile = new File([importData], 'builds.json', {
+        type: 'application/json',
+      })
 
       await user.clickButton('[data-testid="import-builds"]')
       await user.uploadFile('[data-testid="import-file"]', mockFile)
       await user.clickButton('[data-testid="confirm-import"]')
 
       const buildsStore = useBuildsStore()
-      expect(buildsStore.builds.some(b => b.name === 'Imported Build')).toBe(true)
+      expect(buildsStore.builds.some(b => b.name === 'Imported Build')).toBe(
+        true
+      )
     })
 
     it('should validate import file format', async () => {
       const { wrapper, user, assert } = createTestEnvironment(BuildManager)
 
       const invalidData = 'invalid json'
-      const mockFile = new File([invalidData], 'invalid.json', { type: 'application/json' })
+      const mockFile = new File([invalidData], 'invalid.json', {
+        type: 'application/json',
+      })
 
       await user.clickButton('[data-testid="import-builds"]')
       await user.uploadFile('[data-testid="import-file"]', mockFile)
@@ -396,10 +460,10 @@ describe('BuildManager', () => {
   describe('sorting and pagination', () => {
     beforeEach(() => {
       const buildsStore = useBuildsStore()
-      const builds = Array.from({ length: 25 }, (_, i) => 
-        TestDataFactory.createBuild({ 
+      const builds = Array.from({ length: 25 }, (_, i) =>
+        TestDataFactory.createBuild({
           name: `Build ${i + 1}`,
-          createdAt: new Date(2023, 0, i + 1)
+          createdAt: new Date(2023, 0, i + 1),
         })
       )
       buildsStore.builds = builds
@@ -410,7 +474,9 @@ describe('BuildManager', () => {
 
       await user.selectOption('[data-testid="sort-by"]', 'name')
 
-      const firstBuild = wrapper.find('[data-testid^="build-item-"]:first-child')
+      const firstBuild = wrapper.find(
+        '[data-testid^="build-item-"]:first-child'
+      )
       expect(firstBuild.text()).toContain('Build 1')
     })
 
@@ -420,7 +486,9 @@ describe('BuildManager', () => {
       await user.selectOption('[data-testid="sort-by"]', 'date')
       await user.selectOption('[data-testid="sort-order"]', 'desc')
 
-      const firstBuild = wrapper.find('[data-testid^="build-item-"]:first-child')
+      const firstBuild = wrapper.find(
+        '[data-testid^="build-item-"]:first-child'
+      )
       expect(firstBuild.text()).toContain('Build 25')
     })
 
@@ -464,7 +532,7 @@ describe('BuildManager', () => {
       const buildsStore = useBuildsStore()
       buildsStore.builds = [
         TestDataFactory.createBuild({ id: 'build-1' }),
-        TestDataFactory.createBuild({ id: 'build-2' })
+        TestDataFactory.createBuild({ id: 'build-2' }),
       ]
 
       const { wrapper } = createTestEnvironment(BuildManager)

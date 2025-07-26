@@ -4,12 +4,12 @@
       {{ label }}
       <span v-if="required" class="text-red-500">*</span>
     </label>
-    
+
     <div class="input-container">
       <div v-if="$slots.prefix" class="input-prefix">
         <slot name="prefix" />
       </div>
-      
+
       <input
         :id="inputId"
         v-model="inputValue"
@@ -24,16 +24,16 @@
         @input="handleInput"
         @keydown="handleKeydown"
       />
-      
+
       <div v-if="$slots.suffix" class="input-suffix">
         <slot name="suffix" />
       </div>
-      
+
       <div v-if="loading" class="input-loading">
         <div class="spinner"></div>
       </div>
     </div>
-    
+
     <div v-if="error || hint" class="input-help">
       <span v-if="error" class="input-error">{{ error }}</span>
       <span v-else-if="hint" class="input-hint">{{ hint }}</span>
@@ -71,38 +71,40 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   type: 'text',
   size: 'md',
-  variant: 'default'
+  variant: 'default',
 })
 
 const emit = defineEmits<Emits>()
 
-const inputId = computed(() => props.id || `input-${Math.random().toString(36).substr(2, 9)}`)
+const inputId = computed(
+  () => props.id || `input-${Math.random().toString(36).substr(2, 9)}`
+)
 const isFocused = ref(false)
 
 const inputValue = computed({
   get: () => props.modelValue ?? '',
-  set: (value) => {
+  set: value => {
     const parsedValue = props.type === 'number' ? Number(value) : value
     emit('update:modelValue', parsedValue)
-  }
+  },
 })
 
 const inputClasses = computed(() => {
   const classes = ['base-input']
-  
+
   // Size classes
   classes.push(`input-${props.size}`)
-  
+
   // Variant classes
   classes.push(`input-${props.variant}`)
-  
+
   // State classes
   if (props.error) classes.push('input-error-state')
   if (props.disabled) classes.push('input-disabled')
   if (props.readonly) classes.push('input-readonly')
   if (isFocused.value) classes.push('input-focused')
   if (props.loading) classes.push('input-loading-state')
-  
+
   return classes
 })
 
@@ -301,25 +303,25 @@ const handleKeydown = (event: KeyboardEvent) => {
   .input-label {
     color: #d1d5db;
   }
-  
+
   .base-input {
     background-color: #374151;
     border-color: #4b5563;
     color: #f9fafb;
   }
-  
+
   .base-input::placeholder {
     color: #9ca3af;
   }
-  
+
   .input-filled {
     background-color: #4b5563;
   }
-  
+
   .input-filled:focus {
     background-color: #374151;
   }
-  
+
   .input-disabled,
   .input-readonly {
     background-color: #4b5563;

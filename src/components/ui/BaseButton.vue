@@ -34,26 +34,26 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
   loadingText: '読み込み中...',
   fullWidth: false,
-  rounded: false
+  rounded: false,
 })
 
 const emit = defineEmits<Emits>()
 
 const buttonClasses = computed(() => {
   const classes = ['base-button']
-  
+
   // Variant styles
   classes.push(`btn-${props.variant}`)
-  
+
   // Size styles
   classes.push(`btn-${props.size}`)
-  
+
   // State classes
   if (props.disabled) classes.push('btn-disabled')
   if (props.loading) classes.push('btn-loading')
   if (props.fullWidth) classes.push('btn-full-width')
   if (props.rounded) classes.push('btn-rounded')
-  
+
   return classes
 })
 
@@ -220,7 +220,7 @@ const handleClick = (event: MouseEvent) => {
   .btn-ghost {
     color: #d1d5db;
   }
-  
+
   .btn-ghost:hover:not(.btn-disabled):not(.btn-loading) {
     background-color: #374151;
   }

@@ -1,11 +1,11 @@
 import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
-import type { 
-  Relic, 
-  Build, 
-  CalculationResult, 
+import type {
+  Relic,
+  Build,
+  CalculationResult,
   OptimizationResult,
-  ApiResponse 
+  ApiResponse,
 } from '../../types'
 
 // Mock data
@@ -29,10 +29,10 @@ const mockRelics: Relic[] = [
         name: 'Attack Boost',
         description: '+25% attack damage',
         damageTypes: ['physical'],
-        conditions: []
-      }
+        conditions: [],
+      },
     ],
-    conflicts: []
+    conflicts: [],
   },
   {
     id: 'relic-2',
@@ -53,11 +53,11 @@ const mockRelics: Relic[] = [
         name: 'Critical Damage',
         description: '+15% critical damage',
         damageTypes: ['physical', 'magical'],
-        conditions: []
-      }
+        conditions: [],
+      },
     ],
-    conflicts: []
-  }
+    conflicts: [],
+  },
 ]
 
 const mockBuilds: Build[] = [
@@ -69,8 +69,8 @@ const mockBuilds: Build[] = [
     combatStyle: 'melee',
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
-    isPublic: false
-  }
+    isPublic: false,
+  },
 ]
 
 const mockCalculationResult: CalculationResult = {
@@ -78,7 +78,7 @@ const mockCalculationResult: CalculationResult = {
     total: 2.5,
     base: 1.0,
     synergy: 0.3,
-    conditional: 0.2
+    conditional: 0.2,
   },
   efficiency: 0.85,
   obtainmentDifficulty: 6,
@@ -89,25 +89,25 @@ const mockCalculationResult: CalculationResult = {
       contribution: 1.25,
       effects: [],
       synergies: [],
-      conditionalBonuses: []
-    }
+      conditionalBonuses: [],
+    },
   ],
   effectBreakdown: [],
   calculationSteps: [
     {
       step: 1,
       description: 'Base calculation',
-      value: 1.0
-    }
+      value: 1.0,
+    },
   ],
   metadata: {
     calculatedAt: new Date().toISOString(),
     clientSide: false,
     performance: {
       duration: 50,
-      relicCount: 2
-    }
-  }
+      relicCount: 2,
+    },
+  },
 }
 
 const mockOptimizationResult: OptimizationResult = {
@@ -120,14 +120,14 @@ const mockOptimizationResult: OptimizationResult = {
       suggestedMultiplier: 3.0,
       improvement: 0.5,
       reason: 'Increases overall damage output',
-      confidence: 0.9
-    }
+      confidence: 0.9,
+    },
   ],
   analysis: {
     currentPower: 2.5,
     maxPotential: 3.5,
-    efficiency: 0.85
-  }
+    efficiency: 0.85,
+  },
 }
 
 // API handlers
@@ -143,9 +143,9 @@ export const handlers = [
           total_pages: 1,
           total_count: mockRelics.length,
           has_next_page: false,
-          has_prev_page: false
-        }
-      }
+          has_prev_page: false,
+        },
+      },
     }
     return HttpResponse.json(response)
   }),
@@ -153,7 +153,7 @@ export const handlers = [
   http.get('/api/v1/relics/:id', ({ params }) => {
     const { id } = params
     const relic = mockRelics.find(r => r.id === id)
-    
+
     if (!relic) {
       return HttpResponse.json(
         { error: { message: 'Relic not found' } },
@@ -162,14 +162,14 @@ export const handlers = [
     }
 
     const response: ApiResponse<Relic> = {
-      data: relic
+      data: relic,
     }
     return HttpResponse.json(response)
   }),
 
   http.post('/api/v1/relics/calculate', async ({ request }) => {
-    const body = await request.json() as any
-    
+    const body = (await request.json()) as any
+
     if (!body.selected_relic_ids || !Array.isArray(body.selected_relic_ids)) {
       return HttpResponse.json(
         { error: { message: 'selected_relic_ids is required' } },
@@ -185,14 +185,14 @@ export const handlers = [
     }
 
     const response: ApiResponse<{ calculation: CalculationResult }> = {
-      data: { calculation: mockCalculationResult }
+      data: { calculation: mockCalculationResult },
     }
     return HttpResponse.json(response)
   }),
 
   http.post('/api/v1/relics/validate', async ({ request }) => {
-    const body = await request.json() as any
-    
+    const body = (await request.json()) as any
+
     const response: ApiResponse<{
       valid: boolean
       errors: string[]
@@ -203,18 +203,20 @@ export const handlers = [
         valid: true,
         errors: [],
         warnings: [],
-        suggestions: ['Consider adding a defensive relic for balance']
-      }
+        suggestions: ['Consider adding a defensive relic for balance'],
+      },
     }
     return HttpResponse.json(response)
   }),
 
   http.post('/api/v1/relics/compare', async ({ request }) => {
-    const body = await request.json() as any
-    
+    const body = (await request.json()) as any
+
     if (!body.combinations || body.combinations.length < 2) {
       return HttpResponse.json(
-        { error: { message: 'At least 2 combinations required for comparison' } },
+        {
+          error: { message: 'At least 2 combinations required for comparison' },
+        },
         { status: 400 }
       )
     }
@@ -228,34 +230,34 @@ export const handlers = [
         comparisons: body.combinations.map((combo: any, index: number) => ({
           name: combo.name,
           attack_multipliers: {
-            total: 2.0 + index * 0.5
+            total: 2.0 + index * 0.5,
           },
-          efficiency: 0.8 + index * 0.1
+          efficiency: 0.8 + index * 0.1,
         })),
         winner: {
           name: body.combinations[0].name,
-          attack_multipliers: { total: 2.5 }
+          attack_multipliers: { total: 2.5 },
         },
         analysis: {
           performance_gap: 0.5,
           trade_offs: [],
-          recommendations: []
-        }
-      }
+          recommendations: [],
+        },
+      },
     }
     return HttpResponse.json(response)
   }),
 
   http.get('/api/v1/relics/categories', () => {
     const response: ApiResponse<string[]> = {
-      data: ['Attack', 'Defense', 'Utility', 'Critical', 'Elemental']
+      data: ['Attack', 'Defense', 'Utility', 'Critical', 'Elemental'],
     }
     return HttpResponse.json(response)
   }),
 
   http.get('/api/v1/relics/rarities', () => {
     const response: ApiResponse<string[]> = {
-      data: ['common', 'rare', 'epic', 'legendary']
+      data: ['common', 'rare', 'epic', 'legendary'],
     }
     return HttpResponse.json(response)
   }),
@@ -271,9 +273,9 @@ export const handlers = [
           total_pages: 1,
           total_count: mockBuilds.length,
           has_next_page: false,
-          has_prev_page: false
-        }
-      }
+          has_prev_page: false,
+        },
+      },
     }
     return HttpResponse.json(response)
   }),
@@ -281,7 +283,7 @@ export const handlers = [
   http.get('/api/v1/builds/:id', ({ params }) => {
     const { id } = params
     const build = mockBuilds.find(b => b.id === id)
-    
+
     if (!build) {
       return HttpResponse.json(
         { error: { message: 'Build not found' } },
@@ -290,14 +292,14 @@ export const handlers = [
     }
 
     const response: ApiResponse<Build> = {
-      data: build
+      data: build,
     }
     return HttpResponse.json(response)
   }),
 
   http.post('/api/v1/builds', async ({ request }) => {
-    const body = await request.json() as any
-    
+    const body = (await request.json()) as any
+
     const newBuild: Build = {
       id: `build-${Date.now()}`,
       name: body.name || 'New Build',
@@ -306,19 +308,19 @@ export const handlers = [
       combatStyle: body.combat_style || 'melee',
       createdAt: new Date(),
       updatedAt: new Date(),
-      isPublic: body.is_public || false
+      isPublic: body.is_public || false,
     }
 
     const response: ApiResponse<Build> = {
-      data: newBuild
+      data: newBuild,
     }
     return HttpResponse.json(response, { status: 201 })
   }),
 
   http.put('/api/v1/builds/:id', async ({ params, request }) => {
     const { id } = params
-    const body = await request.json() as any
-    
+    const body = (await request.json()) as any
+
     const existingBuild = mockBuilds.find(b => b.id === id)
     if (!existingBuild) {
       return HttpResponse.json(
@@ -331,11 +333,11 @@ export const handlers = [
       ...existingBuild,
       ...body,
       id: id as string,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     }
 
     const response: ApiResponse<Build> = {
-      data: updatedBuild
+      data: updatedBuild,
     }
     return HttpResponse.json(response)
   }),
@@ -343,7 +345,7 @@ export const handlers = [
   http.delete('/api/v1/builds/:id', ({ params }) => {
     const { id } = params
     const buildIndex = mockBuilds.findIndex(b => b.id === id)
-    
+
     if (buildIndex === -1) {
       return HttpResponse.json(
         { error: { message: 'Build not found' } },
@@ -356,25 +358,25 @@ export const handlers = [
 
   // Optimization endpoints
   http.post('/api/v1/optimization/suggest', async ({ request }) => {
-    const body = await request.json() as any
-    
+    const body = (await request.json()) as any
+
     const response: ApiResponse<OptimizationResult> = {
-      data: mockOptimizationResult
+      data: mockOptimizationResult,
     }
     return HttpResponse.json(response)
   }),
 
   http.post('/api/v1/optimization/analyze', async ({ request }) => {
-    const body = await request.json() as any
-    
+    const body = (await request.json()) as any
+
     const response: ApiResponse<any> = {
       data: {
         analysis: {
           strengths: ['High attack power', 'Good synergy'],
           weaknesses: ['Low defense', 'High difficulty'],
-          recommendations: ['Add defensive relic', 'Consider elemental damage']
-        }
-      }
+          recommendations: ['Add defensive relic', 'Consider elemental damage'],
+        },
+      },
     }
     return HttpResponse.json(response)
   }),

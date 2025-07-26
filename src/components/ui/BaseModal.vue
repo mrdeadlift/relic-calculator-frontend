@@ -4,11 +4,11 @@
       <div v-if="show" class="modal-overlay" @click="handleOverlayClick">
         <div
           :class="modalClasses"
-          @click.stop
           role="dialog"
           :aria-labelledby="titleId"
           :aria-describedby="contentId"
           aria-modal="true"
+          @click.stop
         >
           <!-- Header -->
           <header v-if="$slots.header || title" class="modal-header">
@@ -20,8 +20,8 @@
             <button
               v-if="closable"
               class="modal-close-btn"
-              @click="handleClose"
               :aria-label="closeAriaLabel"
+              @click="handleClose"
             >
               ✕
             </button>
@@ -74,24 +74,28 @@ const props = withDefaults(defineProps<Props>(), {
   persistent: false,
   centered: true,
   scrollable: false,
-  closeAriaLabel: 'モーダルを閉じる'
+  closeAriaLabel: 'モーダルを閉じる',
 })
 
 const emit = defineEmits<Emits>()
 
-const titleId = computed(() => `modal-title-${Math.random().toString(36).substr(2, 9)}`)
-const contentId = computed(() => `modal-content-${Math.random().toString(36).substr(2, 9)}`)
+const titleId = computed(
+  () => `modal-title-${Math.random().toString(36).substr(2, 9)}`
+)
+const contentId = computed(
+  () => `modal-content-${Math.random().toString(36).substr(2, 9)}`
+)
 
 const modalClasses = computed(() => {
   const classes = ['modal-dialog']
-  
+
   // Size classes
   classes.push(`modal-${props.size}`)
-  
+
   // Position classes
   if (props.centered) classes.push('modal-centered')
   if (props.scrollable) classes.push('modal-scrollable')
-  
+
   return classes
 })
 
@@ -124,18 +128,21 @@ const unlockBodyScroll = () => {
 }
 
 // Watch for show prop changes
-watch(() => props.show, async (newShow) => {
-  if (newShow) {
-    lockBodyScroll()
-    document.addEventListener('keydown', handleKeydown)
-    await nextTick()
-    emit('opened')
-  } else {
-    unlockBodyScroll()
-    document.removeEventListener('keydown', handleKeydown)
-    emit('closed')
+watch(
+  () => props.show,
+  async newShow => {
+    if (newShow) {
+      lockBodyScroll()
+      document.addEventListener('keydown', handleKeydown)
+      await nextTick()
+      emit('opened')
+    } else {
+      unlockBodyScroll()
+      document.removeEventListener('keydown', handleKeydown)
+      emit('closed')
+    }
   }
-})
+)
 
 // Cleanup on unmount
 import { onUnmounted } from 'vue'
@@ -163,7 +170,9 @@ onUnmounted(() => {
 .modal-dialog {
   background-color: white;
   border-radius: 0.5rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 2rem);
@@ -294,14 +303,14 @@ onUnmounted(() => {
     padding: 0;
     align-items: flex-end;
   }
-  
+
   .modal-dialog {
     width: 100%;
     max-height: 90vh;
     border-radius: 0.5rem 0.5rem 0 0;
     margin: 0;
   }
-  
+
   .modal-full {
     height: 100vh;
     border-radius: 0;
@@ -313,20 +322,20 @@ onUnmounted(() => {
   .modal-dialog {
     background-color: #1f2937;
   }
-  
+
   .modal-title {
     color: #f9fafb;
   }
-  
+
   .modal-header,
   .modal-footer {
     border-color: #374151;
   }
-  
+
   .modal-close-btn {
     color: #9ca3af;
   }
-  
+
   .modal-close-btn:hover {
     background-color: #374151;
     color: #d1d5db;

@@ -56,27 +56,27 @@ const props = withDefaults(defineProps<Props>(), {
   clickable: false,
   loading: false,
   disabled: false,
-  rounded: true
+  rounded: true,
 })
 
 const emit = defineEmits<Emits>()
 
 const cardClasses = computed(() => {
   const classes = ['base-card']
-  
+
   // Variant classes
   classes.push(`card-${props.variant}`)
-  
+
   // Size classes
   classes.push(`card-${props.size}`)
-  
+
   // State classes
   if (props.hover) classes.push('card-hover')
   if (props.clickable) classes.push('card-clickable')
   if (props.loading) classes.push('card-loading')
   if (props.disabled) classes.push('card-disabled')
   if (props.rounded) classes.push('card-rounded')
-  
+
   return classes
 })
 
@@ -118,7 +118,9 @@ const handleClick = (event: MouseEvent) => {
 
 .card-elevated {
   border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .card-filled {
@@ -142,7 +144,9 @@ const handleClick = (event: MouseEvent) => {
 /* States */
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .card-clickable {
@@ -274,26 +278,26 @@ const handleClick = (event: MouseEvent) => {
   .base-card {
     background-color: #1f2937;
   }
-  
+
   .card-default,
   .card-outlined,
   .card-elevated {
     border-color: #374151;
   }
-  
+
   .card-filled {
     background-color: #374151;
   }
-  
+
   .card-title {
     color: #f9fafb;
   }
-  
+
   .card-header,
   .card-footer {
     border-color: #374151;
   }
-  
+
   .card-loading::before {
     background-color: rgba(31, 41, 55, 0.8);
   }
@@ -307,11 +311,11 @@ const handleClick = (event: MouseEvent) => {
     padding-left: 0.75rem;
     padding-right: 0.75rem;
   }
-  
+
   .card-padding-md {
     padding: 0.75rem;
   }
-  
+
   .card-padding-lg {
     padding: 1rem;
   }

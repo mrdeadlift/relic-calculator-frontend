@@ -14,70 +14,66 @@
           <p v-if="subtitle" class="app-subtitle">{{ subtitle }}</p>
         </div>
       </div>
-      
+
       <!-- Navigation menu -->
       <nav class="header-nav">
         <ul class="nav-list">
-          <li 
-            v-for="item in navigationItems" 
-            :key="item.id"
-            class="nav-item"
-          >
+          <li v-for="item in navigationItems" :key="item.id" class="nav-item">
             <button
               :class="['nav-link', { active: currentView === item.id }]"
               @click="$emit('navigate', item.id)"
             >
-              <component v-if="item.icon" :is="item.icon" class="nav-icon" />
+              <component :is="item.icon" v-if="item.icon" class="nav-icon" />
               {{ item.label }}
             </button>
           </li>
         </ul>
       </nav>
-      
+
       <!-- Action buttons -->
       <div class="header-actions">
-        <button 
+        <button
           v-if="showResetButton"
           class="action-btn secondary"
-          @click="$emit('reset')"
           title="Reset all selections"
+          @click="$emit('reset')"
         >
           <ResetIcon />
           <span class="btn-text">Reset</span>
         </button>
-        
-        <button 
+
+        <button
           v-if="showSaveButton"
           class="action-btn primary"
-          @click="$emit('save')"
           title="Save current build"
+          @click="$emit('save')"
         >
           <SaveIcon />
           <span class="btn-text">Save</span>
         </button>
-        
+
         <!-- Mobile menu toggle -->
-        <button 
+        <button
           class="mobile-menu-toggle"
-          @click="toggleMobileMenu"
           aria-label="Toggle navigation menu"
+          @click="toggleMobileMenu"
         >
           <MenuIcon v-if="!mobileMenuOpen" />
           <CloseIcon v-else />
         </button>
       </div>
     </div>
-    
+
     <!-- Mobile navigation overlay -->
-    <div 
-      v-if="mobileMenuOpen" 
+    <div
+      v-if="mobileMenuOpen"
       class="mobile-nav-overlay"
       @click="toggleMobileMenu"
     >
       <nav class="mobile-nav" @click.stop>
         <ul class="mobile-nav-list">
-          <li 
-            v-for="item in navigationItems" 
+          <li
+            v-for="item in navigationItems"
             :key="item.id"
             class="mobile-nav-item"
           >
@@ -85,14 +81,14 @@
               :class="['mobile-nav-link', { active: currentView === item.id }]"
               @click="handleMobileNavigation(item.id)"
             >
-              <component v-if="item.icon" :is="item.icon" class="nav-icon" />
+              <component :is="item.icon" v-if="item.icon" class="nav-icon" />
               {{ item.label }}
             </button>
           </li>
         </ul>
-        
+
         <div class="mobile-actions">
-          <button 
+          <button
             v-if="showResetButton"
             class="mobile-action-btn secondary"
             @click="handleMobileAction('reset')"
@@ -100,8 +96,8 @@
             <ResetIcon />
             Reset
           </button>
-          
-          <button 
+
+          <button
             v-if="showSaveButton"
             class="mobile-action-btn primary"
             @click="handleMobileAction('save')"
@@ -142,10 +138,10 @@ const props = withDefaults(defineProps<Props>(), {
     { id: 'calculator', label: 'Calculator', icon: 'CalculatorIcon' },
     { id: 'builds', label: 'Builds', icon: 'BuildsIcon' },
     { id: 'history', label: 'History', icon: 'HistoryIcon' },
-    { id: 'analytics', label: 'Analytics', icon: 'AnalyticsIcon' }
+    { id: 'analytics', label: 'Analytics', icon: 'AnalyticsIcon' },
   ],
   showResetButton: true,
-  showSaveButton: true
+  showSaveButton: true,
 })
 
 // Emits
@@ -183,7 +179,7 @@ const RelicIcon = {
     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2l3.09 6.26L22 9l-5 4.87L18.18 22 12 18.77 5.82 22 7 13.87 2 9l6.91-.74L12 2z"/>
     </svg>
-  `
+  `,
 }
 
 const MenuIcon = {
@@ -191,7 +187,7 @@ const MenuIcon = {
     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
       <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
     </svg>
-  `
+  `,
 }
 
 const CloseIcon = {
@@ -199,7 +195,7 @@ const CloseIcon = {
     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
       <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
     </svg>
-  `
+  `,
 }
 
 const SaveIcon = {
@@ -207,7 +203,7 @@ const SaveIcon = {
     <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
       <path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v7.293l2.646-2.647a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L7.5 9.293V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1H2z"/>
     </svg>
-  `
+  `,
 }
 
 const ResetIcon = {
@@ -216,7 +212,7 @@ const ResetIcon = {
       <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/>
       <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/>
     </svg>
-  `
+  `,
 }
 </script>
 
@@ -502,8 +498,12 @@ const ResetIcon = {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideDown {
@@ -523,30 +523,30 @@ const ResetIcon = {
     padding: 1rem;
     gap: 1rem;
   }
-  
+
   .app-title {
     font-size: 1.25rem;
   }
-  
+
   .app-subtitle {
     font-size: 0.8rem;
   }
-  
+
   .header-nav {
     display: none;
   }
-  
+
   .action-btn .btn-text {
     display: none;
   }
-  
+
   .action-btn {
     padding: 0.5rem;
     width: 40px;
     height: 40px;
     justify-content: center;
   }
-  
+
   .mobile-menu-toggle {
     display: flex;
   }
@@ -556,11 +556,11 @@ const ResetIcon = {
   .header-container {
     padding: 0.75rem;
   }
-  
+
   .brand-text {
     display: none;
   }
-  
+
   .logo {
     width: 32px;
     height: 32px;
