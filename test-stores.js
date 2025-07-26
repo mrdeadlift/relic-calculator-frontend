@@ -14,7 +14,7 @@ try {
 
   // Try to import stores
   import('./src/stores/relics.js')
-    .then(module => {
+    .then(() => {
       console.log('✓ Relics store import successful')
     })
     .catch(err => {
@@ -22,7 +22,7 @@ try {
     })
 
   import('./src/stores/builds.js')
-    .then(module => {
+    .then(() => {
       console.log('✓ Builds store import successful')
     })
     .catch(err => {
@@ -30,7 +30,7 @@ try {
     })
 
   import('./src/stores/calculation.js')
-    .then(module => {
+    .then(() => {
       console.log('✓ Calculation store import successful')
     })
     .catch(err => {

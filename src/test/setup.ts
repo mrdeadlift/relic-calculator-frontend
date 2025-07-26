@@ -1,4 +1,4 @@
-import { beforeAll, afterEach, afterAll } from 'vitest'
+import { beforeAll, afterEach, afterAll, vi } from 'vitest'
 import { server } from './mocks/server'
 import { createPinia, setActivePinia } from 'pinia'
 
@@ -22,7 +22,7 @@ afterAll(() => {
 
 // Global test utilities
 global.ResizeObserver = class ResizeObserver {
-  constructor(cb: any) {
+  constructor(_cb: ResizeObserverCallback) {
     // Mock implementation
   }
   observe() {
@@ -38,7 +38,11 @@ global.ResizeObserver = class ResizeObserver {
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
-  constructor(cb: any) {
+  root = null
+  rootMargin = ''
+  thresholds: number[] = []
+
+  constructor(_cb: IntersectionObserverCallback) {
     // Mock implementation
   }
   observe() {
@@ -49,6 +53,9 @@ global.IntersectionObserver = class IntersectionObserver {
   }
   disconnect() {
     // Mock implementation
+  }
+  takeRecords(): IntersectionObserverEntry[] {
+    return []
   }
 }
 
@@ -74,7 +81,7 @@ const localStorageMock = {
   removeItem: vi.fn(),
   clear: vi.fn(),
 }
-global.localStorage = localStorageMock as any
+global.localStorage = localStorageMock as Storage
 
 // Mock sessionStorage
 const sessionStorageMock = {
@@ -83,4 +90,4 @@ const sessionStorageMock = {
   removeItem: vi.fn(),
   clear: vi.fn(),
 }
-global.sessionStorage = sessionStorageMock as any
+global.sessionStorage = sessionStorageMock as Storage

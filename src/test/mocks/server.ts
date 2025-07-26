@@ -65,10 +65,10 @@ const mockBuilds: Build[] = [
     id: 'build-1',
     name: 'Test Melee Build',
     description: 'A test build for melee combat',
-    relics: ['relic-1', 'relic-2'],
+    relics: [mockRelics[0], mockRelics[0]],
     combatStyle: 'melee',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
+    createdAt: '2024-01-01',
+    updatedAt: '2024-01-01',
     isPublic: false,
   },
 ]
@@ -136,6 +136,7 @@ export const handlers = [
   http.get('/api/v1/relics', () => {
     const response: ApiResponse<Relic[]> = {
       data: mockRelics,
+      success: true,
       meta: {
         pagination: {
           current_page: 1,
@@ -163,6 +164,7 @@ export const handlers = [
 
     const response: ApiResponse<Relic> = {
       data: relic,
+      success: true,
     }
     return HttpResponse.json(response)
   }),
@@ -186,6 +188,7 @@ export const handlers = [
 
     const response: ApiResponse<{ calculation: CalculationResult }> = {
       data: { calculation: mockCalculationResult },
+      success: true,
     }
     return HttpResponse.json(response)
   }),
@@ -205,6 +208,7 @@ export const handlers = [
         warnings: [],
         suggestions: ['Consider adding a defensive relic for balance'],
       },
+      success: true,
     }
     return HttpResponse.json(response)
   }),
@@ -244,6 +248,7 @@ export const handlers = [
           recommendations: [],
         },
       },
+      success: true,
     }
     return HttpResponse.json(response)
   }),
@@ -251,6 +256,7 @@ export const handlers = [
   http.get('/api/v1/relics/categories', () => {
     const response: ApiResponse<string[]> = {
       data: ['Attack', 'Defense', 'Utility', 'Critical', 'Elemental'],
+      success: true,
     }
     return HttpResponse.json(response)
   }),
@@ -258,6 +264,7 @@ export const handlers = [
   http.get('/api/v1/relics/rarities', () => {
     const response: ApiResponse<string[]> = {
       data: ['common', 'rare', 'epic', 'legendary'],
+      success: true,
     }
     return HttpResponse.json(response)
   }),
@@ -266,6 +273,7 @@ export const handlers = [
   http.get('/api/v1/builds', () => {
     const response: ApiResponse<Build[]> = {
       data: mockBuilds,
+      success: true,
       meta: {
         pagination: {
           current_page: 1,
@@ -293,6 +301,7 @@ export const handlers = [
 
     const response: ApiResponse<Build> = {
       data: build,
+      success: true,
     }
     return HttpResponse.json(response)
   }),
@@ -313,6 +322,7 @@ export const handlers = [
 
     const response: ApiResponse<Build> = {
       data: newBuild,
+      success: true,
     }
     return HttpResponse.json(response, { status: 201 })
   }),
@@ -338,6 +348,7 @@ export const handlers = [
 
     const response: ApiResponse<Build> = {
       data: updatedBuild,
+      success: true,
     }
     return HttpResponse.json(response)
   }),
@@ -362,6 +373,7 @@ export const handlers = [
 
     const response: ApiResponse<OptimizationResult> = {
       data: mockOptimizationResult,
+      success: true,
     }
     return HttpResponse.json(response)
   }),
@@ -377,6 +389,7 @@ export const handlers = [
           recommendations: ['Add defensive relic', 'Consider elemental damage'],
         },
       },
+      success: true,
     }
     return HttpResponse.json(response)
   }),
