@@ -150,7 +150,7 @@ const handleExportResult = (format: string, data: any) => {
     const filename = `calculation-result-${Date.now()}.${format}`
     downloadFile(data, filename, getContentType(format))
     addNotification('success', 'エクスポートが完了しました')
-  } catch (error) {
+  } catch {
     addNotification('error', 'エクスポートに失敗しました')
   }
 }
@@ -175,7 +175,7 @@ const applySuggestion = async (suggestion: OptimizationSuggestion) => {
     }
 
     addNotification('success', '最適化提案を適用しました')
-  } catch (error) {
+  } catch {
     addNotification('error', '最適化提案の適用に失敗しました')
   }
 }
@@ -243,13 +243,14 @@ const applyTheme = () => {
       html.classList.remove('dark')
       isDarkMode.value = false
       break
-    case 'system':
+    case 'system': {
       const prefersDark = window.matchMedia(
         '(prefers-color-scheme: dark)'
       ).matches
       html.classList.toggle('dark', prefersDark)
       isDarkMode.value = prefersDark
       break
+    }
   }
 
   localStorage.setItem('theme-preference', themePreference.value)
@@ -342,7 +343,7 @@ onMounted(async () => {
     await Promise.all([initializeRelics(), initializeBuilds()])
 
     addNotification('success', 'アプリケーションの初期化が完了しました')
-  } catch (error) {
+  } catch {
     addNotification('error', 'アプリケーションの初期化に失敗しました')
   } finally {
     globalLoading.value = false

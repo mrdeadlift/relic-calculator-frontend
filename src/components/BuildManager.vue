@@ -577,7 +577,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import type { Build, Relic } from '../types/build'
 import { useBuildManager } from '../composables/useBuildManager'
 import { useToast } from '../composables/useToast'
@@ -608,7 +608,7 @@ const {
   savedBuilds,
   loading,
   saveBuild: saveBuildToStorage,
-  loadBuild: loadBuildFromStorage,
+  // loadBuild: loadBuildFromStorage,
   deleteBuild: deleteBuildFromStorage,
   duplicateBuild: duplicateBuildInStorage,
 } = useBuildManager()
@@ -768,7 +768,7 @@ const saveBuild = async () => {
     success(`Build "${buildData.name}" saved successfully`)
     showSaveDialog.value = false
     resetSaveForm()
-  } catch (err) {
+  } catch {
     error('Failed to save build')
   }
 }
@@ -789,24 +789,24 @@ const duplicateBuild = async (build: Build) => {
   try {
     const duplicated = await duplicateBuildInStorage(build.id)
     success(`Build duplicated as "${duplicated.name}"`)
-  } catch (err) {
+  } catch {
     error('Failed to duplicate build')
   }
 }
 
 const deleteBuild = async (buildId: string) => {
-  if (!confirm('Are you sure you want to delete this build?')) return
+  if (!window.confirm('Are you sure you want to delete this build?')) return
 
   try {
     await deleteBuildFromStorage(buildId)
     success('Build deleted successfully')
     contextMenu.value.show = false
-  } catch (err) {
+  } catch {
     error('Failed to delete build')
   }
 }
 
-const shareBuild = (build: Build) => {
+const shareBuild = (_build: Build) => {
   // Implementation for sharing build
   info('Share functionality coming soon')
 }
@@ -861,7 +861,7 @@ const validateImport = () => {
     }
 
     success('Import data validated successfully')
-  } catch (err) {
+  } catch {
     error('Invalid import data')
     importPreview.value = null
   }

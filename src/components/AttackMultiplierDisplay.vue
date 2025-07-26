@@ -265,9 +265,9 @@ interface Props {
 
 // Emits
 interface Emits {
-  (e: 'recalculate'): void
-  (e: 'export', format: string, data: any): void
-  (e: 'compare', resultId: string): void
+  (_e: 'recalculate'): void
+  (_e: 'export', _format: string, _data: any): void
+  (_e: 'compare', _resultId: string): void
 }
 
 const props = withDefaults(defineProps<Props>(), {

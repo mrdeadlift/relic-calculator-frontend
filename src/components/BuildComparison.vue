@@ -590,7 +590,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, reactive } from 'vue'
+import { ref, computed } from 'vue'
 import type { Build } from '../types/build'
 import type { OptimizationSuggestion } from '../types/calculation'
 import { useBuildManager } from '../composables/useBuildManager'
@@ -618,7 +618,7 @@ defineEmits<{
 }>()
 
 // Composables
-const { savedBuilds } = useBuildManager()
+const { savedBuilds: managerSavedBuilds } = useBuildManager()
 const { generateOptimizationSuggestions } = useOptimization()
 const { success, error, info } = useToast()
 
@@ -720,7 +720,7 @@ const chartableMetrics = computed(() =>
 )
 
 const filteredAvailableBuilds = computed(() => {
-  let builds = props.savedBuilds || savedBuilds.value
+  let builds = props.savedBuilds || managerSavedBuilds.value
 
   // Filter out already selected builds
   const selectedIds = comparisonBuilds.value.map(b => b.id)
@@ -821,7 +821,7 @@ const optimizeBuilds = () => {
     const suggestions = generateOptimizationSuggestions(comparisonBuilds.value)
     optimizationSuggestions.value = suggestions
     success(`Generated ${suggestions.length} optimization suggestions`)
-  } catch (err) {
+  } catch {
     error('Failed to generate optimization suggestions')
   }
 }
@@ -899,9 +899,9 @@ const formatMetricValue = (build: Build, metric: any): string => {
 }
 
 const formatDifference = (
-  build: Build,
-  baseBuild: Build,
-  metric: any
+  _build: Build,
+  _baseBuild: Build,
+  _metric: any
 ): string => {
   // Implementation for showing differences
   return '+0.5×' // Placeholder

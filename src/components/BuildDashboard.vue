@@ -192,7 +192,7 @@
                   </div>
                   <div class="relic-icons">
                     <div
-                      v-for="(relicId, index) in build.relicIds.slice(0, 6)"
+                      v-for="relicId in build.relicIds.slice(0, 6)"
                       :key="relicId"
                       class="relic-icon"
                       :title="getRelicName(relicId)"
@@ -356,13 +356,13 @@ interface Props {
 
 // Emits
 interface Emits {
-  (e: 'build-selected', build: Build): void
-  (e: 'build-created', build: Build): void
-  (e: 'build-updated', build: Build): void
-  (e: 'build-deleted', buildId: string): void
+  (_e: 'build-selected', _build: Build): void
+  (_e: 'build-created', _build: Build): void
+  (_e: 'build-updated', _build: Build): void
+  (_e: 'build-deleted', _buildId: string): void
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 // Composables
@@ -372,7 +372,7 @@ const {
   error,
   fetchBuilds,
   createBuild,
-  updateBuild,
+  // updateBuild,
   deleteBuild,
   toggleFavorite,
 } = useBuilds()
@@ -433,10 +433,11 @@ const filteredBuilds = computed(() => {
       case 'favorites':
         filtered = filtered.filter(build => build.isFavorite)
         break
-      case 'recent':
+      case 'recent': {
         const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
         filtered = filtered.filter(build => new Date(build.updatedAt) > weekAgo)
         break
+      }
       case 'high-multiplier':
         filtered = filtered.filter(build => build.attackMultiplier >= 3.0)
         break
@@ -618,7 +619,7 @@ const handleExportBuild = (build: Build) => {
 }
 
 const handleDeleteBuild = async (build: Build) => {
-  if (confirm(`「${build.name}」を削除してもよろしいですか？`)) {
+  if (window.confirm(`「${build.name}」を削除してもよろしいですか？`)) {
     try {
       await deleteBuild(build.id)
       emit('build-deleted', build.id)
