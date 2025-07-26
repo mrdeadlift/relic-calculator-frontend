@@ -8,18 +8,20 @@
             Conditional Effects Settings
           </h3>
           <div class="panel-controls">
-            <button 
-              @click="toggleAllEffects"
+            <button
               class="control-btn"
-              :title="allEffectsActive ? 'Disable all effects' : 'Enable all effects'"
+              :title="
+                allEffectsActive ? 'Disable all effects' : 'Enable all effects'
+              "
+              @click="toggleAllEffects"
             >
               <ToggleIcon />
               {{ allEffectsActive ? 'Disable All' : 'Enable All' }}
             </button>
-            <button 
-              @click="resetAllEffects"
+            <button
               class="control-btn"
               title="Reset all effects to default"
+              @click="resetAllEffects"
             >
               <ResetIcon />
               Reset All
@@ -37,16 +39,16 @@
 
       <!-- Effects list -->
       <div v-else class="effects-list">
-        <div 
-          v-for="effect in conditionalEffects" 
+        <div
+          v-for="effect in conditionalEffects"
           :key="effect.id"
           :class="[
             'effect-item',
             `rarity-${effect.rarity}`,
-            { 
-              'active': effect.condition.active,
-              'disabled': !effect.condition.active 
-            }
+            {
+              active: effect.condition.active,
+              disabled: !effect.condition.active,
+            },
           ]"
         >
           <!-- Effect header -->
@@ -60,14 +62,14 @@
                 </span>
               </div>
             </div>
-            
+
             <div class="effect-toggle">
               <label class="toggle-switch">
-                <input 
+                <input
                   type="checkbox"
                   :checked="effect.condition.active"
-                  @change="toggleEffect(effect.id, $event.target.checked)"
                   class="toggle-input"
+                  @change="toggleEffect(effect.id, $event.target.checked)"
                 />
                 <span class="toggle-slider"></span>
               </label>
@@ -82,78 +84,109 @@
           <!-- Condition configuration -->
           <div v-if="effect.condition.active" class="condition-config">
             <!-- Boolean condition -->
-            <div v-if="effect.condition.type === 'boolean'" class="boolean-condition">
-              <div class="condition-label">{{ effect.condition.description }}</div>
+            <div
+              v-if="effect.condition.type === 'boolean'"
+              class="boolean-condition"
+            >
+              <div class="condition-label">
+                {{ effect.condition.description }}
+              </div>
               <div class="boolean-options">
                 <label class="boolean-option">
-                  <input 
+                  <input
                     type="radio"
                     :name="`condition-${effect.id}`"
                     :value="true"
                     :checked="effect.condition.value === true"
-                    @change="updateCondition(effect.id, true)"
                     class="radio-input"
+                    @change="updateCondition(effect.id, true)"
                   />
                   <span class="radio-custom"></span>
-                  <span class="option-text">{{ effect.condition.trueLabel || 'Yes' }}</span>
+                  <span class="option-text">{{
+                    effect.condition.trueLabel || 'Yes'
+                  }}</span>
                 </label>
                 <label class="boolean-option">
-                  <input 
+                  <input
                     type="radio"
                     :name="`condition-${effect.id}`"
                     :value="false"
                     :checked="effect.condition.value === false"
-                    @change="updateCondition(effect.id, false)"
                     class="radio-input"
+                    @change="updateCondition(effect.id, false)"
                   />
                   <span class="radio-custom"></span>
-                  <span class="option-text">{{ effect.condition.falseLabel || 'No' }}</span>
+                  <span class="option-text">{{
+                    effect.condition.falseLabel || 'No'
+                  }}</span>
                 </label>
               </div>
             </div>
 
             <!-- Numeric condition (slider) -->
-            <div v-else-if="effect.condition.type === 'numeric'" class="numeric-condition">
+            <div
+              v-else-if="effect.condition.type === 'numeric'"
+              class="numeric-condition"
+            >
               <div class="condition-header">
-                <span class="condition-label">{{ effect.condition.description }}</span>
+                <span class="condition-label">{{
+                  effect.condition.description
+                }}</span>
                 <span class="current-value">
-                  {{ formatNumericValue(effect.condition.value, effect.condition.unit) }}
+                  {{
+                    formatNumericValue(
+                      effect.condition.value,
+                      effect.condition.unit
+                    )
+                  }}
                 </span>
               </div>
-              
+
               <div class="slider-container">
-                <input 
+                <input
                   type="range"
                   :min="effect.condition.min"
                   :max="effect.condition.max"
                   :step="effect.condition.step || 1"
                   :value="effect.condition.value"
-                  @input="updateCondition(effect.id, Number($event.target.value))"
                   class="condition-slider"
+                  @input="
+                    updateCondition(effect.id, Number($event.target.value))
+                  "
                 />
                 <div class="slider-labels">
                   <span class="min-label">
-                    {{ formatNumericValue(effect.condition.min, effect.condition.unit) }}
+                    {{
+                      formatNumericValue(
+                        effect.condition.min,
+                        effect.condition.unit
+                      )
+                    }}
                   </span>
                   <span class="max-label">
-                    {{ formatNumericValue(effect.condition.max, effect.condition.unit) }}
+                    {{
+                      formatNumericValue(
+                        effect.condition.max,
+                        effect.condition.unit
+                      )
+                    }}
                   </span>
                 </div>
               </div>
-              
+
               <!-- Preset values -->
               <div v-if="effect.condition.presets" class="preset-values">
                 <div class="preset-label">Quick values:</div>
                 <div class="preset-buttons">
-                  <button 
+                  <button
                     v-for="preset in effect.condition.presets"
                     :key="preset.value"
-                    @click="updateCondition(effect.id, preset.value)"
                     :class="[
                       'preset-btn',
-                      { 'active': effect.condition.value === preset.value }
+                      { active: effect.condition.value === preset.value },
                     ]"
                     :title="preset.description"
+                    @click="updateCondition(effect.id, preset.value)"
                   >
                     {{ preset.label }}
                   </button>
@@ -162,16 +195,21 @@
             </div>
 
             <!-- Select condition -->
-            <div v-else-if="effect.condition.type === 'select'" class="select-condition">
-              <div class="condition-label">{{ effect.condition.description }}</div>
+            <div
+              v-else-if="effect.condition.type === 'select'"
+              class="select-condition"
+            >
+              <div class="condition-label">
+                {{ effect.condition.description }}
+              </div>
               <div class="select-container">
-                <select 
+                <select
                   :value="effect.condition.value"
-                  @change="updateCondition(effect.id, $event.target.value)"
                   class="condition-select"
+                  @change="updateCondition(effect.id, $event.target.value)"
                 >
                   <option value="" disabled>Select an option...</option>
-                  <option 
+                  <option
                     v-for="option in effect.condition.options"
                     :key="option.value"
                     :value="option.value"
@@ -180,28 +218,42 @@
                   </option>
                 </select>
               </div>
-              
+
               <!-- Option description -->
-              <div v-if="currentOptionDescription(effect)" class="option-description">
+              <div
+                v-if="currentOptionDescription(effect)"
+                class="option-description"
+              >
                 {{ currentOptionDescription(effect) }}
               </div>
             </div>
 
             <!-- Multi-select condition -->
-            <div v-else-if="effect.condition.type === 'multiselect'" class="multiselect-condition">
-              <div class="condition-label">{{ effect.condition.description }}</div>
+            <div
+              v-else-if="effect.condition.type === 'multiselect'"
+              class="multiselect-condition"
+            >
+              <div class="condition-label">
+                {{ effect.condition.description }}
+              </div>
               <div class="multiselect-options">
-                <label 
+                <label
                   v-for="option in effect.condition.options"
                   :key="option.value"
                   class="multiselect-option"
                 >
-                  <input 
+                  <input
                     type="checkbox"
                     :value="option.value"
                     :checked="effect.condition.value.includes(option.value)"
-                    @change="toggleMultiselectOption(effect.id, option.value, $event.target.checked)"
                     class="checkbox-input"
+                    @change="
+                      toggleMultiselectOption(
+                        effect.id,
+                        option.value,
+                        $event.target.checked
+                      )
+                    "
                   />
                   <span class="checkbox-custom"></span>
                   <span class="option-text">{{ option.label }}</span>
@@ -222,7 +274,12 @@
               </span>
             </div>
             <div class="preview-value">
-              <span :class="['value-display', { 'inactive': !effect.condition.active }]">
+              <span
+                :class="[
+                  'value-display',
+                  { inactive: !effect.condition.active },
+                ]"
+              >
                 {{ formatEffectValue(effect) }}
               </span>
               <span v-if="effect.condition.active" class="value-suffix">
@@ -254,29 +311,29 @@
             </span>
           </div>
         </div>
-        
+
         <!-- Quick actions -->
         <div class="quick-actions">
-          <button 
-            @click="applyPreset('combat')"
+          <button
             class="action-btn combat"
             title="Optimize for combat situations"
+            @click="applyPreset('combat')"
           >
             <CombatIcon />
             Combat Setup
           </button>
-          <button 
-            @click="applyPreset('exploration')"
+          <button
             class="action-btn exploration"
             title="Optimize for exploration"
+            @click="applyPreset('exploration')"
           >
             <ExplorationIcon />
             Exploration Setup
           </button>
-          <button 
-            @click="applyPreset('balanced')"
+          <button
             class="action-btn balanced"
             title="Balanced setup for general use"
+            @click="applyPreset('balanced')"
           >
             <BalancedIcon />
             Balanced Setup
@@ -301,7 +358,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   relics: () => [],
-  autoUpdate: true
+  autoUpdate: true,
 })
 
 // Emits
@@ -323,7 +380,7 @@ const conditionalEffects = computed(() => {
           ...effect,
           relicId: relic.id,
           relicName: relic.name,
-          rarity: relic.rarity
+          rarity: relic.rarity,
         })
       }
     })
@@ -332,12 +389,15 @@ const conditionalEffects = computed(() => {
 })
 
 const activeEffectsCount = computed(() => {
-  return conditionalEffects.value.filter(effect => effect.condition?.active).length
+  return conditionalEffects.value.filter(effect => effect.condition?.active)
+    .length
 })
 
 const allEffectsActive = computed(() => {
-  return conditionalEffects.value.length > 0 && 
+  return (
+    conditionalEffects.value.length > 0 &&
     conditionalEffects.value.every(effect => effect.condition?.active)
+  )
 })
 
 // Methods
@@ -357,13 +417,17 @@ const updateCondition = (effectId: string, value: any) => {
   }
 }
 
-const toggleMultiselectOption = (effectId: string, optionValue: any, checked: boolean) => {
+const toggleMultiselectOption = (
+  effectId: string,
+  optionValue: any,
+  checked: boolean
+) => {
   const effect = conditionalEffects.value.find(e => e.id === effectId)
   if (effect && effect.condition) {
     if (!Array.isArray(effect.condition.value)) {
       effect.condition.value = []
     }
-    
+
     if (checked) {
       if (!effect.condition.value.includes(optionValue)) {
         effect.condition.value.push(optionValue)
@@ -374,7 +438,7 @@ const toggleMultiselectOption = (effectId: string, optionValue: any, checked: bo
         effect.condition.value.splice(index, 1)
       }
     }
-    
+
     emitConditionChange(effect.relicId, effectId, effect.condition)
   }
 }
@@ -387,7 +451,7 @@ const toggleAllEffects = () => {
       emitConditionChange(effect.relicId, effect.id, effect.condition)
     }
   })
-  
+
   info(`All conditional effects ${targetState ? 'enabled' : 'disabled'}`)
 }
 
@@ -400,13 +464,13 @@ const resetAllEffects = () => {
       emitConditionChange(effect.relicId, effect.id, effect.condition)
     }
   })
-  
+
   success('All conditional effects reset to default values')
 }
 
 const applyPreset = (presetType: string) => {
   const presets = getPresetValues(presetType)
-  
+
   conditionalEffects.value.forEach(effect => {
     if (effect.condition && presets[effect.id]) {
       const preset = presets[effect.id]
@@ -415,16 +479,19 @@ const applyPreset = (presetType: string) => {
       emitConditionChange(effect.relicId, effect.id, effect.condition)
     }
   })
-  
+
   success(`Applied ${presetType} preset configuration`)
 }
 
 // Helper methods
-const emitConditionChange = (relicId: string, effectId: string, condition: any) => {
+const emitConditionChange = (
+  relicId: string,
+  effectId: string,
+  condition: any
+) => {
   if (props.autoUpdate) {
     // Emit individual change
     // emit('condition-change', relicId, effectId, condition)
-    
     // Emit all effects change
     // emit('effects-change', conditionalEffects.value)
   }
@@ -445,7 +512,7 @@ const formatEffectValue = (effect: any): string => {
   if (!effect.condition?.active) {
     return 'Inactive'
   }
-  
+
   switch (effect.type) {
     case 'attack_percentage':
       return `+${calculateEffectValue(effect)}%`
@@ -460,9 +527,9 @@ const formatEffectValue = (effect: any): string => {
 
 const calculateEffectValue = (effect: any): number => {
   if (!effect.condition?.active) return 0
-  
+
   let value = effect.value
-  
+
   switch (effect.condition.type) {
     case 'boolean':
       value = effect.condition.value ? effect.value : 0
@@ -472,18 +539,25 @@ const calculateEffectValue = (effect: any): number => {
       value = effect.value * ratio
       break
     case 'select':
-      const option = effect.condition.options?.find((o: any) => o.value === effect.condition.value)
+      const option = effect.condition.options?.find(
+        (o: any) => o.value === effect.condition.value
+      )
       value = option ? effect.value * (option.multiplier || 1) : 0
       break
     case 'multiselect':
-      const totalMultiplier = effect.condition.value.reduce((total: number, selectedValue: any) => {
-        const option = effect.condition.options?.find((o: any) => o.value === selectedValue)
-        return total + (option?.multiplier || 1)
-      }, 0)
+      const totalMultiplier = effect.condition.value.reduce(
+        (total: number, selectedValue: any) => {
+          const option = effect.condition.options?.find(
+            (o: any) => o.value === selectedValue
+          )
+          return total + (option?.multiplier || 1)
+        },
+        0
+      )
       value = effect.value * totalMultiplier
       break
   }
-  
+
   return value
 }
 
@@ -502,9 +576,9 @@ const getEffectSuffix = (effect: any): string => {
 
 const getEffectImpact = (effect: any): string => {
   const value = calculateEffectValue(effect)
-  
+
   if (!effect.condition?.active) return 'None'
-  
+
   if (value >= effect.value * 0.8) return 'High'
   if (value >= effect.value * 0.5) return 'Medium'
   if (value > 0) return 'Low'
@@ -515,7 +589,7 @@ const getTotalImpact = (): string => {
   const totalValue = conditionalEffects.value.reduce((sum, effect) => {
     return sum + calculateEffectValue(effect)
   }, 0)
-  
+
   if (totalValue >= 100) return 'Very High'
   if (totalValue >= 50) return 'High'
   if (totalValue >= 20) return 'Medium'
@@ -530,8 +604,10 @@ const getTotalImpactClass = (): string => {
 
 const currentOptionDescription = (effect: any): string | null => {
   if (effect.condition.type !== 'select') return null
-  
-  const option = effect.condition.options?.find((o: any) => o.value === effect.condition.value)
+
+  const option = effect.condition.options?.find(
+    (o: any) => o.value === effect.condition.value
+  )
   return option?.description || null
 }
 
@@ -562,7 +638,7 @@ const ConditionalIcon = {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
     </svg>
-  `
+  `,
 }
 
 const ToggleIcon = {
@@ -570,7 +646,7 @@ const ToggleIcon = {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
       <path d="M17 7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h10c2.76 0 5-2.24 5-5s-2.24-5-5-5zM7 15c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
     </svg>
-  `
+  `,
 }
 
 const ResetIcon = {
@@ -578,7 +654,7 @@ const ResetIcon = {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
     </svg>
-  `
+  `,
 }
 
 const CombatIcon = {
@@ -586,7 +662,7 @@ const CombatIcon = {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
       <path d="M6.92 5L5 6.92l3.22 3.22c-.44.87-.66 1.84-.66 2.86 0 3.31 2.69 6 6 6s6-2.69 6-6-2.69-6-6-6c-1.02 0-1.99.22-2.86.66L6.92 5zM15 11c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z"/>
     </svg>
-  `
+  `,
 }
 
 const ExplorationIcon = {
@@ -594,7 +670,7 @@ const ExplorationIcon = {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
     </svg>
-  `
+  `,
 }
 
 const BalancedIcon = {
@@ -602,7 +678,7 @@ const BalancedIcon = {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
       <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
     </svg>
-  `
+  `,
 }
 </script>
 
@@ -705,10 +781,18 @@ const BalancedIcon = {
 }
 
 /* Rarity-specific styling */
-.effect-item.rarity-common { border-left: 4px solid #9ca3af; }
-.effect-item.rarity-rare { border-left: 4px solid #3b82f6; }
-.effect-item.rarity-epic { border-left: 4px solid #8b5cf6; }
-.effect-item.rarity-legendary { border-left: 4px solid #f59e0b; }
+.effect-item.rarity-common {
+  border-left: 4px solid #9ca3af;
+}
+.effect-item.rarity-rare {
+  border-left: 4px solid #3b82f6;
+}
+.effect-item.rarity-epic {
+  border-left: 4px solid #8b5cf6;
+}
+.effect-item.rarity-legendary {
+  border-left: 4px solid #f59e0b;
+}
 
 /* Effect Header */
 .effect-header {
@@ -749,10 +833,22 @@ const BalancedIcon = {
   text-transform: uppercase;
 }
 
-.rarity-badge.rarity-common { background: #9ca3af; color: white; }
-.rarity-badge.rarity-rare { background: #3b82f6; color: white; }
-.rarity-badge.rarity-epic { background: #8b5cf6; color: white; }
-.rarity-badge.rarity-legendary { background: #f59e0b; color: white; }
+.rarity-badge.rarity-common {
+  background: #9ca3af;
+  color: white;
+}
+.rarity-badge.rarity-rare {
+  background: #3b82f6;
+  color: white;
+}
+.rarity-badge.rarity-epic {
+  background: #8b5cf6;
+  color: white;
+}
+.rarity-badge.rarity-legendary {
+  background: #f59e0b;
+  color: white;
+}
 
 /* Toggle Switch */
 .toggle-switch {
@@ -782,7 +878,7 @@ const BalancedIcon = {
 
 .toggle-slider:before {
   position: absolute;
-  content: "";
+  content: '';
   height: 18px;
   width: 18px;
   left: 3px;
@@ -1159,11 +1255,21 @@ const BalancedIcon = {
   color: #b45309;
 }
 
-.stat-value.very-high { color: #dc2626; }
-.stat-value.high { color: #ea580c; }
-.stat-value.medium { color: #d97706; }
-.stat-value.low { color: #65a30d; }
-.stat-value.none { color: #6b7280; }
+.stat-value.very-high {
+  color: #dc2626;
+}
+.stat-value.high {
+  color: #ea580c;
+}
+.stat-value.medium {
+  color: #d97706;
+}
+.stat-value.low {
+  color: #65a30d;
+}
+.stat-value.none {
+  color: #6b7280;
+}
 
 /* Quick Actions */
 .quick-actions {
@@ -1220,35 +1326,35 @@ const BalancedIcon = {
     align-items: flex-start;
     gap: 0.75rem;
   }
-  
+
   .panel-controls {
     align-self: stretch;
   }
-  
+
   .effect-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
   }
-  
+
   .boolean-options {
     flex-direction: column;
     gap: 0.75rem;
   }
-  
+
   .preset-buttons {
     gap: 0.25rem;
   }
-  
+
   .summary-stats {
     grid-template-columns: 1fr;
     gap: 0.75rem;
   }
-  
+
   .quick-actions {
     flex-direction: column;
   }
-  
+
   .action-btn {
     justify-content: center;
   }

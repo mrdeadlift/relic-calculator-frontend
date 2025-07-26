@@ -6,18 +6,10 @@
         <div class="header-content">
           <h2 class="dashboard-title">ビルドダッシュボード</h2>
           <div class="header-actions">
-            <BaseButton 
-              @click="handleNewBuild"
-              variant="primary"
-              size="md"
-            >
+            <BaseButton variant="primary" size="md" @click="handleNewBuild">
               新規ビルド作成
             </BaseButton>
-            <BaseButton 
-              @click="handleImportBuild"
-              variant="outline"
-              size="md"
-            >
+            <BaseButton variant="outline" size="md" @click="handleImportBuild">
               インポート
             </BaseButton>
           </div>
@@ -63,7 +55,7 @@
         <div class="filter-section">
           <div class="filter-group">
             <label>ソート:</label>
-            <select v-model="sortBy" @change="handleSort" class="filter-select">
+            <select v-model="sortBy" class="filter-select" @change="handleSort">
               <option value="name">名前</option>
               <option value="multiplier">攻撃倍率</option>
               <option value="created">作成日時</option>
@@ -71,10 +63,14 @@
               <option value="favorite">お気に入り</option>
             </select>
           </div>
-          
+
           <div class="filter-group">
             <label>順序:</label>
-            <select v-model="sortOrder" @change="handleSort" class="filter-select">
+            <select
+              v-model="sortOrder"
+              class="filter-select"
+              @change="handleSort"
+            >
               <option value="desc">降順</option>
               <option value="asc">昇順</option>
             </select>
@@ -95,9 +91,9 @@
           <BaseButton
             v-for="filter in quickFilters"
             :key="filter.key"
-            @click="handleQuickFilter(filter.key)"
             :variant="activeQuickFilter === filter.key ? 'primary' : 'ghost'"
             size="sm"
+            @click="handleQuickFilter(filter.key)"
           >
             {{ filter.label }}
           </BaseButton>
@@ -116,9 +112,7 @@
       <!-- Error State -->
       <div v-else-if="error" class="error-state">
         <p class="error-message">{{ error }}</p>
-        <BaseButton @click="handleRetry" variant="outline">
-          再試行
-        </BaseButton>
+        <BaseButton variant="outline" @click="handleRetry"> 再試行 </BaseButton>
       </div>
 
       <!-- Empty State -->
@@ -127,7 +121,7 @@
         <h3>ビルドがありません</h3>
         <p v-if="searchQuery">検索条件に一致するビルドが見つかりません。</p>
         <p v-else>新しいビルドを作成してみましょう。</p>
-        <BaseButton @click="handleNewBuild" variant="primary">
+        <BaseButton variant="primary" @click="handleNewBuild">
           新規ビルド作成
         </BaseButton>
       </div>
@@ -141,28 +135,28 @@
             class="build-item"
           >
             <BaseCard
-              :class="['build-card', { 'favorite': build.isFavorite }]"
+              :class="['build-card', { favorite: build.isFavorite }]"
               :hover="true"
               :clickable="true"
-              @click="handleSelectBuild(build)"
               padding="md"
+              @click="handleSelectBuild(build)"
             >
               <template #header>
                 <div class="build-header">
                   <h4 class="build-name">{{ build.name }}</h4>
                   <div class="build-actions">
                     <BaseButton
-                      @click.stop="handleToggleFavorite(build)"
                       variant="ghost"
                       size="sm"
-                      :class="{ 'favorited': build.isFavorite }"
+                      :class="{ favorited: build.isFavorite }"
+                      @click.stop="handleToggleFavorite(build)"
                     >
                       {{ build.isFavorite ? '★' : '☆' }}
                     </BaseButton>
                     <BaseButton
-                      @click.stop="handleBuildMenu(build, $event)"
                       variant="ghost"
                       size="sm"
+                      @click.stop="handleBuildMenu(build, $event)"
                     >
                       ⋮
                     </BaseButton>
@@ -173,8 +167,15 @@
               <div class="build-content">
                 <!-- Build Multiplier -->
                 <div class="build-multiplier">
-                  <span class="multiplier-value">{{ formatMultiplier(build.attackMultiplier) }}倍</span>
-                  <span :class="['multiplier-grade', getMultiplierGrade(build.attackMultiplier)]">
+                  <span class="multiplier-value"
+                    >{{ formatMultiplier(build.attackMultiplier) }}倍</span
+                  >
+                  <span
+                    :class="[
+                      'multiplier-grade',
+                      getMultiplierGrade(build.attackMultiplier),
+                    ]"
+                  >
                     {{ getMultiplierGradeLabel(build.attackMultiplier) }}
                   </span>
                 </div>
@@ -223,7 +224,10 @@
                   <span class="meta-item">
                     作成: {{ formatDate(build.createdAt) }}
                   </span>
-                  <span v-if="build.updatedAt !== build.createdAt" class="meta-item">
+                  <span
+                    v-if="build.updatedAt !== build.createdAt"
+                    class="meta-item"
+                  >
                     更新: {{ formatDate(build.updatedAt) }}
                   </span>
                 </div>
@@ -236,31 +240,31 @@
       <!-- Pagination -->
       <div v-if="totalPages > 1" class="pagination">
         <BaseButton
-          @click="handlePrevPage"
           :disabled="currentPage === 1"
           variant="ghost"
           size="sm"
+          @click="handlePrevPage"
         >
           ‹ 前
         </BaseButton>
-        
+
         <div class="page-numbers">
           <BaseButton
             v-for="page in visiblePages"
             :key="page"
-            @click="handleGoToPage(page)"
             :variant="page === currentPage ? 'primary' : 'ghost'"
             size="sm"
+            @click="handleGoToPage(page)"
           >
             {{ page }}
           </BaseButton>
         </div>
-        
+
         <BaseButton
-          @click="handleNextPage"
           :disabled="currentPage === totalPages"
           variant="ghost"
           size="sm"
+          @click="handleNextPage"
         >
           次 ›
         </BaseButton>
@@ -275,18 +279,27 @@
         class="context-menu"
         @click.stop
       >
-        <div class="context-menu-item" @click="handleEditBuild(contextMenu.build)">
+        <div
+          class="context-menu-item"
+          @click="handleEditBuild(contextMenu.build)"
+        >
           編集
         </div>
-        <div class="context-menu-item" @click="handleDuplicateBuild(contextMenu.build)">
+        <div
+          class="context-menu-item"
+          @click="handleDuplicateBuild(contextMenu.build)"
+        >
           複製
         </div>
-        <div class="context-menu-item" @click="handleExportBuild(contextMenu.build)">
+        <div
+          class="context-menu-item"
+          @click="handleExportBuild(contextMenu.build)"
+        >
           エクスポート
         </div>
         <div class="context-menu-divider"></div>
-        <div 
-          class="context-menu-item danger" 
+        <div
+          class="context-menu-item danger"
           @click="handleDeleteBuild(contextMenu.build)"
         >
           削除
@@ -295,7 +308,11 @@
     </Teleport>
 
     <!-- Build Import Modal -->
-    <BaseModal v-model:show="showImportModal" title="ビルドインポート" size="md">
+    <BaseModal
+      v-model:show="showImportModal"
+      title="ビルドインポート"
+      size="md"
+    >
       <div class="import-content">
         <p>ビルドデータをインポートしてください:</p>
         <BaseInput
@@ -305,15 +322,15 @@
           size="md"
         />
       </div>
-      
+
       <template #footer>
-        <BaseButton @click="showImportModal = false" variant="ghost">
+        <BaseButton variant="ghost" @click="showImportModal = false">
           キャンセル
         </BaseButton>
-        <BaseButton 
-          @click="handleConfirmImport" 
+        <BaseButton
           variant="primary"
           :disabled="!importData.trim()"
+          @click="handleConfirmImport"
         >
           インポート
         </BaseButton>
@@ -349,22 +366,24 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 // Composables
-const { 
-  builds, 
-  loading, 
-  error, 
-  fetchBuilds, 
-  createBuild, 
-  updateBuild, 
+const {
+  builds,
+  loading,
+  error,
+  fetchBuilds,
+  createBuild,
+  updateBuild,
   deleteBuild,
-  toggleFavorite
+  toggleFavorite,
 } = useBuilds()
 
 const { getRelicById } = useRelics()
 
 // Local state
 const searchQuery = ref('')
-const sortBy = ref<'name' | 'multiplier' | 'created' | 'updated' | 'favorite'>('updated')
+const sortBy = ref<'name' | 'multiplier' | 'created' | 'updated' | 'favorite'>(
+  'updated'
+)
 const sortOrder = ref<'asc' | 'desc'>('desc')
 const viewMode = ref<'grid' | 'list' | 'compact'>('grid')
 const activeQuickFilter = ref<string | null>(null)
@@ -377,7 +396,7 @@ const importData = ref('')
 const contextMenu = ref({
   show: false,
   build: null as Build | null,
-  style: {}
+  style: {},
 })
 
 // Quick filters configuration
@@ -386,7 +405,7 @@ const quickFilters = [
   { key: 'favorites', label: 'お気に入り' },
   { key: 'recent', label: '最近の更新' },
   { key: 'high-multiplier', label: '高倍率' },
-  { key: 'incomplete', label: '未完成' }
+  { key: 'incomplete', label: '未完成' },
 ]
 
 // Computed properties
@@ -396,14 +415,15 @@ const filteredBuilds = computed(() => {
   // Search filter
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(build => 
-      build.name.toLowerCase().includes(query) ||
-      build.description?.toLowerCase().includes(query) ||
-      build.tags?.some(tag => tag.toLowerCase().includes(query)) ||
-      build.relicIds.some(relicId => {
-        const relic = getRelicById(relicId)
-        return relic?.name.toLowerCase().includes(query)
-      })
+    filtered = filtered.filter(
+      build =>
+        build.name.toLowerCase().includes(query) ||
+        build.description?.toLowerCase().includes(query) ||
+        build.tags?.some(tag => tag.toLowerCase().includes(query)) ||
+        build.relicIds.some(relicId => {
+          const relic = getRelicById(relicId)
+          return relic?.name.toLowerCase().includes(query)
+        })
     )
   }
 
@@ -429,7 +449,7 @@ const filteredBuilds = computed(() => {
   // Sort
   filtered.sort((a, b) => {
     let comparison = 0
-    
+
     switch (sortBy.value) {
       case 'name':
         comparison = a.name.localeCompare(b.name)
@@ -438,16 +458,18 @@ const filteredBuilds = computed(() => {
         comparison = a.attackMultiplier - b.attackMultiplier
         break
       case 'created':
-        comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        comparison =
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
         break
       case 'updated':
-        comparison = new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
+        comparison =
+          new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
         break
       case 'favorite':
         comparison = (b.isFavorite ? 1 : 0) - (a.isFavorite ? 1 : 0)
         break
     }
-    
+
     return sortOrder.value === 'desc' ? -comparison : comparison
   })
 
@@ -469,11 +491,11 @@ const visiblePages = computed(() => {
   const maxVisible = 5
   const start = Math.max(1, currentPage.value - Math.floor(maxVisible / 2))
   const end = Math.min(totalPages.value, start + maxVisible - 1)
-  
+
   for (let i = start; i <= end; i++) {
     pages.push(i)
   }
-  
+
   return pages
 })
 
@@ -482,7 +504,10 @@ const totalBuilds = computed(() => builds.value.length)
 
 const averageMultiplier = computed(() => {
   if (builds.value.length === 0) return '0.00'
-  const sum = builds.value.reduce((acc, build) => acc + build.attackMultiplier, 0)
+  const sum = builds.value.reduce(
+    (acc, build) => acc + build.attackMultiplier,
+    0
+  )
   return (sum / builds.value.length).toFixed(2)
 })
 
@@ -526,9 +551,9 @@ const handleNewBuild = () => {
     relicIds: [],
     attackMultiplier: 1.0,
     tags: [],
-    isFavorite: false
+    isFavorite: false,
   }
-  
+
   emit('build-created', newBuild as Build)
 }
 
@@ -549,8 +574,8 @@ const handleBuildMenu = (build: Build, event: MouseEvent) => {
       position: 'fixed',
       top: `${rect.bottom + 5}px`,
       left: `${rect.left}px`,
-      zIndex: 1000
-    }
+      zIndex: 1000,
+    },
   }
 }
 
@@ -566,15 +591,15 @@ const handleDuplicateBuild = async (build: Build) => {
       id: undefined,
       name: `${build.name} (複製)`,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     }
-    
+
     const newBuild = await createBuild(duplicated)
     emit('build-created', newBuild)
   } catch (err) {
     console.error('Failed to duplicate build:', err)
   }
-  
+
   contextMenu.value.show = false
 }
 
@@ -582,12 +607,12 @@ const handleExportBuild = (build: Build) => {
   const exportData = JSON.stringify(build, null, 2)
   const blob = new Blob([exportData], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
-  
+
   const a = document.createElement('a')
   a.href = url
   a.download = `${build.name}.json`
   a.click()
-  
+
   URL.revokeObjectURL(url)
   contextMenu.value.show = false
 }
@@ -601,7 +626,7 @@ const handleDeleteBuild = async (build: Build) => {
       console.error('Failed to delete build:', err)
     }
   }
-  
+
   contextMenu.value.show = false
 }
 
@@ -659,9 +684,9 @@ const getMultiplierGradeLabel = (multiplier: number): string => {
   const grade = getMultiplierGrade(multiplier)
   const labels = {
     exceptional: 'S級',
-    high: 'A級', 
+    high: 'A級',
     medium: 'B級',
-    low: 'C級'
+    low: 'C級',
   }
   return labels[grade]
 }
@@ -681,7 +706,7 @@ const formatDate = (dateString: string): string => {
   return date.toLocaleDateString('ja-JP', {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   })
 }
 
@@ -1125,32 +1150,32 @@ watch(searchQuery, () => {
     gap: 1rem;
     align-items: stretch;
   }
-  
+
   .header-actions {
     justify-content: center;
   }
-  
+
   .build-stats {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .filter-section {
     flex-direction: column;
   }
-  
+
   .build-list.view-grid .build-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .build-header {
     flex-direction: column;
     gap: 0.75rem;
   }
-  
+
   .build-actions {
     align-self: flex-end;
   }
-  
+
   .relics-preview {
     flex-direction: column;
     gap: 0.5rem;
@@ -1163,59 +1188,59 @@ watch(searchQuery, () => {
   .dashboard-title {
     color: #f9fafb;
   }
-  
+
   .stat-card {
     background: #374151;
     border-color: #4b5563;
   }
-  
+
   .stat-label {
     color: #9ca3af;
   }
-  
+
   .filter-select {
     background: #374151;
     border-color: #4b5563;
     color: #f9fafb;
   }
-  
+
   .build-name {
     color: #f9fafb;
   }
-  
+
   .build-multiplier {
     background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
   }
-  
+
   .relics-preview {
     background: #374151;
   }
-  
+
   .relic-count {
     color: #d1d5db;
   }
-  
+
   .relic-icon {
     background: #4b5563;
   }
-  
+
   .build-meta {
     border-color: #4b5563;
   }
-  
+
   .context-menu {
     background: #1f2937;
     border-color: #374151;
   }
-  
+
   .context-menu-item:hover {
     background: #374151;
   }
-  
+
   .context-menu-item.danger:hover {
     background: #431a1a;
   }
-  
+
   .context-menu-divider {
     background: #374151;
   }

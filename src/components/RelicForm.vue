@@ -1,9 +1,9 @@
 <template>
-  <form @submit.prevent="handleSubmit" class="relic-form">
+  <form class="relic-form" @submit.prevent="handleSubmit">
     <!-- 基本情報セクション -->
     <div class="form-section">
       <h3 class="section-title">基本情報</h3>
-      
+
       <div class="form-row">
         <div class="form-group">
           <label class="form-label" for="name">遺物名 *</label>
@@ -15,7 +15,7 @@
             required
           />
         </div>
-        
+
         <div class="form-group">
           <label class="form-label" for="type">タイプ *</label>
           <BaseInput
@@ -33,7 +33,7 @@
         <textarea
           id="description"
           v-model="formData.description"
-          :class="['form-textarea', { 'error': errors.description }]"
+          :class="['form-textarea', { error: errors.description }]"
           placeholder="遺物の詳細説明を入力"
           rows="3"
           required
@@ -49,7 +49,7 @@
           <select
             id="category"
             v-model="formData.category"
-            :class="['form-select', { 'error': errors.category }]"
+            :class="['form-select', { error: errors.category }]"
             required
           >
             <option value="">カテゴリを選択</option>
@@ -69,7 +69,7 @@
           <select
             id="rarity"
             v-model="formData.rarity"
-            :class="['form-select', { 'error': errors.rarity }]"
+            :class="['form-select', { error: errors.rarity }]"
             required
           >
             <option value="">レアリティを選択</option>
@@ -88,7 +88,7 @@
           <select
             id="quality"
             v-model="formData.quality"
-            :class="['form-select', { 'error': errors.quality }]"
+            :class="['form-select', { error: errors.quality }]"
             required
           >
             <option value="">品質を選択</option>
@@ -104,14 +104,16 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label" for="obtainmentDifficulty">入手難易度 (1-10) *</label>
+          <label class="form-label" for="obtainmentDifficulty"
+            >入手難易度 (1-10) *</label
+          >
           <input
             id="obtainmentDifficulty"
             v-model.number="formData.obtainmentDifficulty"
             type="range"
             min="1"
             max="10"
-            :class="['form-range', { 'error': errors.obtainmentDifficulty }]"
+            :class="['form-range', { error: errors.obtainmentDifficulty }]"
             required
           />
           <div class="range-value">{{ formData.obtainmentDifficulty }}/10</div>
@@ -173,10 +175,16 @@
       </div>
 
       <div v-if="formData.effects.length === 0" class="empty-effects">
-        <p>効果が設定されていません。「効果を追加」ボタンから効果を追加してください。</p>
+        <p>
+          効果が設定されていません。「効果を追加」ボタンから効果を追加してください。
+        </p>
       </div>
 
-      <div v-for="(effect, index) in formData.effects" :key="index" class="effect-item">
+      <div
+        v-for="(effect, index) in formData.effects"
+        :key="index"
+        class="effect-item"
+      >
         <div class="effect-header">
           <h4>効果 {{ index + 1 }}</h4>
           <BaseButton
@@ -205,7 +213,10 @@
             <label class="form-label">効果タイプ *</label>
             <select
               v-model="effect.type"
-              :class="['form-select', { 'error': errors[`effects.${index}.type`] }]"
+              :class="[
+                'form-select',
+                { error: errors[`effects.${index}.type`] },
+              ]"
               required
             >
               <option value="">タイプを選択</option>
@@ -237,7 +248,10 @@
             <label class="form-label">重複ルール *</label>
             <select
               v-model="effect.stackingRule"
-              :class="['form-select', { 'error': errors[`effects.${index}.stackingRule`] }]"
+              :class="[
+                'form-select',
+                { error: errors[`effects.${index}.stackingRule`] },
+              ]"
               required
             >
               <option value="">ルールを選択</option>
@@ -251,11 +265,15 @@
           <div class="form-group">
             <label class="form-label">ダメージタイプ *</label>
             <div class="checkbox-group">
-              <label v-for="damageType in damageTypes" :key="damageType" class="checkbox-label">
+              <label
+                v-for="damageType in damageTypes"
+                :key="damageType"
+                class="checkbox-label"
+              >
                 <input
+                  v-model="effect.damageTypes"
                   type="checkbox"
                   :value="damageType"
-                  v-model="effect.damageTypes"
                   class="checkbox-input"
                 />
                 {{ damageType }}
@@ -268,7 +286,10 @@
           <label class="form-label">説明 *</label>
           <textarea
             v-model="effect.description"
-            :class="['form-textarea', { 'error': errors[`effects.${index}.description`] }]"
+            :class="[
+              'form-textarea',
+              { error: errors[`effects.${index}.description`] },
+            ]"
             placeholder="効果の詳細説明"
             rows="2"
             required
@@ -289,7 +310,11 @@
             </BaseButton>
           </div>
 
-          <div v-for="(condition, condIndex) in effect.conditions" :key="condIndex" class="condition-item">
+          <div
+            v-for="(condition, condIndex) in effect.conditions"
+            :key="condIndex"
+            class="condition-item"
+          >
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">条件タイプ</label>
@@ -306,10 +331,7 @@
 
               <div class="form-group">
                 <label class="form-label">値</label>
-                <BaseInput
-                  v-model="condition.value"
-                  placeholder="条件の値"
-                />
+                <BaseInput v-model="condition.value" placeholder="条件の値" />
               </div>
 
               <div class="form-group">
@@ -357,20 +379,36 @@
       <h3 class="section-title">プレビュー</h3>
       <div class="relic-preview">
         <div class="preview-header">
-          <img :src="formData.iconUrl || '/icons/placeholder.png'" class="preview-icon" />
+          <img
+            :src="formData.iconUrl || '/icons/placeholder.png'"
+            class="preview-icon"
+          />
           <div class="preview-info">
             <h4 class="preview-name">{{ formData.name || '遺物名' }}</h4>
             <div class="preview-meta">
-              <span class="preview-category">{{ formData.category || 'カテゴリ' }}</span>
-              <span class="preview-rarity">{{ formData.rarity || 'レアリティ' }}</span>
-              <span class="preview-quality">{{ formData.quality || '品質' }}</span>
+              <span class="preview-category">{{
+                formData.category || 'カテゴリ'
+              }}</span>
+              <span class="preview-rarity">{{
+                formData.rarity || 'レアリティ'
+              }}</span>
+              <span class="preview-quality">{{
+                formData.quality || '品質'
+              }}</span>
             </div>
           </div>
         </div>
-        <p class="preview-description">{{ formData.description || '説明文がここに表示されます' }}</p>
+        <p class="preview-description">
+          {{ formData.description || '説明文がここに表示されます' }}
+        </p>
         <div class="preview-effects">
-          <div v-for="(effect, index) in formData.effects" :key="index" class="preview-effect">
-            <strong>{{ effect.name }}</strong>: {{ effect.description }}
+          <div
+            v-for="(effect, index) in formData.effects"
+            :key="index"
+            class="preview-effect"
+          >
+            <strong>{{ effect.name }}</strong
+            >: {{ effect.description }}
           </div>
         </div>
       </div>
@@ -381,24 +419,20 @@
       <BaseButton
         type="button"
         variant="secondary"
-        @click="$emit('cancel')"
         :disabled="loading"
+        @click="$emit('cancel')"
       >
         キャンセル
       </BaseButton>
       <BaseButton
         type="button"
         variant="warning"
-        @click="validateOnly"
         :loading="validating"
+        @click="validateOnly"
       >
         バリデーション
       </BaseButton>
-      <BaseButton
-        type="submit"
-        variant="primary"
-        :loading="loading"
-      >
+      <BaseButton type="submit" variant="primary" :loading="loading">
         {{ isEditing ? '更新' : '作成' }}
       </BaseButton>
     </div>
@@ -421,19 +455,27 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   relic: null,
-  loading: false
+  loading: false,
 })
 
 const emit = defineEmits<{
-  'submit': [data: any]
-  'cancel': []
+  submit: [data: any]
+  cancel: []
 }>()
 
 // Composables
 const { showToast } = useToast()
 
 // データ定義
-const damageTypes = ['physical', 'magical', 'fire', 'ice', 'lightning', 'dark', 'holy']
+const damageTypes = [
+  'physical',
+  'magical',
+  'fire',
+  'ice',
+  'lightning',
+  'dark',
+  'holy',
+]
 
 // リアクティブデータ
 const formData = ref({
@@ -460,7 +502,7 @@ const formData = ref({
       description: string
     }>
   }>,
-  conflicts: [] as string[]
+  conflicts: [] as string[],
 })
 
 const conflictsInput = ref('')
@@ -471,39 +513,45 @@ const validating = ref(false)
 const isEditing = computed(() => !!props.relic?.id)
 
 // ウォッチャー
-watch(() => props.relic, (newRelic) => {
-  if (newRelic) {
-    formData.value = {
-      name: newRelic.name,
-      description: newRelic.description,
-      category: newRelic.category,
-      rarity: newRelic.rarity,
-      quality: newRelic.quality,
-      type: newRelic.type,
-      attackMultiplier: newRelic.attackMultiplier,
-      source: newRelic.source,
-      obtainmentDifficulty: newRelic.obtainmentDifficulty,
-      iconUrl: newRelic.iconUrl,
-      effects: newRelic.effects?.map(effect => ({
-        name: effect.name,
-        type: effect.type,
-        value: effect.value,
-        stackingRule: effect.stackingRule,
-        damageTypes: [...effect.damageTypes],
-        description: effect.description,
-        conditions: effect.conditions?.map(condition => ({
-          type: condition.type,
-          value: condition.value,
-          description: condition.description
-        })) || []
-      })) || [],
-      conflicts: [...(newRelic.conflicts || [])]
+watch(
+  () => props.relic,
+  newRelic => {
+    if (newRelic) {
+      formData.value = {
+        name: newRelic.name,
+        description: newRelic.description,
+        category: newRelic.category,
+        rarity: newRelic.rarity,
+        quality: newRelic.quality,
+        type: newRelic.type,
+        attackMultiplier: newRelic.attackMultiplier,
+        source: newRelic.source,
+        obtainmentDifficulty: newRelic.obtainmentDifficulty,
+        iconUrl: newRelic.iconUrl,
+        effects:
+          newRelic.effects?.map(effect => ({
+            name: effect.name,
+            type: effect.type,
+            value: effect.value,
+            stackingRule: effect.stackingRule,
+            damageTypes: [...effect.damageTypes],
+            description: effect.description,
+            conditions:
+              effect.conditions?.map(condition => ({
+                type: condition.type,
+                value: condition.value,
+                description: condition.description,
+              })) || [],
+          })) || [],
+        conflicts: [...(newRelic.conflicts || [])],
+      }
+      conflictsInput.value = newRelic.conflicts?.join(', ') || ''
     }
-    conflictsInput.value = newRelic.conflicts?.join(', ') || ''
-  }
-}, { immediate: true })
+  },
+  { immediate: true }
+)
 
-watch(conflictsInput, (newValue) => {
+watch(conflictsInput, newValue => {
   formData.value.conflicts = newValue
     .split(',')
     .map(id => id.trim())
@@ -519,7 +567,7 @@ const addEffect = () => {
     stackingRule: '',
     damageTypes: [],
     description: '',
-    conditions: []
+    conditions: [],
   })
 }
 
@@ -531,7 +579,7 @@ const addCondition = (effectIndex: number) => {
   formData.value.effects[effectIndex].conditions.push({
     type: '',
     value: '',
-    description: ''
+    description: '',
   })
 }
 
@@ -541,7 +589,7 @@ const removeCondition = (effectIndex: number, conditionIndex: number) => {
 
 const validateForm = (): boolean => {
   errors.value = {}
-  
+
   // 基本バリデーション
   if (!formData.value.name) errors.value.name = '遺物名は必須です'
   if (!formData.value.description) errors.value.description = '説明は必須です'
@@ -550,17 +598,22 @@ const validateForm = (): boolean => {
   if (!formData.value.quality) errors.value.quality = '品質は必須です'
   if (!formData.value.type) errors.value.type = 'タイプは必須です'
   if (!formData.value.iconUrl) errors.value.iconUrl = 'アイコンURLは必須です'
-  
+
   // 効果バリデーション
   formData.value.effects.forEach((effect, index) => {
     if (!effect.name) errors.value[`effects.${index}.name`] = '効果名は必須です'
-    if (!effect.type) errors.value[`effects.${index}.type`] = '効果タイプは必須です'
+    if (!effect.type)
+      errors.value[`effects.${index}.type`] = '効果タイプは必須です'
     if (!effect.value) errors.value[`effects.${index}.value`] = '値は必須です'
-    if (!effect.stackingRule) errors.value[`effects.${index}.stackingRule`] = '重複ルールは必須です'
-    if (!effect.description) errors.value[`effects.${index}.description`] = '説明は必須です'
-    if (effect.damageTypes.length === 0) errors.value[`effects.${index}.damageTypes`] = 'ダメージタイプを選択してください'
+    if (!effect.stackingRule)
+      errors.value[`effects.${index}.stackingRule`] = '重複ルールは必須です'
+    if (!effect.description)
+      errors.value[`effects.${index}.description`] = '説明は必須です'
+    if (effect.damageTypes.length === 0)
+      errors.value[`effects.${index}.damageTypes`] =
+        'ダメージタイプを選択してください'
   })
-  
+
   return Object.keys(errors.value).length === 0
 }
 
@@ -569,11 +622,11 @@ const validateOnly = async () => {
     showToast('入力内容に問題があります', 'error')
     return
   }
-  
+
   validating.value = true
   try {
     const result = await adminService.validateRelicData(formData.value)
-    
+
     if (result.valid) {
       showToast('バリデーションに成功しました', 'success')
     } else {
@@ -583,7 +636,7 @@ const validateOnly = async () => {
       })
       showToast(`${result.errors.length}件のエラーが見つかりました`, 'error')
     }
-    
+
     // 警告があれば表示
     if (result.warnings.length > 0) {
       result.warnings.forEach(warning => {
@@ -603,7 +656,7 @@ const handleSubmit = () => {
     showToast('入力内容を確認してください', 'error')
     return
   }
-  
+
   emit('submit', formData.value)
 }
 
@@ -877,22 +930,22 @@ onMounted(() => {
   .relic-form {
     padding: 0.5rem;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .section-header {
     flex-direction: column;
     align-items: stretch;
     gap: 1rem;
   }
-  
+
   .preview-header {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .form-actions {
     flex-direction: column;
   }

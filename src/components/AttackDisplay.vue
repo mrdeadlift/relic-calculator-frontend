@@ -9,7 +9,6 @@ interface Props {
 
 const props = defineProps<Props>()
 
-
 // Format multiplier for display
 const formatMultiplier = (value: number): string => {
   return `×${value.toFixed(3)}`
@@ -18,37 +17,53 @@ const formatMultiplier = (value: number): string => {
 // Get damage increase percentage
 const getDamageIncrease = (): string => {
   if (!props.calculationResult) return '0%'
-  const increase = ((props.calculationResult.finalAttack - props.calculationResult.baseAttack) / props.calculationResult.baseAttack) * 100
+  const increase =
+    ((props.calculationResult.finalAttack -
+      props.calculationResult.baseAttack) /
+      props.calculationResult.baseAttack) *
+    100
   return `+${increase.toFixed(1)}%`
 }
 
 // Get breakdown item color based on type
 const getBreakdownItemClass = (type: string): string => {
   switch (type) {
-    case 'multiplier': return 'breakdown-multiplier'
-    case 'percentage': return 'breakdown-percentage'
-    case 'flat': return 'breakdown-flat'
-    default: return 'breakdown-default'
+    case 'multiplier':
+      return 'breakdown-multiplier'
+    case 'percentage':
+      return 'breakdown-percentage'
+    case 'flat':
+      return 'breakdown-flat'
+    default:
+      return 'breakdown-default'
   }
 }
 
 // Get breakdown item symbol
 const getBreakdownSymbol = (type: string): string => {
   switch (type) {
-    case 'multiplier': return '×'
-    case 'percentage': return '+'
-    case 'flat': return '+'
-    default: return ''
+    case 'multiplier':
+      return '×'
+    case 'percentage':
+      return '+'
+    case 'flat':
+      return '+'
+    default:
+      return ''
   }
 }
 
 // Format breakdown value
 const formatBreakdownValue = (value: number, type: string): string => {
   switch (type) {
-    case 'multiplier': return value.toFixed(3)
-    case 'percentage': return `${value}%`
-    case 'flat': return value.toString()
-    default: return value.toString()
+    case 'multiplier':
+      return value.toFixed(3)
+    case 'percentage':
+      return `${value}%`
+    case 'flat':
+      return value.toString()
+    default:
+      return value.toString()
   }
 }
 </script>
@@ -70,20 +85,27 @@ const formatBreakdownValue = (value: number, type: string): string => {
           <div class="card-label">基本攻撃力</div>
           <div class="card-value">{{ calculationResult.baseAttack }}</div>
         </div>
-        
+
         <div class="summary-card total-multiplier">
           <div class="card-label">総合倍率</div>
-          <div class="card-value">{{ formatMultiplier(calculationResult.totalMultiplier) }}</div>
+          <div class="card-value">
+            {{ formatMultiplier(calculationResult.totalMultiplier) }}
+          </div>
         </div>
-        
-        <div class="summary-card flat-bonus" v-if="calculationResult.flatBonuses > 0">
+
+        <div
+          v-if="calculationResult.flatBonuses > 0"
+          class="summary-card flat-bonus"
+        >
           <div class="card-label">固定ボーナス</div>
           <div class="card-value">+{{ calculationResult.flatBonuses }}</div>
         </div>
-        
+
         <div class="summary-card final-attack">
           <div class="card-label">最終攻撃力</div>
-          <div class="card-value final-value">{{ calculationResult.finalAttack }}</div>
+          <div class="card-value final-value">
+            {{ calculationResult.finalAttack }}
+          </div>
           <div class="card-subvalue">{{ getDamageIncrease() }}</div>
         </div>
       </div>
@@ -94,13 +116,19 @@ const formatBreakdownValue = (value: number, type: string): string => {
         <div class="formula">
           <span class="formula-part">{{ calculationResult.baseAttack }}</span>
           <span class="formula-operator">×</span>
-          <span class="formula-part">{{ calculationResult.totalMultiplier.toFixed(3) }}</span>
+          <span class="formula-part">{{
+            calculationResult.totalMultiplier.toFixed(3)
+          }}</span>
           <span v-if="calculationResult.flatBonuses > 0">
             <span class="formula-operator">+</span>
-            <span class="formula-part">{{ calculationResult.flatBonuses }}</span>
+            <span class="formula-part">{{
+              calculationResult.flatBonuses
+            }}</span>
           </span>
           <span class="formula-operator">=</span>
-          <span class="formula-result">{{ calculationResult.finalAttack }}</span>
+          <span class="formula-result">{{
+            calculationResult.finalAttack
+          }}</span>
         </div>
       </div>
 
@@ -108,8 +136,8 @@ const formatBreakdownValue = (value: number, type: string): string => {
       <div class="breakdown-section">
         <h4>効果詳細</h4>
         <div class="breakdown-list">
-          <div 
-            v-for="(item, index) in calculationResult.breakdown" 
+          <div
+            v-for="(item, index) in calculationResult.breakdown"
             :key="index"
             class="breakdown-item"
             :class="getBreakdownItemClass(item.type)"
@@ -117,7 +145,8 @@ const formatBreakdownValue = (value: number, type: string): string => {
             <div class="breakdown-relic">{{ item.relicName }}</div>
             <div class="breakdown-effect">{{ item.effectName }}</div>
             <div class="breakdown-value">
-              {{ getBreakdownSymbol(item.type) }}{{ formatBreakdownValue(item.value, item.type) }}
+              {{ getBreakdownSymbol(item.type)
+              }}{{ formatBreakdownValue(item.value, item.type) }}
             </div>
           </div>
         </div>
@@ -127,8 +156,8 @@ const formatBreakdownValue = (value: number, type: string): string => {
       <div class="selected-relics-summary">
         <h4>選択中の遺物 ({{ selectedRelics.length }})</h4>
         <div class="relics-grid">
-          <div 
-            v-for="relic in selectedRelics" 
+          <div
+            v-for="relic in selectedRelics"
             :key="relic.id"
             class="relic-summary-card"
           >
@@ -291,9 +320,18 @@ const formatBreakdownValue = (value: number, type: string): string => {
   align-items: center;
 }
 
-.breakdown-multiplier { background: #fef5e7; border-left: 4px solid #f39c12; }
-.breakdown-percentage { background: #e8f5e8; border-left: 4px solid #27ae60; }
-.breakdown-flat { background: #e8f4fd; border-left: 4px solid #3498db; }
+.breakdown-multiplier {
+  background: #fef5e7;
+  border-left: 4px solid #f39c12;
+}
+.breakdown-percentage {
+  background: #e8f5e8;
+  border-left: 4px solid #27ae60;
+}
+.breakdown-flat {
+  background: #e8f4fd;
+  border-left: 4px solid #3498db;
+}
 
 .breakdown-relic {
   font-weight: 600;
@@ -358,22 +396,22 @@ const formatBreakdownValue = (value: number, type: string): string => {
   .summary-cards {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .breakdown-item {
     grid-template-columns: 1fr;
     gap: 0.5rem;
     text-align: center;
   }
-  
+
   .breakdown-value {
     text-align: center;
   }
-  
+
   .formula {
     justify-content: flex-start;
     font-size: 1rem;
   }
-  
+
   .relics-grid {
     grid-template-columns: 1fr;
   }

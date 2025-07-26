@@ -8,19 +8,19 @@
             Calculation Steps
           </h3>
           <div class="steps-controls">
-            <button 
-              @click="toggleAnimation"
+            <button
               :class="['control-btn', { active: animationEnabled }]"
               title="Toggle step animation"
+              @click="toggleAnimation"
             >
               <AnimationIcon />
               {{ animationEnabled ? 'Disable' : 'Enable' }} Animation
             </button>
-            <button 
-              @click="resetSteps"
+            <button
               class="control-btn"
               title="Reset to first step"
               :disabled="currentStep === 0"
+              @click="resetSteps"
             >
               <ResetIcon />
               Reset
@@ -32,7 +32,7 @@
       <!-- Progress indicator -->
       <div v-if="steps.length > 0" class="progress-section">
         <div class="progress-bar">
-          <div 
+          <div
             class="progress-fill"
             :style="{ width: `${progressPercentage}%` }"
           ></div>
@@ -47,25 +47,27 @@
 
       <!-- Steps display -->
       <div v-if="steps.length > 0" class="steps-container">
-        <div 
-          v-for="(step, index) in steps" 
+        <div
+          v-for="(step, index) in steps"
           :key="step.id"
           :class="[
             'calculation-step',
             `step-${step.type}`,
             {
-              'active': index === currentStep,
-              'completed': index < currentStep,
-              'pending': index > currentStep,
-              'animated': animationEnabled
-            }
+              active: index === currentStep,
+              completed: index < currentStep,
+              pending: index > currentStep,
+              animated: animationEnabled,
+            },
           ]"
         >
           <!-- Step number and status -->
           <div class="step-indicator">
             <div class="step-number">
               <span v-if="index < currentStep" class="check-icon">✓</span>
-              <span v-else-if="index === currentStep" class="current-icon">{{ index + 1 }}</span>
+              <span v-else-if="index === currentStep" class="current-icon">{{
+                index + 1
+              }}</span>
               <span v-else class="pending-icon">{{ index + 1 }}</span>
             </div>
             <div v-if="index < steps.length - 1" class="step-connector"></div>
@@ -77,7 +79,9 @@
               <h4 class="step-title">{{ step.title }}</h4>
               <div class="step-meta">
                 <span class="step-type">{{ getStepTypeLabel(step.type) }}</span>
-                <span v-if="step.description" class="step-description">{{ step.description }}</span>
+                <span v-if="step.description" class="step-description">{{
+                  step.description
+                }}</span>
               </div>
             </div>
 
@@ -98,33 +102,43 @@
             </div>
 
             <!-- Effects contributing to this step -->
-            <div v-if="step.effects && step.effects.length > 0" class="step-effects">
+            <div
+              v-if="step.effects && step.effects.length > 0"
+              class="step-effects"
+            >
               <div class="effects-header">
                 <span class="effects-label">Contributing Effects:</span>
-                <button 
-                  @click="toggleEffectsVisible(step.id)"
+                <button
                   class="effects-toggle"
+                  @click="toggleEffectsVisible(step.id)"
                 >
-                  {{ effectsVisible[step.id] ? 'Hide' : 'Show' }} ({{ step.effects.length }})
+                  {{ effectsVisible[step.id] ? 'Hide' : 'Show' }} ({{
+                    step.effects.length
+                  }})
                 </button>
               </div>
-              
+
               <Transition name="effects">
                 <div v-if="effectsVisible[step.id]" class="effects-list">
-                  <div 
-                    v-for="effect in step.effects" 
+                  <div
+                    v-for="effect in step.effects"
                     :key="effect.id"
                     class="effect-item"
                   >
                     <div class="effect-info">
                       <div class="effect-name">{{ effect.name }}</div>
-                      <div class="effect-source">from {{ effect.relicName }}</div>
+                      <div class="effect-source">
+                        from {{ effect.relicName }}
+                      </div>
                     </div>
                     <div class="effect-contribution">
                       <div class="effect-value">
                         {{ formatEffectContribution(effect, step.type) }}
                       </div>
-                      <div v-if="effect.multiplier && effect.multiplier !== 1" class="effect-multiplier">
+                      <div
+                        v-if="effect.multiplier && effect.multiplier !== 1"
+                        class="effect-multiplier"
+                      >
                         × {{ effect.multiplier.toFixed(2) }}
                       </div>
                     </div>
@@ -141,7 +155,7 @@
                   {{ generateCalculationProcess(step, index) }}
                 </div>
               </div>
-              
+
               <!-- Running total -->
               <div v-if="index === currentStep" class="running-total">
                 <div class="total-label">Running Total:</div>
@@ -175,36 +189,35 @@
 
       <!-- Navigation controls -->
       <div v-if="steps.length > 0" class="navigation-controls">
-        <button 
-          @click="previousStep"
+        <button
           :disabled="currentStep === 0"
           class="nav-btn prev-btn"
+          @click="previousStep"
         >
           <PrevIcon />
           Previous
         </button>
-        
+
         <div class="step-indicators">
-          <button 
+          <button
             v-for="(step, index) in steps"
             :key="step.id"
-            @click="goToStep(index)"
             :class="[
               'step-dot',
               {
-                'active': index === currentStep,
-                'completed': index < currentStep
-              }
+                active: index === currentStep,
+                completed: index < currentStep,
+              },
             ]"
             :title="`Go to step ${index + 1}: ${step.title}`"
-          >
-          </button>
+            @click="goToStep(index)"
+          ></button>
         </div>
-        
-        <button 
-          @click="nextStep"
+
+        <button
           :disabled="currentStep >= steps.length - 1"
           class="nav-btn next-btn"
+          @click="nextStep"
         >
           Next
           <NextIcon />
@@ -216,7 +229,10 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
-import type { CalculationStep, AttackMultiplierResult } from '../types/calculation'
+import type {
+  CalculationStep,
+  AttackMultiplierResult,
+} from '../types/calculation'
 import { useCalculation } from '../composables/useCalculation'
 import BaseCard from './ui/BaseCard.vue'
 
@@ -234,7 +250,7 @@ const props = withDefaults(defineProps<Props>(), {
   result: null,
   autoPlay: false,
   animationSpeed: 1000,
-  showEffectsExpanded: false
+  showEffectsExpanded: false,
 })
 
 // Emits
@@ -303,7 +319,7 @@ const toggleEffectsVisible = (stepId: string) => {
 
 const startAutoPlay = () => {
   if (props.steps.length === 0) return
-  
+
   autoPlayActive.value = true
   autoPlayTimer.value = window.setInterval(() => {
     if (currentStep.value < props.steps.length - 1) {
@@ -324,10 +340,10 @@ const stopAutoPlay = () => {
 
 const getStepTypeLabel = (type: string): string => {
   const labels = {
-    'base': 'Base Value',
-    'addition': 'Addition',
-    'multiplication': 'Multiplication',
-    'override': 'Override'
+    base: 'Base Value',
+    addition: 'Addition',
+    multiplication: 'Multiplication',
+    override: 'Override',
   }
   return labels[type as keyof typeof labels] || type
 }
@@ -358,7 +374,10 @@ const formatEffectContribution = (effect: any, stepType: string): string => {
   }
 }
 
-const generateCalculationProcess = (step: CalculationStep, stepIndex: number): string => {
+const generateCalculationProcess = (
+  step: CalculationStep,
+  stepIndex: number
+): string => {
   const prevTotal = calculateRunningTotal(stepIndex - 1)
   const currentValue = step.value
 
@@ -378,7 +397,7 @@ const generateCalculationProcess = (step: CalculationStep, stepIndex: number): s
 
 const calculateRunningTotal = (stepIndex: number): number => {
   if (stepIndex < 0) return 0
-  
+
   let total = 0
   for (let i = 0; i <= stepIndex && i < props.steps.length; i++) {
     const step = props.steps[i]
@@ -414,21 +433,25 @@ const formatFinalMultiplier = (): string => {
 }
 
 // Watch for prop changes
-watch(() => props.steps, (newSteps) => {
-  if (newSteps.length > 0) {
-    currentStep.value = 0
-    // Initialize effects visibility
-    newSteps.forEach(step => {
-      if (step.effects && step.effects.length > 0) {
-        effectsVisible.value[step.id] = props.showEffectsExpanded
+watch(
+  () => props.steps,
+  newSteps => {
+    if (newSteps.length > 0) {
+      currentStep.value = 0
+      // Initialize effects visibility
+      newSteps.forEach(step => {
+        if (step.effects && step.effects.length > 0) {
+          effectsVisible.value[step.id] = props.showEffectsExpanded
+        }
+      })
+
+      if (props.autoPlay) {
+        nextTick(() => startAutoPlay())
       }
-    })
-    
-    if (props.autoPlay) {
-      nextTick(() => startAutoPlay())
     }
-  }
-}, { immediate: true })
+  },
+  { immediate: true }
+)
 
 // Cleanup on unmount
 import { onUnmounted } from 'vue'
@@ -442,7 +465,7 @@ const StepsIcon = {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
       <path d="M3 3h18v2H3V3zm0 6h18v2H3V9zm0 6h18v2H3v-2z"/>
     </svg>
-  `
+  `,
 }
 
 const AnimationIcon = {
@@ -450,7 +473,7 @@ const AnimationIcon = {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
     </svg>
-  `
+  `,
 }
 
 const ResetIcon = {
@@ -458,7 +481,7 @@ const ResetIcon = {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
     </svg>
-  `
+  `,
 }
 
 const PrevIcon = {
@@ -466,7 +489,7 @@ const PrevIcon = {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
       <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
     </svg>
-  `
+  `,
 }
 
 const NextIcon = {
@@ -474,7 +497,7 @@ const NextIcon = {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
       <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
     </svg>
-  `
+  `,
 }
 </script>
 
@@ -1035,44 +1058,44 @@ const NextIcon = {
     align-items: flex-start;
     gap: 0.75rem;
   }
-  
+
   .steps-controls {
     align-self: stretch;
   }
-  
+
   .calculation-step {
     gap: 1rem;
   }
-  
+
   .step-number {
     width: 32px;
     height: 32px;
     font-size: 0.8rem;
   }
-  
+
   .effect-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .effect-contribution {
     align-items: flex-start;
   }
-  
+
   .navigation-controls {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .step-indicators {
     order: -1;
   }
-  
+
   .final-multiplier {
     font-size: 2.5rem;
   }
-  
+
   .result-value {
     flex-direction: column;
     gap: 0.25rem;

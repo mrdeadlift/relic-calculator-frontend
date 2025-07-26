@@ -3,18 +3,20 @@
     <div class="import-instructions">
       <h4>遺物データインポート</h4>
       <p>JSONファイルまたはCSVファイルから遺物データをインポートできます。</p>
-      
+
       <div class="format-info">
         <h5>サポートされる形式:</h5>
         <ul>
           <li><strong>JSON:</strong> 完全な遺物データ構造</li>
-          <li><strong>CSV:</strong> 基本的な遺物情報（名前、説明、カテゴリなど）</li>
+          <li>
+            <strong>CSV:</strong> 基本的な遺物情報（名前、説明、カテゴリなど）
+          </li>
         </ul>
       </div>
     </div>
 
     <div class="file-upload-section">
-      <div 
+      <div
         class="file-drop-zone"
         :class="{ 'drag-over': isDragOver, 'has-file': selectedFile }"
         @drop="handleDrop"
@@ -27,11 +29,9 @@
           <p class="drop-text">
             ファイルをドラッグ&ドロップまたはクリックして選択
           </p>
-          <p class="drop-hint">
-            .json, .csv ファイルのみサポート（最大10MB）
-          </p>
+          <p class="drop-hint">.json, .csv ファイルのみサポート（最大10MB）</p>
         </div>
-        
+
         <div v-else class="file-info">
           <div class="file-icon">
             <i :class="getFileIcon(selectedFile.type)"></i>
@@ -41,22 +41,18 @@
             <div class="file-size">{{ formatFileSize(selectedFile.size) }}</div>
             <div class="file-type">{{ getFileType(selectedFile.type) }}</div>
           </div>
-          <BaseButton
-            variant="danger"
-            size="small"
-            @click.stop="removeFile"
-          >
+          <BaseButton variant="danger" size="small" @click.stop="removeFile">
             <i class="icon-trash"></i>
           </BaseButton>
         </div>
       </div>
-      
+
       <input
         ref="fileInput"
         type="file"
         accept=".json,.csv"
-        @change="handleFileSelect"
         style="display: none"
+        @change="handleFileSelect"
       />
     </div>
 
@@ -82,7 +78,11 @@
       <div v-if="previewData.errors.length > 0" class="error-details">
         <h6>エラー詳細:</h6>
         <div class="error-list">
-          <div v-for="error in previewData.errors.slice(0, 5)" :key="error.line" class="error-item">
+          <div
+            v-for="error in previewData.errors.slice(0, 5)"
+            :key="error.line"
+            class="error-item"
+          >
             <span class="error-line">行 {{ error.line }}:</span>
             <span class="error-message">{{ error.message }}</span>
           </div>
@@ -107,13 +107,19 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in previewData.items.slice(0, 3)" :key="item.name" class="sample-row">
+              <tr
+                v-for="item in previewData.items.slice(0, 3)"
+                :key="item.name"
+                class="sample-row"
+              >
                 <td>{{ item.name || '未設定' }}</td>
                 <td>{{ item.category || '未設定' }}</td>
                 <td>{{ item.rarity || '未設定' }}</td>
                 <td>{{ item.effects?.length || 0 }}</td>
                 <td>
-                  <span :class="['status-badge', item.valid ? 'valid' : 'invalid']">
+                  <span
+                    :class="['status-badge', item.valid ? 'valid' : 'invalid']"
+                  >
                     {{ item.valid ? '有効' : '無効' }}
                   </span>
                 </td>
@@ -127,12 +133,12 @@
     <!-- インポートオプション -->
     <div class="import-options">
       <h5>インポートオプション</h5>
-      
+
       <div class="option-group">
         <label class="option-label">
-          <input 
-            type="checkbox" 
+          <input
             v-model="importOptions.skipErrors"
+            type="checkbox"
             class="option-checkbox"
           />
           エラーのあるアイテムをスキップ
@@ -144,9 +150,9 @@
 
       <div class="option-group">
         <label class="option-label">
-          <input 
-            type="checkbox" 
+          <input
             v-model="importOptions.updateExisting"
+            type="checkbox"
             class="option-checkbox"
           />
           既存アイテムを更新
@@ -158,9 +164,9 @@
 
       <div class="option-group">
         <label class="option-label">
-          <input 
-            type="checkbox" 
+          <input
             v-model="importOptions.validateOnly"
+            type="checkbox"
             class="option-checkbox"
           />
           バリデーションのみ実行
@@ -172,11 +178,14 @@
     </div>
 
     <!-- 進捗表示 -->
-    <div v-if="uploadProgress > 0 && uploadProgress < 100" class="upload-progress">
+    <div
+      v-if="uploadProgress > 0 && uploadProgress < 100"
+      class="upload-progress"
+    >
       <div class="progress-label">アップロード中...</div>
       <div class="progress-bar">
-        <div 
-          class="progress-fill" 
+        <div
+          class="progress-fill"
           :style="{ width: `${uploadProgress}%` }"
         ></div>
       </div>
@@ -187,28 +196,30 @@
     <div class="form-actions">
       <BaseButton
         variant="secondary"
-        @click="$emit('cancel')"
         :disabled="loading"
+        @click="$emit('cancel')"
       >
         キャンセル
       </BaseButton>
-      
+
       <BaseButton
         variant="warning"
-        @click="previewImport"
         :disabled="!selectedFile || loading"
         :loading="previewing"
+        @click="previewImport"
       >
         プレビュー
       </BaseButton>
-      
+
       <BaseButton
         variant="primary"
-        @click="executeImport"
         :disabled="!selectedFile || !previewData || loading"
         :loading="loading"
+        @click="executeImport"
       >
-        {{ importOptions.validateOnly ? 'バリデーション実行' : 'インポート実行' }}
+        {{
+          importOptions.validateOnly ? 'バリデーション実行' : 'インポート実行'
+        }}
       </BaseButton>
     </div>
   </div>
@@ -226,12 +237,12 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  loading: false
+  loading: false,
 })
 
 const emit = defineEmits<{
-  'submit': [file: File]
-  'cancel': []
+  submit: [file: File]
+  cancel: []
 }>()
 
 // Composables
@@ -247,14 +258,14 @@ const previewing = ref(false)
 const importOptions = reactive({
   skipErrors: true,
   updateExisting: false,
-  validateOnly: false
+  validateOnly: false,
 })
 
 // メソッド
 const handleDrop = (event: DragEvent) => {
   event.preventDefault()
   isDragOver.value = false
-  
+
   const files = event.dataTransfer?.files
   if (files && files.length > 0) {
     selectFile(files[0])
@@ -270,18 +281,26 @@ const handleFileSelect = (event: Event) => {
 
 const selectFile = (file: File) => {
   // ファイル形式チェック
-  const allowedTypes = ['application/json', 'text/csv', 'application/vnd.ms-excel']
-  if (!allowedTypes.includes(file.type) && !file.name.endsWith('.json') && !file.name.endsWith('.csv')) {
+  const allowedTypes = [
+    'application/json',
+    'text/csv',
+    'application/vnd.ms-excel',
+  ]
+  if (
+    !allowedTypes.includes(file.type) &&
+    !file.name.endsWith('.json') &&
+    !file.name.endsWith('.csv')
+  ) {
     showToast('サポートされていないファイル形式です', 'error')
     return
   }
-  
+
   // ファイルサイズチェック (10MB)
   if (file.size > 10 * 1024 * 1024) {
     showToast('ファイルサイズが大きすぎます（最大10MB）', 'error')
     return
   }
-  
+
   selectedFile.value = file
   previewData.value = null // プレビューをリセット
 }
@@ -294,19 +313,19 @@ const removeFile = () => {
 
 const previewImport = async () => {
   if (!selectedFile.value) return
-  
+
   previewing.value = true
   try {
     // ファイルを読み込んでプレビューデータを生成
     const content = await readFileContent(selectedFile.value)
     const parsedData = parseFileContent(content, selectedFile.value.type)
-    
+
     previewData.value = {
       items: parsedData.items,
       valid: parsedData.items.filter(item => item.valid).length,
-      errors: parsedData.errors
+      errors: parsedData.errors,
     }
-    
+
     showToast('プレビューを生成しました', 'success')
   } catch (error) {
     console.error('Preview failed:', error)
@@ -318,7 +337,7 @@ const previewImport = async () => {
 
 const executeImport = async () => {
   if (!selectedFile.value) return
-  
+
   try {
     emit('submit', selectedFile.value)
   } catch (error) {
@@ -330,7 +349,7 @@ const executeImport = async () => {
 const readFileContent = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
-    reader.onload = (e) => resolve(e.target?.result as string)
+    reader.onload = e => resolve(e.target?.result as string)
     reader.onerror = () => reject(new Error('ファイルの読み込みに失敗しました'))
     reader.readAsText(file)
   })
@@ -339,24 +358,28 @@ const readFileContent = (file: File): Promise<string> => {
 const parseFileContent = (content: string, fileType: string) => {
   const items: any[] = []
   const errors: any[] = []
-  
+
   try {
-    if (fileType === 'application/json' || content.trim().startsWith('{') || content.trim().startsWith('[')) {
+    if (
+      fileType === 'application/json' ||
+      content.trim().startsWith('{') ||
+      content.trim().startsWith('[')
+    ) {
       // JSON形式
       const data = JSON.parse(content)
       const relicsArray = Array.isArray(data) ? data : [data]
-      
+
       relicsArray.forEach((item, index) => {
         const validationResult = validateRelicItem(item)
         items.push({
           ...item,
-          valid: validationResult.valid
+          valid: validationResult.valid,
         })
-        
+
         if (!validationResult.valid) {
           errors.push({
             line: index + 1,
-            message: validationResult.errors.join(', ')
+            message: validationResult.errors.join(', '),
           })
         }
       })
@@ -364,27 +387,27 @@ const parseFileContent = (content: string, fileType: string) => {
       // CSV形式
       const lines = content.split('\n')
       const headers = lines[0].split(',').map(h => h.trim())
-      
+
       for (let i = 1; i < lines.length; i++) {
         if (!lines[i].trim()) continue
-        
+
         const values = lines[i].split(',').map(v => v.trim())
         const item: any = {}
-        
+
         headers.forEach((header, index) => {
           item[header] = values[index] || ''
         })
-        
+
         const validationResult = validateRelicItem(item)
         items.push({
           ...item,
-          valid: validationResult.valid
+          valid: validationResult.valid,
         })
-        
+
         if (!validationResult.valid) {
           errors.push({
             line: i + 1,
-            message: validationResult.errors.join(', ')
+            message: validationResult.errors.join(', '),
           })
         }
       }
@@ -392,36 +415,38 @@ const parseFileContent = (content: string, fileType: string) => {
   } catch (error) {
     errors.push({
       line: 1,
-      message: 'ファイル形式が正しくありません'
+      message: 'ファイル形式が正しくありません',
     })
   }
-  
+
   return { items, errors }
 }
 
 const validateRelicItem = (item: any) => {
   const errors: string[] = []
-  
+
   if (!item.name) errors.push('名前が必要です')
   if (!item.category) errors.push('カテゴリが必要です')
   if (!item.rarity) errors.push('レアリティが必要です')
   if (!item.description) errors.push('説明が必要です')
-  
+
   return {
     valid: errors.length === 0,
-    errors
+    errors,
   }
 }
 
 const getFileIcon = (fileType: string): string => {
   if (fileType === 'application/json') return 'icon-file-json'
-  if (fileType === 'text/csv' || fileType === 'application/vnd.ms-excel') return 'icon-file-csv'
+  if (fileType === 'text/csv' || fileType === 'application/vnd.ms-excel')
+    return 'icon-file-csv'
   return 'icon-file'
 }
 
 const getFileType = (fileType: string): string => {
   if (fileType === 'application/json') return 'JSON'
-  if (fileType === 'text/csv' || fileType === 'application/vnd.ms-excel') return 'CSV'
+  if (fileType === 'text/csv' || fileType === 'application/vnd.ms-excel')
+    return 'CSV'
   return 'Unknown'
 }
 
@@ -780,17 +805,17 @@ const formatFileSize = (bytes: number): string => {
   .preview-stats {
     grid-template-columns: 1fr;
   }
-  
+
   .stat-item {
     flex-direction: column;
     text-align: center;
     gap: 0.5rem;
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
+
   .file-info {
     flex-direction: column;
     text-align: center;

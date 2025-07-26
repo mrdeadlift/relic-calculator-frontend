@@ -9,29 +9,29 @@
             Build Comparison & Optimization
           </h2>
           <div class="header-actions">
-            <button 
-              @click="clearAllBuilds"
+            <button
               :disabled="comparisonBuilds.length === 0"
               class="action-btn secondary"
               title="Clear all builds"
+              @click="clearAllBuilds"
             >
               <ClearIcon />
               Clear All
             </button>
-            <button 
-              @click="optimizeBuilds"
+            <button
               :disabled="comparisonBuilds.length < 2"
               class="action-btn primary"
               title="Optimize builds"
+              @click="optimizeBuilds"
             >
               <OptimizeIcon />
               Optimize
             </button>
-            <button 
-              @click="exportComparison"
+            <button
               :disabled="comparisonBuilds.length === 0"
               class="action-btn secondary"
               title="Export comparison"
+              @click="exportComparison"
             >
               <ExportIcon />
               Export
@@ -44,19 +44,27 @@
       <div v-if="comparisonBuilds.length > 0" class="comparison-stats">
         <div class="stat-item">
           <span class="stat-label">Builds Compared:</span>
-          <span class="stat-value">{{ comparisonBuilds.length }} / {{ maxBuilds }}</span>
+          <span class="stat-value"
+            >{{ comparisonBuilds.length }} / {{ maxBuilds }}</span
+          >
         </div>
         <div class="stat-item">
           <span class="stat-label">Best Multiplier:</span>
-          <span class="stat-value best">{{ formatMultiplier(bestMultiplier) }}</span>
+          <span class="stat-value best">{{
+            formatMultiplier(bestMultiplier)
+          }}</span>
         </div>
         <div class="stat-item">
           <span class="stat-label">Average Multiplier:</span>
-          <span class="stat-value">{{ formatMultiplier(averageMultiplier) }}</span>
+          <span class="stat-value">{{
+            formatMultiplier(averageMultiplier)
+          }}</span>
         </div>
         <div class="stat-item">
           <span class="stat-label">Range:</span>
-          <span class="stat-value">{{ formatMultiplier(multiplierRange) }}</span>
+          <span class="stat-value">{{
+            formatMultiplier(multiplierRange)
+          }}</span>
         </div>
       </div>
     </BaseCard>
@@ -72,15 +80,15 @@
 
       <!-- Add Build Slots -->
       <div class="build-slots">
-        <div 
-          v-for="(build, index) in buildSlots" 
+        <div
+          v-for="(build, index) in buildSlots"
           :key="index"
           :class="[
             'build-slot',
-            { 
-              'occupied': build !== null,
-              'dragging': dragOverSlot === index
-            }
+            {
+              occupied: build !== null,
+              dragging: dragOverSlot === index,
+            },
           ]"
           @drop="handleDrop($event, index)"
           @dragover.prevent="dragOverSlot = index"
@@ -91,17 +99,21 @@
             <div class="build-info">
               <div class="build-header">
                 <h4 class="build-name">{{ build.name }}</h4>
-                <button 
-                  @click="removeBuild(index)"
+                <button
                   class="remove-btn"
                   title="Remove build"
+                  @click="removeBuild(index)"
                 >
                   <RemoveIcon />
                 </button>
               </div>
               <div class="build-meta">
-                <span class="multiplier">{{ formatMultiplier(build.attackMultiplier || 0) }}</span>
-                <span class="relic-count">{{ build.relics?.length || 0 }} relics</span>
+                <span class="multiplier">{{
+                  formatMultiplier(build.attackMultiplier || 0)
+                }}</span>
+                <span class="relic-count"
+                  >{{ build.relics?.length || 0 }} relics</span
+                >
                 <span :class="['rating', 'rating-' + getBuildRating(build)]">
                   {{ getBuildRating(build) }}
                 </span>
@@ -109,18 +121,15 @@
             </div>
             <div class="build-preview">
               <div class="relics-preview">
-                <div 
-                  v-for="relic in (build.relics || []).slice(0, 4)" 
+                <div
+                  v-for="relic in (build.relics || []).slice(0, 4)"
                   :key="relic.id"
                   :class="['relic-icon', `rarity-${relic.rarity}`]"
                   :title="relic.name"
                 >
                   {{ relic.name.charAt(0) }}
                 </div>
-                <div 
-                  v-if="(build.relics || []).length > 4" 
-                  class="more-relics"
-                >
+                <div v-if="(build.relics || []).length > 4" class="more-relics">
                   +{{ (build.relics || []).length - 4 }}
                 </div>
               </div>
@@ -137,10 +146,7 @@
                 <h4>Build Slot {{ index + 1 }}</h4>
                 <p>Drag a build here or select from saved builds</p>
               </div>
-              <button 
-                @click="openBuildSelector(index)"
-                class="select-btn"
-              >
+              <button class="select-btn" @click="openBuildSelector(index)">
                 <SelectIcon />
                 Select Build
               </button>
@@ -153,21 +159,21 @@
     <!-- Comparison View Toggle -->
     <div v-if="comparisonBuilds.length > 1" class="view-controls">
       <div class="view-toggles">
-        <button 
+        <button
           :class="['view-btn', { active: viewMode === 'table' }]"
           @click="viewMode = 'table'"
         >
           <TableIcon />
           Table View
         </button>
-        <button 
+        <button
           :class="['view-btn', { active: viewMode === 'cards' }]"
           @click="viewMode = 'cards'"
         >
           <CardsIcon />
           Cards View
         </button>
-        <button 
+        <button
           :class="['view-btn', { active: viewMode === 'chart' }]"
           @click="viewMode = 'chart'"
         >
@@ -175,10 +181,10 @@
           Chart View
         </button>
       </div>
-      
+
       <div class="comparison-options">
         <label class="option-label">
-          <input 
+          <input
             v-model="showDifferences"
             type="checkbox"
             class="option-checkbox"
@@ -187,7 +193,7 @@
           <span>Show Differences Only</span>
         </label>
         <label class="option-label">
-          <input 
+          <input
             v-model="normalizeValues"
             type="checkbox"
             class="option-checkbox"
@@ -207,14 +213,22 @@
             <thead>
               <tr>
                 <th class="metric-header">Metric</th>
-                <th 
-                  v-for="(build, index) in comparisonBuilds" 
+                <th
+                  v-for="(build, index) in comparisonBuilds"
                   :key="build.id"
-                  :class="['build-header', { 'best': isBestInMetric(index, 'overall') }]"
+                  :class="[
+                    'build-header',
+                    { best: isBestInMetric(index, 'overall') },
+                  ]"
                 >
                   <div class="header-content">
                     <span class="build-name">{{ build.name }}</span>
-                    <span :class="['build-rating', 'rating-' + getBuildRating(build)]">
+                    <span
+                      :class="[
+                        'build-rating',
+                        'rating-' + getBuildRating(build),
+                      ]"
+                    >
                       {{ getBuildRating(build) }}
                     </span>
                   </div>
@@ -226,23 +240,30 @@
                 <td class="metric-name">
                   <div class="metric-info">
                     <span class="metric-label">{{ metric.label }}</span>
-                    <span v-if="metric.description" class="metric-desc">{{ metric.description }}</span>
+                    <span v-if="metric.description" class="metric-desc">{{
+                      metric.description
+                    }}</span>
                   </div>
                 </td>
-                <td 
-                  v-for="(build, index) in comparisonBuilds" 
+                <td
+                  v-for="(build, index) in comparisonBuilds"
                   :key="build.id"
                   :class="[
                     'metric-value',
-                    { 
-                      'best': isBestInMetric(index, metric.key),
-                      'worst': isWorstInMetric(index, metric.key)
-                    }
+                    {
+                      best: isBestInMetric(index, metric.key),
+                      worst: isWorstInMetric(index, metric.key),
+                    },
                   ]"
                 >
                   <div class="value-content">
-                    <span class="primary-value">{{ formatMetricValue(build, metric) }}</span>
-                    <span v-if="showDifferences && index > 0" class="difference">
+                    <span class="primary-value">{{
+                      formatMetricValue(build, metric)
+                    }}</span>
+                    <span
+                      v-if="showDifferences && index > 0"
+                      class="difference"
+                    >
                       {{ formatDifference(build, comparisonBuilds[0], metric) }}
                     </span>
                   </div>
@@ -256,15 +277,15 @@
       <!-- Cards View -->
       <div v-else-if="viewMode === 'cards'" class="cards-view">
         <div class="comparison-cards">
-          <div 
-            v-for="(build, index) in comparisonBuilds" 
+          <div
+            v-for="(build, index) in comparisonBuilds"
             :key="build.id"
             :class="[
               'comparison-card',
-              { 
+              {
                 'best-build': index === bestBuildIndex,
-                'draggable': true
-              }
+                draggable: true,
+              },
             ]"
             :draggable="true"
             @dragstart="handleCardDragStart($event, index)"
@@ -275,7 +296,9 @@
               <div class="build-info">
                 <h3 class="build-name">{{ build.name }}</h3>
                 <div class="build-badges">
-                  <span :class="['rating-badge', 'rating-' + getBuildRating(build)]">
+                  <span
+                    :class="['rating-badge', 'rating-' + getBuildRating(build)]"
+                  >
                     {{ getBuildRating(build) }}
                   </span>
                   <span v-if="index === bestBuildIndex" class="best-badge">
@@ -285,17 +308,17 @@
                 </div>
               </div>
               <div class="card-actions">
-                <button 
-                  @click="toggleExpanded(index)"
+                <button
                   :class="['expand-btn', { expanded: expandedCards[index] }]"
                   title="Toggle details"
+                  @click="toggleExpanded(index)"
                 >
                   <ExpandIcon />
                 </button>
-                <button 
-                  @click="removeBuild(index)"
+                <button
                   class="remove-btn"
                   title="Remove from comparison"
+                  @click="removeBuild(index)"
                 >
                   <RemoveIcon />
                 </button>
@@ -307,15 +330,21 @@
               <div class="key-metrics">
                 <div class="metric-item primary">
                   <span class="metric-label">Attack Multiplier</span>
-                  <span class="metric-value">{{ formatMultiplier(build.attackMultiplier || 0) }}</span>
+                  <span class="metric-value">{{
+                    formatMultiplier(build.attackMultiplier || 0)
+                  }}</span>
                 </div>
                 <div class="metric-item">
                   <span class="metric-label">Relics</span>
-                  <span class="metric-value">{{ build.relics?.length || 0 }}</span>
+                  <span class="metric-value">{{
+                    build.relics?.length || 0
+                  }}</span>
                 </div>
                 <div class="metric-item">
                   <span class="metric-label">Difficulty</span>
-                  <span class="metric-value">{{ getBuildDifficulty(build) }}/10</span>
+                  <span class="metric-value"
+                    >{{ getBuildDifficulty(build) }}/10</span
+                  >
                 </div>
               </div>
 
@@ -324,13 +353,15 @@
                 <div class="details-section">
                   <h4>Relics Breakdown</h4>
                   <div class="relics-list">
-                    <div 
-                      v-for="relic in build.relics || []" 
+                    <div
+                      v-for="relic in build.relics || []"
                       :key="relic.id"
                       :class="['relic-item', `rarity-${relic.rarity}`]"
                     >
                       <span class="relic-name">{{ relic.name }}</span>
-                      <span class="relic-effects">{{ relic.effects?.length || 0 }} effects</span>
+                      <span class="relic-effects"
+                        >{{ relic.effects?.length || 0 }} effects</span
+                      >
                     </div>
                   </div>
                 </div>
@@ -338,13 +369,15 @@
                 <div class="details-section">
                   <h4>Performance Metrics</h4>
                   <div class="metrics-grid">
-                    <div 
-                      v-for="metric in detailedMetrics" 
+                    <div
+                      v-for="metric in detailedMetrics"
                       :key="metric.key"
                       class="metric-detail"
                     >
                       <span class="metric-name">{{ metric.label }}</span>
-                      <span class="metric-result">{{ formatMetricValue(build, metric) }}</span>
+                      <span class="metric-result">{{
+                        formatMetricValue(build, metric)
+                      }}</span>
                     </div>
                   </div>
                 </div>
@@ -353,14 +386,19 @@
                 <div v-if="comparisonBuilds.length > 1" class="details-section">
                   <h4>Comparison</h4>
                   <div class="comparison-details">
-                    <div 
-                      v-for="(otherBuild, otherIndex) in comparisonBuilds" 
-                      :key="otherBuild.id"
+                    <div
+                      v-for="(otherBuild, otherIndex) in comparisonBuilds"
                       v-if="otherIndex !== index"
+                      :key="otherBuild.id"
                       class="comparison-item"
                     >
                       <span class="other-build">vs {{ otherBuild.name }}:</span>
-                      <span :class="['difference', getDifferenceClass(build, otherBuild)]">
+                      <span
+                        :class="[
+                          'difference',
+                          getDifferenceClass(build, otherBuild),
+                        ]"
+                      >
                         {{ formatBuildDifference(build, otherBuild) }}
                       </span>
                     </div>
@@ -373,13 +411,17 @@
       </div>
 
       <!-- Chart View -->
-      <BaseCard v-else-if="viewMode === 'chart'" class="chart-view" padding="lg">
+      <BaseCard
+        v-else-if="viewMode === 'chart'"
+        class="chart-view"
+        padding="lg"
+      >
         <div class="chart-container">
           <div class="chart-header">
             <h3>Performance Comparison Chart</h3>
             <select v-model="chartMetric" class="chart-metric-select">
-              <option 
-                v-for="metric in chartableMetrics" 
+              <option
+                v-for="metric in chartableMetrics"
                 :key="metric.key"
                 :value="metric.key"
               >
@@ -387,24 +429,26 @@
               </option>
             </select>
           </div>
-          
+
           <div class="chart-content">
             <div class="chart-bars">
-              <div 
-                v-for="(build, index) in comparisonBuilds" 
+              <div
+                v-for="(build, index) in comparisonBuilds"
                 :key="build.id"
                 class="chart-bar-container"
               >
                 <div class="bar-info">
                   <span class="build-name">{{ build.name }}</span>
-                  <span class="bar-value">{{ getChartValue(build, chartMetric) }}</span>
+                  <span class="bar-value">{{
+                    getChartValue(build, chartMetric)
+                  }}</span>
                 </div>
                 <div class="bar-track">
-                  <div 
+                  <div
                     class="bar-fill"
-                    :style="{ 
+                    :style="{
                       width: getBarWidth(build, chartMetric) + '%',
-                      backgroundColor: getBarColor(index)
+                      backgroundColor: getBarColor(index),
                     }"
                   ></div>
                 </div>
@@ -416,7 +460,11 @@
     </div>
 
     <!-- Optimization Suggestions -->
-    <BaseCard v-if="optimizationSuggestions.length > 0" class="optimization-suggestions" padding="lg">
+    <BaseCard
+      v-if="optimizationSuggestions.length > 0"
+      class="optimization-suggestions"
+      padding="lg"
+    >
       <template #header>
         <h3 class="suggestions-title">
           <OptimizeIcon />
@@ -425,21 +473,25 @@
       </template>
 
       <div class="suggestions-list">
-        <div 
-          v-for="suggestion in optimizationSuggestions" 
+        <div
+          v-for="suggestion in optimizationSuggestions"
           :key="suggestion.id"
           :class="['suggestion-item', `priority-${suggestion.priority}`]"
         >
           <div class="suggestion-header">
             <div class="suggestion-info">
               <h4 class="suggestion-title">{{ suggestion.title }}</h4>
-              <span :class="['priority-badge', `priority-${suggestion.priority}`]">
+              <span
+                :class="['priority-badge', `priority-${suggestion.priority}`]"
+              >
                 {{ suggestion.priority.toUpperCase() }}
               </span>
             </div>
             <div class="suggestion-impact">
               <span class="impact-label">Expected Improvement:</span>
-              <span class="impact-value">+{{ suggestion.expectedImprovement.toFixed(2) }}×</span>
+              <span class="impact-value"
+                >+{{ suggestion.expectedImprovement.toFixed(2) }}×</span
+              >
             </div>
           </div>
 
@@ -449,8 +501,8 @@
               <div class="affected-builds">
                 <span class="details-label">Affected Builds:</span>
                 <div class="build-tags">
-                  <span 
-                    v-for="buildId in suggestion.affectedBuilds" 
+                  <span
+                    v-for="buildId in suggestion.affectedBuilds"
                     :key="buildId"
                     class="build-tag"
                   >
@@ -466,18 +518,18 @@
           </div>
 
           <div class="suggestion-actions">
-            <button 
-              @click="applySuggestion(suggestion)"
+            <button
               class="apply-btn"
               title="Apply this suggestion"
+              @click="applySuggestion(suggestion)"
             >
               <ApplyIcon />
               Apply Suggestion
             </button>
-            <button 
-              @click="dismissSuggestion(suggestion.id)"
+            <button
               class="dismiss-btn"
               title="Dismiss suggestion"
+              @click="dismissSuggestion(suggestion.id)"
             >
               <DismissIcon />
               Dismiss
@@ -491,21 +543,21 @@
     <BaseModal v-model:show="showBuildSelector" title="Select Build" size="lg">
       <div class="build-selector-content">
         <div class="selector-search">
-          <input 
+          <input
             v-model="selectorSearchQuery"
             type="text"
             placeholder="Search builds..."
             class="search-input"
           />
         </div>
-        
+
         <div class="available-builds">
-          <div 
-            v-for="build in filteredAvailableBuilds" 
+          <div
+            v-for="build in filteredAvailableBuilds"
             :key="build.id"
             :class="[
               'selectable-build',
-              { 'selected': selectedBuildId === build.id }
+              { selected: selectedBuildId === build.id },
             ]"
             @click="selectedBuildId = build.id"
           >
@@ -520,18 +572,15 @@
           </div>
         </div>
       </div>
-      
+
       <template #footer>
-        <button 
-          @click="showBuildSelector = false"
-          class="modal-btn secondary"
-        >
+        <button class="modal-btn secondary" @click="showBuildSelector = false">
           Cancel
         </button>
-        <button 
-          @click="addSelectedBuild"
+        <button
           :disabled="!selectedBuildId"
           class="modal-btn primary"
+          @click="addSelectedBuild"
         >
           Add Build
         </button>
@@ -558,7 +607,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   savedBuilds: () => [],
-  maxBuilds: 4
+  maxBuilds: 4,
 })
 
 // Emits
@@ -592,7 +641,7 @@ const selectedBuildId = ref('')
 const optimizationSuggestions = ref<OptimizationSuggestion[]>([])
 
 // Computed
-const comparisonBuilds = computed(() => 
+const comparisonBuilds = computed(() =>
   buildSlots.value.filter((build): build is Build => build !== null)
 )
 
@@ -603,7 +652,10 @@ const bestMultiplier = computed(() => {
 
 const averageMultiplier = computed(() => {
   if (comparisonBuilds.value.length === 0) return 0
-  const sum = comparisonBuilds.value.reduce((acc, b) => acc + (b.attackMultiplier || 0), 0)
+  const sum = comparisonBuilds.value.reduce(
+    (acc, b) => acc + (b.attackMultiplier || 0),
+    0
+  )
   return sum / comparisonBuilds.value.length
 })
 
@@ -617,52 +669,73 @@ const bestBuildIndex = computed(() => {
   if (comparisonBuilds.value.length === 0) return -1
   let bestIndex = 0
   let bestValue = comparisonBuilds.value[0].attackMultiplier || 0
-  
+
   comparisonBuilds.value.forEach((build, index) => {
     if ((build.attackMultiplier || 0) > bestValue) {
       bestValue = build.attackMultiplier || 0
       bestIndex = index
     }
   })
-  
+
   return bestIndex
 })
 
 const comparisonMetrics = computed(() => [
-  { key: 'attackMultiplier', label: 'Attack Multiplier', description: 'Total attack damage multiplier' },
-  { key: 'relicCount', label: 'Relic Count', description: 'Number of relics equipped' },
-  { key: 'difficulty', label: 'Obtainment Difficulty', description: 'Average difficulty to obtain relics' },
-  { key: 'effectCount', label: 'Active Effects', description: 'Total number of active effects' },
-  { key: 'synergy', label: 'Synergy Score', description: 'How well relics work together' }
+  {
+    key: 'attackMultiplier',
+    label: 'Attack Multiplier',
+    description: 'Total attack damage multiplier',
+  },
+  {
+    key: 'relicCount',
+    label: 'Relic Count',
+    description: 'Number of relics equipped',
+  },
+  {
+    key: 'difficulty',
+    label: 'Obtainment Difficulty',
+    description: 'Average difficulty to obtain relics',
+  },
+  {
+    key: 'effectCount',
+    label: 'Active Effects',
+    description: 'Total number of active effects',
+  },
+  {
+    key: 'synergy',
+    label: 'Synergy Score',
+    description: 'How well relics work together',
+  },
 ])
 
 const detailedMetrics = computed(() => [
   { key: 'attackMultiplier', label: 'Attack Multiplier' },
   { key: 'criticalChance', label: 'Critical Chance' },
   { key: 'criticalDamage', label: 'Critical Damage' },
-  { key: 'elementalDamage', label: 'Elemental Damage' }
+  { key: 'elementalDamage', label: 'Elemental Damage' },
 ])
 
-const chartableMetrics = computed(() => 
+const chartableMetrics = computed(() =>
   comparisonMetrics.value.filter(m => m.key !== 'relicCount')
 )
 
 const filteredAvailableBuilds = computed(() => {
   let builds = props.savedBuilds || savedBuilds.value
-  
+
   // Filter out already selected builds
   const selectedIds = comparisonBuilds.value.map(b => b.id)
   builds = builds.filter(b => !selectedIds.includes(b.id))
-  
+
   // Search filter
   if (selectorSearchQuery.value.trim()) {
     const query = selectorSearchQuery.value.toLowerCase()
-    builds = builds.filter(b => 
-      b.name.toLowerCase().includes(query) ||
-      (b.description || '').toLowerCase().includes(query)
+    builds = builds.filter(
+      b =>
+        b.name.toLowerCase().includes(query) ||
+        (b.description || '').toLowerCase().includes(query)
     )
   }
-  
+
   return builds
 })
 
@@ -682,14 +755,17 @@ const getBuildRating = (build: Build): string => {
 
 const getBuildDifficulty = (build: Build): number => {
   if (!build.relics || build.relics.length === 0) return 0
-  const sum = build.relics.reduce((acc, relic) => acc + (relic.obtainmentDifficulty || 0), 0)
+  const sum = build.relics.reduce(
+    (acc, relic) => acc + (relic.obtainmentDifficulty || 0),
+    0
+  )
   return Math.round(sum / build.relics.length)
 }
 
 const handleDrop = (event: DragEvent, slotIndex: number) => {
   event.preventDefault()
   dragOverSlot.value = -1
-  
+
   try {
     const data = event.dataTransfer?.getData('application/json')
     if (data) {
@@ -721,7 +797,9 @@ const openBuildSelector = (slotIndex: number) => {
 }
 
 const addSelectedBuild = () => {
-  const build = filteredAvailableBuilds.value.find(b => b.id === selectedBuildId.value)
+  const build = filteredAvailableBuilds.value.find(
+    b => b.id === selectedBuildId.value
+  )
   if (build && selectorSlotIndex.value >= 0) {
     buildSlots.value[selectorSlotIndex.value] = build
     showBuildSelector.value = false
@@ -738,7 +816,7 @@ const clearAllBuilds = () => {
 
 const optimizeBuilds = () => {
   if (comparisonBuilds.value.length < 2) return
-  
+
   try {
     const suggestions = generateOptimizationSuggestions(comparisonBuilds.value)
     optimizationSuggestions.value = suggestions
@@ -754,12 +832,16 @@ const exportComparison = () => {
     builds: comparisonBuilds.value,
     metrics: comparisonMetrics.value.map(metric => ({
       metric: metric.key,
-      values: comparisonBuilds.value.map(build => formatMetricValue(build, metric))
+      values: comparisonBuilds.value.map(build =>
+        formatMetricValue(build, metric)
+      ),
     })),
-    suggestions: optimizationSuggestions.value
+    suggestions: optimizationSuggestions.value,
   }
-  
-  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+    type: 'application/json',
+  })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
@@ -768,7 +850,7 @@ const exportComparison = () => {
   a.click()
   document.body.removeChild(a)
   URL.revokeObjectURL(url)
-  
+
   success('Comparison exported successfully')
 }
 
@@ -782,8 +864,10 @@ const handleCardDragStart = (event: DragEvent, index: number) => {
 
 const handleCardDrop = (event: DragEvent, targetIndex: number) => {
   event.preventDefault()
-  const sourceIndex = parseInt(event.dataTransfer?.getData('text/plain') || '-1')
-  
+  const sourceIndex = parseInt(
+    event.dataTransfer?.getData('text/plain') || '-1'
+  )
+
   if (sourceIndex >= 0 && sourceIndex !== targetIndex) {
     // Swap builds
     const temp = buildSlots.value[sourceIndex]
@@ -801,7 +885,12 @@ const formatMetricValue = (build: Build, metric: any): string => {
     case 'difficulty':
       return getBuildDifficulty(build).toString()
     case 'effectCount':
-      return (build.relics?.reduce((sum, relic) => sum + (relic.effects?.length || 0), 0) || 0).toString()
+      return (
+        build.relics?.reduce(
+          (sum, relic) => sum + (relic.effects?.length || 0),
+          0
+        ) || 0
+      ).toString()
     case 'synergy':
       return '85%' // Placeholder
     default:
@@ -809,28 +898,32 @@ const formatMetricValue = (build: Build, metric: any): string => {
   }
 }
 
-const formatDifference = (build: Build, baseBuild: Build, metric: any): string => {
+const formatDifference = (
+  build: Build,
+  baseBuild: Build,
+  metric: any
+): string => {
   // Implementation for showing differences
   return '+0.5×' // Placeholder
 }
 
 const isBestInMetric = (buildIndex: number, metricKey: string): boolean => {
   if (comparisonBuilds.value.length === 0) return false
-  
+
   const build = comparisonBuilds.value[buildIndex]
   const values = comparisonBuilds.value.map(b => getMetricValue(b, metricKey))
   const maxValue = Math.max(...values)
-  
+
   return getMetricValue(build, metricKey) === maxValue
 }
 
 const isWorstInMetric = (buildIndex: number, metricKey: string): boolean => {
   if (comparisonBuilds.value.length === 0) return false
-  
+
   const build = comparisonBuilds.value[buildIndex]
   const values = comparisonBuilds.value.map(b => getMetricValue(b, metricKey))
   const minValue = Math.min(...values)
-  
+
   return getMetricValue(build, metricKey) === minValue
 }
 
@@ -853,7 +946,9 @@ const getChartValue = (build: Build, metricKey: string): string => {
 
 const getBarWidth = (build: Build, metricKey: string): number => {
   const value = getMetricValue(build, metricKey)
-  const maxValue = Math.max(...comparisonBuilds.value.map(b => getMetricValue(b, metricKey)))
+  const maxValue = Math.max(
+    ...comparisonBuilds.value.map(b => getMetricValue(b, metricKey))
+  )
   return maxValue > 0 ? (value / maxValue) * 100 : 0
 }
 
@@ -885,24 +980,54 @@ const applySuggestion = (suggestion: OptimizationSuggestion) => {
 }
 
 const dismissSuggestion = (suggestionId: string) => {
-  optimizationSuggestions.value = optimizationSuggestions.value.filter(s => s.id !== suggestionId)
+  optimizationSuggestions.value = optimizationSuggestions.value.filter(
+    s => s.id !== suggestionId
+  )
 }
 
 // Icon components (simplified)
-const ComparisonIcon = { template: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>` }
-const ClearIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>` }
-const OptimizeIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 4.754a.5.5 0 0 1 .5.5v3.793l2.146-2.146a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7.5 8.793V5.254a.5.5 0 0 1 .5-.5z"/><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/></svg>` }
-const ExportIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg>` }
-const SelectIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>` }
-const RemoveIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>` }
-const DropIcon = { template: `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>` }
-const TableIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z"/></svg>` }
-const CardsIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/></svg>` }
-const ChartIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5v12h-2V2h2zm-2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1h-2zM6 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7zM1 11a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3z"/></svg>` }
-const CrownIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="m8 0 1.669.864 1.858.282.842 1.68 1.337 1.32L13.4 6l.306 1.854-1.337 1.32-.842 1.68-1.858.282L8 12l-1.669-.864-1.858-.282-.842-1.68-1.337-1.32L2.6 6l-.306-1.854 1.337-1.32.842-1.68L6.331.864 8 0z"/><path d="M4 11.794V16l4-1 4 1v-4.206l-2.018.306L8 13.126 6.018 12.1 4 11.794z"/></svg>` }
-const ExpandIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>` }
-const ApplyIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.061L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/></svg>` }
-const DismissIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>` }
+const ComparisonIcon = {
+  template: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>`,
+}
+const ClearIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>`,
+}
+const OptimizeIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 4.754a.5.5 0 0 1 .5.5v3.793l2.146-2.146a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7.5 8.793V5.254a.5.5 0 0 1 .5-.5z"/><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/></svg>`,
+}
+const ExportIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg>`,
+}
+const SelectIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>`,
+}
+const RemoveIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>`,
+}
+const DropIcon = {
+  template: `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>`,
+}
+const TableIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z"/></svg>`,
+}
+const CardsIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/></svg>`,
+}
+const ChartIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5v12h-2V2h2zm-2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1h-2zM6 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7zM1 11a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3z"/></svg>`,
+}
+const CrownIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="m8 0 1.669.864 1.858.282.842 1.68 1.337 1.32L13.4 6l.306 1.854-1.337 1.32-.842 1.68-1.858.282L8 12l-1.669-.864-1.858-.282-.842-1.68-1.337-1.32L2.6 6l-.306-1.854 1.337-1.32.842-1.68L6.331.864 8 0z"/><path d="M4 11.794V16l4-1 4 1v-4.206l-2.018.306L8 13.126 6.018 12.1 4 11.794z"/></svg>`,
+}
+const ExpandIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>`,
+}
+const ApplyIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.061L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/></svg>`,
+}
+const DismissIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>`,
+}
 </script>
 
 <style scoped>
@@ -987,7 +1112,11 @@ const DismissIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16"
   gap: 1rem;
   margin-top: 1.5rem;
   padding: 1.5rem;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.05) 0%,
+    rgba(59, 130, 246, 0.1) 100%
+  );
   border-radius: 8px;
 }
 
@@ -1103,11 +1232,26 @@ const DismissIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16"
   font-weight: 600;
 }
 
-.rating.rating-S { background: #fecaca; color: #dc2626; }
-.rating.rating-A { background: #fed7aa; color: #ea580c; }
-.rating.rating-B { background: #fef3c7; color: #ca8a04; }
-.rating.rating-C { background: #dcfce7; color: #65a30d; }
-.rating.rating-D { background: #f3f4f6; color: #6b7280; }
+.rating.rating-S {
+  background: #fecaca;
+  color: #dc2626;
+}
+.rating.rating-A {
+  background: #fed7aa;
+  color: #ea580c;
+}
+.rating.rating-B {
+  background: #fef3c7;
+  color: #ca8a04;
+}
+.rating.rating-C {
+  background: #dcfce7;
+  color: #65a30d;
+}
+.rating.rating-D {
+  background: #f3f4f6;
+  color: #6b7280;
+}
 
 .build-preview {
   flex: 1;
@@ -1131,10 +1275,18 @@ const DismissIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16"
   color: white;
 }
 
-.relic-icon.rarity-common { background: #9ca3af; }
-.relic-icon.rarity-rare { background: #3b82f6; }
-.relic-icon.rarity-epic { background: #8b5cf6; }
-.relic-icon.rarity-legendary { background: #f59e0b; }
+.relic-icon.rarity-common {
+  background: #9ca3af;
+}
+.relic-icon.rarity-rare {
+  background: #3b82f6;
+}
+.relic-icon.rarity-epic {
+  background: #8b5cf6;
+}
+.relic-icon.rarity-legendary {
+  background: #f59e0b;
+}
 
 .more-relics {
   width: 32px;
@@ -1396,7 +1548,11 @@ const DismissIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16"
 
 .comparison-card.best-build {
   border-color: var(--success-color);
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.05) 0%,
+    rgba(16, 185, 129, 0.1) 100%
+  );
 }
 
 .card-header {
@@ -1529,10 +1685,22 @@ const DismissIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16"
   border-left: 3px solid transparent;
 }
 
-.relic-item.rarity-common { border-left-color: #9ca3af; background: rgba(156, 163, 175, 0.1); }
-.relic-item.rarity-rare { border-left-color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
-.relic-item.rarity-epic { border-left-color: #8b5cf6; background: rgba(139, 92, 246, 0.1); }
-.relic-item.rarity-legendary { border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+.relic-item.rarity-common {
+  border-left-color: #9ca3af;
+  background: rgba(156, 163, 175, 0.1);
+}
+.relic-item.rarity-rare {
+  border-left-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+.relic-item.rarity-epic {
+  border-left-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.1);
+}
+.relic-item.rarity-legendary {
+  border-left-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
 
 .relic-name {
   font-weight: 500;
@@ -1587,9 +1755,15 @@ const DismissIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16"
   color: var(--text-muted);
 }
 
-.difference.positive { color: var(--success-color); }
-.difference.negative { color: var(--danger-color); }
-.difference.neutral { color: var(--text-muted); }
+.difference.positive {
+  color: var(--success-color);
+}
+.difference.negative {
+  color: var(--danger-color);
+}
+.difference.neutral {
+  color: var(--text-muted);
+}
 
 /* Chart View */
 .chart-container {
@@ -1786,7 +1960,8 @@ const DismissIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16"
   gap: 0.75rem;
 }
 
-.apply-btn, .dismiss-btn {
+.apply-btn,
+.dismiss-btn {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1911,43 +2086,43 @@ const DismissIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16"
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .header-actions {
     align-self: stretch;
   }
-  
+
   .comparison-stats {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .build-slots {
     grid-template-columns: 1fr;
   }
-  
+
   .view-controls {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .comparison-cards {
     grid-template-columns: 1fr;
   }
-  
+
   .key-metrics {
     grid-template-columns: 1fr;
   }
-  
+
   .metrics-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .suggestion-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
   }
-  
+
   .suggestion-actions {
     flex-direction: column;
   }

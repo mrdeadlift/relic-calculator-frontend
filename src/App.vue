@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRelics } from './composables/useRelics'
 import { useBuilds } from './composables/useBuilds'
 import { useOptimization } from './composables/useOptimization'
 import type { Relic } from './types/relic'
 import type { Build } from './types/build'
-import type { AttackMultiplierResult, ComparisonResult, OptimizationSuggestion, CalculationHistory } from './types/calculation'
+import type {
+  AttackMultiplierResult,
+  ComparisonResult,
+  OptimizationSuggestion,
+  CalculationHistory,
+} from './types/calculation'
 
 // Components
 import RelicSelector from './components/RelicSelector.vue'
@@ -13,25 +18,30 @@ import AttackMultiplierDisplay from './components/AttackMultiplierDisplay.vue'
 import BuildDashboard from './components/BuildDashboard.vue'
 import BaseButton from './components/ui/BaseButton.vue'
 import BaseModal from './components/ui/BaseModal.vue'
-import BaseInput from './components/ui/BaseInput.vue'
 import BaseCard from './components/ui/BaseCard.vue'
 
 // Composables
-const { relics, loading: relicsLoading, initialize: initializeRelics } = useRelics()
-const { builds, loading: buildsLoading, initialize: initializeBuilds } = useBuilds()
-const { 
-  suggestOptimization, 
-  loading: optimizationLoading,
-  suggestions: optimizationSuggestions 
+const {
+  initialize: initializeRelics,
+} = useRelics()
+const {
+  initialize: initializeBuilds,
+} = useBuilds()
+const {
+  suggestOptimization,
+  suggestions: optimizationSuggestions,
+  clearSuggestions,
 } = useOptimization()
 
 // Navigation state
-const activeTab = ref<'calculator' | 'builds' | 'history' | 'analytics'>('calculator')
+const activeTab = ref<'calculator' | 'builds' | 'history' | 'analytics'>(
+  'calculator'
+)
 const tabs = [
   { key: 'calculator', label: '計算機', icon: '🧮' },
   { key: 'builds', label: 'ビルド', icon: '🏗️' },
   { key: 'history', label: '履歴', icon: '📊' },
-  { key: 'analytics', label: '分析', icon: '📈' }
+  { key: 'analytics', label: '分析', icon: '📈' },
 ]
 
 // App state
@@ -50,10 +60,11 @@ const themePreference = ref<'light' | 'dark' | 'system'>('system')
 const isDarkMode = ref(false)
 const autoCalculate = ref(true)
 const showComparison = ref(false)
-const calculationTimeout = ref(30)
 
 // UI state
-const notifications = ref<Array<{ id: string; type: string; message: string; timeout?: number }>>([])
+const notifications = ref<
+  Array<{ id: string; type: string; message: string; timeout?: number }>
+>([])
 const globalLoading = ref(false)
 const loadingMessage = ref('')
 
@@ -64,13 +75,13 @@ const handleRelicSelectionChange = async (selectedRelics: Relic[]) => {
   } else if (selectedRelics.length === 0) {
     calculationResult.value = null
     calculationError.value = null
-    optimizationSuggestions.value = []
+    clearSuggestions()
     comparisonResults.value = []
   }
 
   if (selectedRelics.length > 0) {
     try {
-      await suggestOptimization(selectedRelicIds.value)
+      await suggestOptimization({ relic_ids: selectedRelicIds.value })
     } catch (error) {
       console.error('Failed to get optimization suggestions:', error)
     }
@@ -97,7 +108,7 @@ const calculateAttackMultiplier = async () => {
 
     // Mock calculation
     await new Promise(resolve => setTimeout(resolve, 1500))
-    
+
     clearInterval(progressInterval)
     calculationProgress.value = 100
 
@@ -112,26 +123,26 @@ const calculateAttackMultiplier = async () => {
         name: `効果 ${index + 1}`,
         sourceName: `遺物 ${index + 1}`,
         sourceId: id,
-        type: Math.random() > 0.5 ? 'multiplicative' : 'additive' as any,
+        type: Math.random() > 0.5 ? 'multiplicative' : ('additive' as any),
         value: 0.1 + Math.random() * 0.5,
         isActive: true,
-        calculatedValue: 0.15 + Math.random() * 0.3
+        calculatedValue: 0.15 + Math.random() * 0.3,
       })),
       performance: {
         executionTime: 1200 + Math.random() * 800,
         effectsProcessed: selectedRelicIds.value.length,
         optimizationLevel: 'basic' as any,
         cacheHits: 0,
-        cacheMisses: 1
-      }
+        cacheMisses: 1,
+      },
     }
 
     calculationResult.value = mockResult
     addToCalculationHistory(mockResult)
     addNotification('success', '計算が完了しました')
-
   } catch (error) {
-    calculationError.value = error instanceof Error ? error.message : '計算中にエラーが発生しました'
+    calculationError.value =
+      error instanceof Error ? error.message : '計算中にエラーが発生しました'
     addNotification('error', calculationError.value)
   } finally {
     calculationLoading.value = false
@@ -157,7 +168,9 @@ const applySuggestion = async (suggestion: OptimizationSuggestion) => {
         }
         break
       case 'remove':
-        selectedRelicIds.value = selectedRelicIds.value.filter(id => id !== suggestion.relicId)
+        selectedRelicIds.value = selectedRelicIds.value.filter(
+          id => id !== suggestion.relicId
+        )
         break
     }
 
@@ -174,9 +187,9 @@ const applySuggestion = async (suggestion: OptimizationSuggestion) => {
 // Build management
 const handleBuildSelected = (build: Build) => {
   selectedBuildId.value = build.id
-  selectedRelicIds.value = [...build.relicIds]
+  selectedRelicIds.value = build.relics.map(relic => typeof relic === 'string' ? relic : relic.id)
   activeTab.value = 'calculator'
-  
+
   if (autoCalculate.value) {
     calculateAttackMultiplier()
   }
@@ -204,11 +217,11 @@ const addToCalculationHistory = (result: AttackMultiplierResult) => {
     timestamp: result.timestamp,
     relicIds: [...result.relicIds],
     result,
-    tags: []
+    tags: [],
   }
-  
+
   calculationHistory.value.unshift(historyItem)
-  
+
   if (calculationHistory.value.length > 100) {
     calculationHistory.value = calculationHistory.value.slice(0, 100)
   }
@@ -222,7 +235,7 @@ const toggleTheme = () => {
 
 const applyTheme = () => {
   const html = document.documentElement
-  
+
   switch (themePreference.value) {
     case 'dark':
       html.classList.add('dark')
@@ -233,35 +246,41 @@ const applyTheme = () => {
       isDarkMode.value = false
       break
     case 'system':
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      const prefersDark = window.matchMedia(
+        '(prefers-color-scheme: dark)'
+      ).matches
       html.classList.toggle('dark', prefersDark)
       isDarkMode.value = prefersDark
       break
   }
-  
+
   localStorage.setItem('theme-preference', themePreference.value)
 }
 
 // Utility functions
 const getSuggestionTypeLabel = (type: string): string => {
-  const labels = {
+  const labels: Record<string, string> = {
     add: '追加',
     remove: '削除',
-    replace: '交換'
+    replace: '交換',
   }
   return labels[type] || type
 }
 
-const addNotification = (type: 'success' | 'error' | 'info' | 'warning', message: string, timeout = 5000) => {
+const addNotification = (
+  type: 'success' | 'error' | 'info' | 'warning',
+  message: string,
+  timeout = 5000
+) => {
   const notification = {
     id: `notif-${Date.now()}`,
     type,
     message,
-    timeout
+    timeout,
   }
-  
+
   notifications.value.push(notification)
-  
+
   if (timeout > 0) {
     setTimeout(() => {
       dismissNotification(notification.id)
@@ -279,20 +298,20 @@ const dismissNotification = (id: string) => {
 const downloadFile = (data: string, filename: string, contentType: string) => {
   const blob = new Blob([data], { type: contentType })
   const url = URL.createObjectURL(blob)
-  
+
   const a = document.createElement('a')
   a.href = url
   a.download = filename
   a.click()
-  
+
   URL.revokeObjectURL(url)
 }
 
 const getContentType = (format: string): string => {
-  const types = {
-    'json': 'application/json',
-    'csv': 'text/csv',
-    'txt': 'text/plain'
+  const types: Record<string, string> = {
+    json: 'application/json',
+    csv: 'text/csv',
+    txt: 'text/plain',
   }
   return types[format] || 'application/octet-stream'
 }
@@ -307,31 +326,30 @@ const handleSystemThemeChange = (e: MediaQueryListEvent) => {
 
 // Lifecycle
 onMounted(async () => {
-  const savedTheme = localStorage.getItem('theme-preference') as typeof themePreference.value
+  const savedTheme = localStorage.getItem(
+    'theme-preference'
+  ) as typeof themePreference.value
   if (savedTheme) {
     themePreference.value = savedTheme
   }
   applyTheme()
-  
+
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
   mediaQuery.addEventListener('change', handleSystemThemeChange)
-  
+
   try {
     globalLoading.value = true
     loadingMessage.value = 'アプリケーションを初期化中...'
-    
-    await Promise.all([
-      initializeRelics(),
-      initializeBuilds()
-    ])
-    
+
+    await Promise.all([initializeRelics(), initializeBuilds()])
+
     addNotification('success', 'アプリケーションの初期化が完了しました')
   } catch (error) {
     addNotification('error', 'アプリケーションの初期化に失敗しました')
   } finally {
     globalLoading.value = false
   }
-  
+
   // Load saved relics
   const savedIds = localStorage.getItem('selected-relic-ids')
   if (savedIds) {
@@ -349,9 +367,13 @@ onBeforeUnmount(() => {
 })
 
 // Auto-save selected relics
-watch(selectedRelicIds, (newIds) => {
-  localStorage.setItem('selected-relic-ids', JSON.stringify(newIds))
-}, { deep: true })
+watch(
+  selectedRelicIds,
+  newIds => {
+    localStorage.setItem('selected-relic-ids', JSON.stringify(newIds))
+  },
+  { deep: true }
+)
 </script>
 
 <template>
@@ -363,22 +385,24 @@ watch(selectedRelicIds, (newIds) => {
           <h1>エルデンリング ナイトレイン 遺物計算機</h1>
           <p class="app-subtitle">遺物を組み合わせて最適な攻撃倍率を計算</p>
         </div>
-        
+
         <div class="header-actions">
           <BaseButton
-            @click="toggleTheme"
             variant="ghost"
             size="sm"
-            :title="isDarkMode ? 'ライトモードに切り替え' : 'ダークモードに切り替え'"
+            :title="
+              isDarkMode ? 'ライトモードに切り替え' : 'ダークモードに切り替え'
+            "
+            @click="toggleTheme"
           >
             {{ isDarkMode ? '☀️' : '🌙' }}
           </BaseButton>
-          
+
           <BaseButton
-            @click="showSettings = true"
             variant="ghost"
             size="sm"
             title="設定"
+            @click="showSettings = true"
           >
             ⚙️
           </BaseButton>
@@ -394,10 +418,10 @@ watch(selectedRelicIds, (newIds) => {
           <BaseButton
             v-for="tab in tabs"
             :key="tab.key"
-            @click="activeTab = tab.key"
             :variant="activeTab === tab.key ? 'primary' : 'ghost'"
             size="md"
             class="tab-button"
+            @click="activeTab = tab.key as typeof activeTab"
           >
             {{ tab.icon }} {{ tab.label }}
           </BaseButton>
@@ -436,30 +460,41 @@ watch(selectedRelicIds, (newIds) => {
                 />
 
                 <!-- Optimization Suggestions -->
-                <div v-if="optimizationSuggestions.length > 0" class="optimization-panel">
+                <div
+                  v-if="(optimizationSuggestions?.suggestions?.length || 0) > 0"
+                  class="optimization-panel"
+                >
                   <BaseCard variant="filled" padding="md">
                     <template #header>
                       <h4>最適化提案</h4>
                     </template>
-                    
+
                     <div class="suggestions-list">
                       <div
-                        v-for="suggestion in optimizationSuggestions"
+                        v-for="suggestion in optimizationSuggestions?.suggestions || []"
                         :key="suggestion.relicId"
                         class="suggestion-item"
                       >
                         <div class="suggestion-info">
                           <strong>{{ suggestion.relicName }}</strong>
-                          <span class="suggestion-type">{{ getSuggestionTypeLabel(suggestion.type) }}</span>
+                          <span class="suggestion-type">{{
+                            getSuggestionTypeLabel(suggestion.type)
+                          }}</span>
                         </div>
                         <div class="suggestion-benefit">
-                          <span class="improvement">+{{ suggestion.improvement.toFixed(2) }}倍</span>
-                          <span class="confidence">{{ Math.round(suggestion.confidence * 100) }}%</span>
+                          <span class="improvement"
+                            >+{{ suggestion.improvement?.toFixed(2) }}倍</span
+                          >
+                          <span class="confidence"
+                            >{{
+                              Math.round((suggestion.confidence || 0) * 100)
+                            }}%</span
+                          >
                         </div>
                         <BaseButton
-                          @click="applySuggestion(suggestion)"
                           variant="outline"
                           size="sm"
+                          @click="applySuggestion(suggestion)"
                         >
                           適用
                         </BaseButton>
@@ -509,8 +544,8 @@ watch(selectedRelicIds, (newIds) => {
           <div class="setting-item">
             <label>
               <input
-                type="radio"
                 v-model="themePreference"
+                type="radio"
                 value="light"
                 @change="applyTheme"
               />
@@ -520,9 +555,9 @@ watch(selectedRelicIds, (newIds) => {
           <div class="setting-item">
             <label>
               <input
-                type="radio"
                 v-model="themePreference"
-                value="dark"  
+                type="radio"
+                value="dark"
                 @change="applyTheme"
               />
               ダークモード
@@ -531,8 +566,8 @@ watch(selectedRelicIds, (newIds) => {
           <div class="setting-item">
             <label>
               <input
-                type="radio"
                 v-model="themePreference"
+                type="radio"
                 value="system"
                 @change="applyTheme"
               />
@@ -546,27 +581,21 @@ watch(selectedRelicIds, (newIds) => {
           <h4>計算設定</h4>
           <div class="setting-item">
             <label>
-              <input
-                type="checkbox"
-                v-model="autoCalculate"
-              />
+              <input v-model="autoCalculate" type="checkbox" />
               自動計算を有効にする
             </label>
           </div>
           <div class="setting-item">
             <label>
-              <input
-                type="checkbox"
-                v-model="showComparison"
-              />
+              <input v-model="showComparison" type="checkbox" />
               比較表示を有効にする
             </label>
           </div>
         </div>
       </div>
-      
+
       <template #footer>
-        <BaseButton @click="showSettings = false" variant="primary">
+        <BaseButton variant="primary" @click="showSettings = false">
           閉じる
         </BaseButton>
       </template>
@@ -875,11 +904,11 @@ watch(selectedRelicIds, (newIds) => {
   .calculator-layout {
     grid-template-columns: 1fr;
   }
-  
+
   .tab-navigation {
     flex-wrap: wrap;
   }
-  
+
   .tab-button {
     flex: none;
     min-width: 120px;
@@ -892,28 +921,28 @@ watch(selectedRelicIds, (newIds) => {
     gap: 1rem;
     text-align: center;
   }
-  
+
   .app-main {
     padding: 1rem;
   }
-  
+
   .suggestion-item {
     flex-direction: column;
     align-items: stretch;
     gap: 0.75rem;
   }
-  
+
   .suggestion-benefit {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
   }
-  
+
   .notifications {
     left: 1rem;
     right: 1rem;
   }
-  
+
   .notification {
     max-width: none;
   }

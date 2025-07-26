@@ -9,28 +9,28 @@
             Build Manager
           </h2>
           <div class="header-actions">
-            <button 
-              @click="showSaveDialog = true"
+            <button
               :disabled="!canSaveBuild"
               class="action-btn primary"
               title="Save current build"
+              @click="showSaveDialog = true"
             >
               <SaveIcon />
               Save Build
             </button>
-            <button 
-              @click="showImportDialog = true"
+            <button
               class="action-btn secondary"
               title="Import build from JSON or URL"
+              @click="showImportDialog = true"
             >
               <ImportIcon />
               Import
             </button>
-            <button 
-              @click="exportCurrentBuild"
+            <button
               :disabled="!currentBuild"
               class="action-btn secondary"
               title="Export current build"
+              @click="exportCurrentBuild"
             >
               <ExportIcon />
               Export
@@ -59,11 +59,15 @@
           </div>
           <div class="stat-item">
             <span class="stat-label">Attack Multiplier:</span>
-            <span class="stat-value">{{ formatMultiplier(currentBuild.attackMultiplier) }}</span>
+            <span class="stat-value">{{
+              formatMultiplier(currentBuild.attackMultiplier)
+            }}</span>
           </div>
           <div class="stat-item">
             <span class="stat-label">Rating:</span>
-            <span :class="['stat-value', 'rating-' + getBuildRating(currentBuild)]">
+            <span
+              :class="['stat-value', 'rating-' + getBuildRating(currentBuild)]"
+            >
               {{ getBuildRating(currentBuild) }}
             </span>
           </div>
@@ -81,7 +85,7 @@
           </h3>
           <div class="section-controls">
             <div class="search-container">
-              <input 
+              <input
                 v-model="searchQuery"
                 type="text"
                 placeholder="Search builds..."
@@ -95,10 +99,10 @@
               <option value="multiplier">Sort by Multiplier</option>
               <option value="rating">Sort by Rating</option>
             </select>
-            <button 
-              @click="showCreateDialog = true"
+            <button
               class="control-btn primary"
               title="Create new build"
+              @click="showCreateDialog = true"
             >
               <CreateIcon />
               New Build
@@ -114,18 +118,24 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="filteredBuilds.length === 0 && !searchQuery" class="empty-state">
+      <div
+        v-else-if="filteredBuilds.length === 0 && !searchQuery"
+        class="empty-state"
+      >
         <div class="empty-icon">📁</div>
         <h4>No Saved Builds</h4>
         <p>Create your first build to get started.</p>
-        <button @click="showCreateDialog = true" class="empty-action-btn">
+        <button class="empty-action-btn" @click="showCreateDialog = true">
           <CreateIcon />
           Create Build
         </button>
       </div>
 
       <!-- No Search Results -->
-      <div v-else-if="filteredBuilds.length === 0 && searchQuery" class="no-results">
+      <div
+        v-else-if="filteredBuilds.length === 0 && searchQuery"
+        class="no-results"
+      >
         <div class="no-results-icon">🔍</div>
         <h4>No builds found</h4>
         <p>Try adjusting your search terms.</p>
@@ -133,15 +143,15 @@
 
       <!-- Builds Grid -->
       <div v-else class="builds-grid">
-        <div 
-          v-for="build in filteredBuilds" 
+        <div
+          v-for="build in filteredBuilds"
           :key="build.id"
           :class="[
             'build-card',
-            { 
-              'active': build.id === currentBuild?.id,
-              'favorited': build.isFavorite 
-            }
+            {
+              active: build.id === currentBuild?.id,
+              favorited: build.isFavorite,
+            },
           ]"
         >
           <!-- Build Header -->
@@ -149,24 +159,28 @@
             <div class="build-info">
               <h4 class="build-name">{{ build.name || 'Untitled Build' }}</h4>
               <div class="build-meta">
-                <span class="build-date">{{ formatDate(build.createdAt) }}</span>
-                <span :class="['build-rating', 'rating-' + getBuildRating(build)]">
+                <span class="build-date">{{
+                  formatDate(build.createdAt)
+                }}</span>
+                <span
+                  :class="['build-rating', 'rating-' + getBuildRating(build)]"
+                >
                   {{ getBuildRating(build) }}
                 </span>
               </div>
             </div>
             <div class="build-actions">
-              <button 
-                @click="toggleFavorite(build.id)"
+              <button
                 :class="['icon-btn', { active: build.isFavorite }]"
                 title="Toggle favorite"
+                @click="toggleFavorite(build.id)"
               >
                 <StarIcon />
               </button>
-              <button 
-                @click="showBuildMenu(build.id, $event)"
+              <button
                 class="icon-btn"
                 title="More options"
+                @click="showBuildMenu(build.id, $event)"
               >
                 <MoreIcon />
               </button>
@@ -183,15 +197,21 @@
             <div class="stat-group">
               <div class="stat-item">
                 <span class="stat-icon">⚔️</span>
-                <span class="stat-text">{{ formatMultiplier(build.attackMultiplier) }}</span>
+                <span class="stat-text">{{
+                  formatMultiplier(build.attackMultiplier)
+                }}</span>
               </div>
               <div class="stat-item">
                 <span class="stat-icon">🎯</span>
-                <span class="stat-text">{{ build.relics?.length || 0 }} relics</span>
+                <span class="stat-text"
+                  >{{ build.relics?.length || 0 }} relics</span
+                >
               </div>
               <div class="stat-item">
                 <span class="stat-icon">⚡</span>
-                <span class="stat-text">{{ getActiveEffectsCount(build) }} effects</span>
+                <span class="stat-text"
+                  >{{ getActiveEffectsCount(build) }} effects</span
+                >
               </div>
             </div>
           </div>
@@ -202,16 +222,16 @@
               <span class="relics-label">Relics:</span>
             </div>
             <div class="relics-list">
-              <div 
-                v-for="relic in (build.relics || []).slice(0, 3)" 
+              <div
+                v-for="relic in (build.relics || []).slice(0, 3)"
                 :key="relic.id"
                 :class="['relic-chip', `rarity-${relic.rarity}`]"
                 :title="relic.name"
               >
                 <span class="relic-name">{{ relic.name }}</span>
               </div>
-              <div 
-                v-if="(build.relics || []).length > 3" 
+              <div
+                v-if="(build.relics || []).length > 3"
                 class="more-relics"
                 :title="`+${(build.relics || []).length - 3} more relics`"
               >
@@ -222,26 +242,26 @@
 
           <!-- Build Card Actions -->
           <div class="build-card-actions">
-            <button 
-              @click="loadBuild(build)"
+            <button
               class="load-btn"
               title="Load this build"
+              @click="loadBuild(build)"
             >
               <LoadIcon />
               Load
             </button>
-            <button 
-              @click="duplicateBuild(build)"
+            <button
               class="duplicate-btn"
               title="Duplicate this build"
+              @click="duplicateBuild(build)"
             >
               <DuplicateIcon />
               Duplicate
             </button>
-            <button 
-              @click="shareBuild(build)"
+            <button
               class="share-btn"
               title="Share this build"
+              @click="shareBuild(build)"
             >
               <ShareIcon />
               Share
@@ -256,9 +276,9 @@
       <div class="save-dialog-content">
         <div class="form-group">
           <label class="form-label" for="build-name">Build Name *</label>
-          <input 
-            v-model="saveForm.name"
+          <input
             id="build-name"
+            v-model="saveForm.name"
             type="text"
             class="form-input"
             placeholder="Enter build name..."
@@ -266,22 +286,22 @@
             required
           />
         </div>
-        
+
         <div class="form-group">
           <label class="form-label" for="build-description">Description</label>
-          <textarea 
-            v-model="saveForm.description"
+          <textarea
             id="build-description"
+            v-model="saveForm.description"
             class="form-textarea"
             placeholder="Optional description..."
             maxlength="500"
             rows="3"
           ></textarea>
         </div>
-        
+
         <div class="form-group">
           <label class="checkbox-label">
-            <input 
+            <input
               v-model="saveForm.isFavorite"
               type="checkbox"
               class="form-checkbox"
@@ -290,10 +310,10 @@
             <span>Mark as favorite</span>
           </label>
         </div>
-        
+
         <div class="form-group">
           <label class="checkbox-label">
-            <input 
+            <input
               v-model="saveForm.isPublic"
               type="checkbox"
               class="form-checkbox"
@@ -303,18 +323,15 @@
           </label>
         </div>
       </div>
-      
+
       <template #footer>
-        <button 
-          @click="showSaveDialog = false"
-          class="modal-btn secondary"
-        >
+        <button class="modal-btn secondary" @click="showSaveDialog = false">
           Cancel
         </button>
-        <button 
-          @click="saveBuild"
+        <button
           :disabled="!saveForm.name.trim()"
           class="modal-btn primary"
+          @click="saveBuild"
         >
           <SaveIcon />
           Save Build
@@ -323,13 +340,17 @@
     </BaseModal>
 
     <!-- Create Build Dialog -->
-    <BaseModal v-model:show="showCreateDialog" title="Create New Build" size="md">
+    <BaseModal
+      v-model:show="showCreateDialog"
+      title="Create New Build"
+      size="md"
+    >
       <div class="create-dialog-content">
         <div class="form-group">
           <label class="form-label" for="new-build-name">Build Name *</label>
-          <input 
-            v-model="createForm.name"
+          <input
             id="new-build-name"
+            v-model="createForm.name"
             type="text"
             class="form-input"
             placeholder="Enter build name..."
@@ -337,10 +358,16 @@
             required
           />
         </div>
-        
+
         <div class="form-group">
-          <label class="form-label" for="new-build-template">Start From Template</label>
-          <select v-model="createForm.template" id="new-build-template" class="form-select">
+          <label class="form-label" for="new-build-template"
+            >Start From Template</label
+          >
+          <select
+            id="new-build-template"
+            v-model="createForm.template"
+            class="form-select"
+          >
             <option value="">Empty Build</option>
             <option value="balanced">Balanced Attack Build</option>
             <option value="critical">Critical Damage Build</option>
@@ -348,12 +375,14 @@
             <option value="utility">Utility Build</option>
           </select>
         </div>
-        
+
         <div class="form-group">
-          <label class="form-label" for="new-build-description">Description</label>
-          <textarea 
-            v-model="createForm.description"
+          <label class="form-label" for="new-build-description"
+            >Description</label
+          >
+          <textarea
             id="new-build-description"
+            v-model="createForm.description"
             class="form-textarea"
             placeholder="Optional description..."
             maxlength="500"
@@ -361,18 +390,15 @@
           ></textarea>
         </div>
       </div>
-      
+
       <template #footer>
-        <button 
-          @click="showCreateDialog = false"
-          class="modal-btn secondary"
-        >
+        <button class="modal-btn secondary" @click="showCreateDialog = false">
           Cancel
         </button>
-        <button 
-          @click="createBuild"
+        <button
           :disabled="!createForm.name.trim()"
           class="modal-btn primary"
+          @click="createBuild"
         >
           <CreateIcon />
           Create Build
@@ -384,63 +410,60 @@
     <BaseModal v-model:show="showImportDialog" title="Import Build" size="lg">
       <div class="import-dialog-content">
         <div class="import-tabs">
-          <button 
+          <button
             :class="['tab-btn', { active: importMethod === 'json' }]"
             @click="importMethod = 'json'"
           >
             JSON Import
           </button>
-          <button 
+          <button
             :class="['tab-btn', { active: importMethod === 'url' }]"
             @click="importMethod = 'url'"
           >
             URL Import
           </button>
-          <button 
+          <button
             :class="['tab-btn', { active: importMethod === 'file' }]"
             @click="importMethod = 'file'"
           >
             File Import
           </button>
         </div>
-        
+
         <!-- JSON Import -->
         <div v-if="importMethod === 'json'" class="import-section">
           <label class="form-label">Paste JSON Data</label>
-          <textarea 
+          <textarea
             v-model="importForm.jsonData"
             class="import-textarea"
-            placeholder='Paste your build JSON data here...'
+            placeholder="Paste your build JSON data here..."
             rows="8"
           ></textarea>
         </div>
-        
+
         <!-- URL Import -->
         <div v-if="importMethod === 'url'" class="import-section">
           <label class="form-label">Build URL</label>
-          <input 
+          <input
             v-model="importForm.url"
             type="url"
             class="form-input"
             placeholder="https://example.com/build/shared/..."
           />
         </div>
-        
+
         <!-- File Import -->
         <div v-if="importMethod === 'file'" class="import-section">
           <label class="form-label">Select Build File</label>
           <div class="file-input-container">
-            <input 
+            <input
               ref="fileInput"
               type="file"
               accept=".json,.txt"
               class="file-input"
               @change="handleFileSelect"
             />
-            <button 
-              @click="$refs.fileInput.click()"
-              class="file-input-btn"
-            >
+            <button class="file-input-btn" @click="$refs.fileInput.click()">
               <UploadIcon />
               Choose File
             </button>
@@ -449,7 +472,7 @@
             </span>
           </div>
         </div>
-        
+
         <!-- Import Preview -->
         <div v-if="importPreview" class="import-preview">
           <h4>Import Preview</h4>
@@ -460,35 +483,36 @@
             </div>
             <div class="preview-item">
               <span class="preview-label">Relics:</span>
-              <span class="preview-value">{{ importPreview.relicsCount }} relics</span>
+              <span class="preview-value"
+                >{{ importPreview.relicsCount }} relics</span
+              >
             </div>
             <div class="preview-item">
               <span class="preview-label">Attack Multiplier:</span>
-              <span class="preview-value">{{ formatMultiplier(importPreview.attackMultiplier) }}</span>
+              <span class="preview-value">{{
+                formatMultiplier(importPreview.attackMultiplier)
+              }}</span>
             </div>
           </div>
         </div>
       </div>
-      
+
       <template #footer>
-        <button 
-          @click="showImportDialog = false"
-          class="modal-btn secondary"
-        >
+        <button class="modal-btn secondary" @click="showImportDialog = false">
           Cancel
         </button>
-        <button 
-          @click="validateImport"
+        <button
           :disabled="!canValidateImport"
           class="modal-btn secondary"
+          @click="validateImport"
         >
           <ValidateIcon />
           Validate
         </button>
-        <button 
-          @click="importBuild"
+        <button
           :disabled="!importPreview"
           class="modal-btn primary"
+          @click="importBuild"
         >
           <ImportIcon />
           Import Build
@@ -497,37 +521,46 @@
     </BaseModal>
 
     <!-- Context Menu -->
-    <div 
+    <div
       v-if="contextMenu.show"
-      :style="{ 
+      :style="{
         position: 'fixed',
         top: contextMenu.y + 'px',
         left: contextMenu.x + 'px',
-        zIndex: 1000
+        zIndex: 1000,
       }"
       class="context-menu"
       @click.stop
     >
-      <button @click="editBuild(contextMenu.buildId)" class="context-menu-item">
+      <button class="context-menu-item" @click="editBuild(contextMenu.buildId)">
         <EditIcon />
         Edit
       </button>
-      <button @click="duplicateBuild(findBuildById(contextMenu.buildId))" class="context-menu-item">
+      <button
+        class="context-menu-item"
+        @click="duplicateBuild(findBuildById(contextMenu.buildId))"
+      >
         <DuplicateIcon />
         Duplicate
       </button>
-      <button @click="shareBuild(findBuildById(contextMenu.buildId))" class="context-menu-item">
+      <button
+        class="context-menu-item"
+        @click="shareBuild(findBuildById(contextMenu.buildId))"
+      >
         <ShareIcon />
         Share
       </button>
-      <button @click="exportBuild(contextMenu.buildId)" class="context-menu-item">
+      <button
+        class="context-menu-item"
+        @click="exportBuild(contextMenu.buildId)"
+      >
         <ExportIcon />
         Export
       </button>
       <div class="context-menu-divider"></div>
-      <button 
-        @click="deleteBuild(contextMenu.buildId)" 
+      <button
         class="context-menu-item danger"
+        @click="deleteBuild(contextMenu.buildId)"
       >
         <DeleteIcon />
         Delete
@@ -535,7 +568,7 @@
     </div>
 
     <!-- Overlay to close context menu -->
-    <div 
+    <div
       v-if="contextMenu.show"
       class="context-menu-overlay"
       @click="contextMenu.show = false"
@@ -559,7 +592,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   currentBuild: null,
-  selectedRelics: () => []
+  selectedRelics: () => [],
 })
 
 // Emits
@@ -571,13 +604,13 @@ defineEmits<{
 }>()
 
 // Composables
-const { 
-  savedBuilds, 
-  loading, 
+const {
+  savedBuilds,
+  loading,
   saveBuild: saveBuildToStorage,
   loadBuild: loadBuildFromStorage,
   deleteBuild: deleteBuildFromStorage,
-  duplicateBuild: duplicateBuildInStorage
+  duplicateBuild: duplicateBuildInStorage,
 } = useBuildManager()
 
 const { success, error, info } = useToast()
@@ -595,20 +628,20 @@ const saveForm = ref({
   name: '',
   description: '',
   isFavorite: false,
-  isPublic: false
+  isPublic: false,
 })
 
 const createForm = ref({
   name: '',
   description: '',
-  template: ''
+  template: '',
 })
 
 const importForm = ref({
   jsonData: '',
   url: '',
   fileName: '',
-  fileData: null as any
+  fileData: null as any,
 })
 
 const importPreview = ref<any>(null)
@@ -618,7 +651,7 @@ const contextMenu = ref({
   show: false,
   x: 0,
   y: 0,
-  buildId: ''
+  buildId: '',
 })
 
 // Computed
@@ -636,9 +669,10 @@ const filteredBuilds = computed(() => {
   // Search filter
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(build => 
-      (build.name || '').toLowerCase().includes(query) ||
-      (build.description || '').toLowerCase().includes(query)
+    filtered = filtered.filter(
+      build =>
+        (build.name || '').toLowerCase().includes(query) ||
+        (build.description || '').toLowerCase().includes(query)
     )
   }
 
@@ -653,7 +687,10 @@ const filteredBuilds = computed(() => {
         return getBuildRatingValue(b) - getBuildRatingValue(a)
       case 'date':
       default:
-        return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+        return (
+          new Date(b.createdAt || 0).getTime() -
+          new Date(a.createdAt || 0).getTime()
+        )
     }
   })
 })
@@ -678,7 +715,7 @@ const formatDate = (date: string | Date): string => {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   })
 }
 
@@ -724,7 +761,7 @@ const saveBuild = async () => {
       isFavorite: saveForm.value.isFavorite,
       isPublic: saveForm.value.isPublic,
       createdAt: new Date().toISOString(),
-      lastModified: new Date().toISOString()
+      lastModified: new Date().toISOString(),
     }
 
     await saveBuildToStorage(buildData)
@@ -788,7 +825,7 @@ const exportBuild = (buildId: string) => {
   a.click()
   document.body.removeChild(a)
   URL.revokeObjectURL(url)
-  
+
   success('Build exported successfully')
   contextMenu.value.show = false
 }
@@ -801,7 +838,7 @@ const exportCurrentBuild = () => {
 const validateImport = () => {
   try {
     let data: any
-    
+
     switch (importMethod.value) {
       case 'json':
         data = JSON.parse(importForm.value.jsonData)
@@ -820,7 +857,7 @@ const validateImport = () => {
     importPreview.value = {
       name: data.name || 'Imported Build',
       relicsCount: data.relics?.length || 0,
-      attackMultiplier: data.attackMultiplier || 0
+      attackMultiplier: data.attackMultiplier || 0,
     }
 
     success('Import data validated successfully')
@@ -832,7 +869,7 @@ const validateImport = () => {
 
 const importBuild = () => {
   if (!importPreview.value) return
-  
+
   // Implementation for importing build
   success('Build imported successfully')
   showImportDialog.value = false
@@ -852,13 +889,13 @@ const editBuild = (buildId: string) => {
 const showBuildMenu = (buildId: string, event: Event) => {
   event.preventDefault()
   event.stopPropagation()
-  
+
   const rect = (event.target as HTMLElement).getBoundingClientRect()
   contextMenu.value = {
     show: true,
     x: rect.right,
     y: rect.bottom,
-    buildId
+    buildId,
   }
 }
 
@@ -871,9 +908,9 @@ const handleFileSelect = (event: Event) => {
   if (!file) return
 
   importForm.value.fileName = file.name
-  
+
   const reader = new FileReader()
-  reader.onload = (e) => {
+  reader.onload = e => {
     try {
       importForm.value.fileData = JSON.parse(e.target?.result as string)
     } catch (err) {
@@ -889,7 +926,7 @@ const resetSaveForm = () => {
     name: '',
     description: '',
     isFavorite: false,
-    isPublic: false
+    isPublic: false,
   }
 }
 
@@ -897,7 +934,7 @@ const resetCreateForm = () => {
   createForm.value = {
     name: '',
     description: '',
-    template: ''
+    template: '',
   }
 }
 
@@ -906,15 +943,17 @@ const resetImportForm = () => {
     jsonData: '',
     url: '',
     fileName: '',
-    fileData: null
+    fileData: null,
   }
   importPreview.value = null
 }
 
 // Click outside handler
 const handleClickOutside = (event: Event) => {
-  if (contextMenu.value.show && 
-      !(event.target as HTMLElement).closest('.context-menu')) {
+  if (
+    contextMenu.value.show &&
+    !(event.target as HTMLElement).closest('.context-menu')
+  ) {
     contextMenu.value.show = false
   }
 }
@@ -929,22 +968,54 @@ onUnmounted(() => {
 })
 
 // Icon components (simplified)
-const BuildIcon = { template: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9l-5 4.87L18.18 22 12 18.77 5.82 22 7 13.87 2 9l6.91-.74L12 2z"/></svg>` }
-const SaveIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v7.293l2.646-2.647a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L7.5 9.293V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1H2z"/></svg>` }
-const ImportIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>` }
-const ExportIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg>` }
-const SavedIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2.5a2.5 2.5 0 0 1 5 0 2.5 2.5 0 0 1 5 0v.006c0 .34 0 .654.086.984.09.33.227.613.426.857.526.661.861 1.567.863 2.687a.8.8 0 0 1-.254.58C13.617 7.98 13.3 8 13 8a.5.5 0 0 1-.276-.916c.013-.006.02-.01.021-.012a.003.003 0 0 0 .003-.003V7.5a5.006 5.006 0 0 0-.777-2.675.926.926 0 0 1-.196-.43c-.01-.14-.010-.333-.010-.395V2.5A1.5 1.5 0 0 0 10.5 1h-5A1.5 1.5 0 0 0 4 2.5v1.5c0 .062 0 .255-.01.395a.926.926 0 0 1-.196.43A5.006 5.006 0 0 0 3 7.5v-.069a.003.003 0 0 0 .003.003c.001.002.008.006.021.012A.5.5 0 0 1 3 8c-.3 0-.617-.02-1.121-.387a.8.8 0 0 1-.254-.58c.002-1.12.337-2.026.863-2.687.199-.244.336-.527.426-.857C3.001 3.154 3 2.84 3 2.506V2.5z"/><path d="M4 8.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-7z"/></svg>` }
-const SearchIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>` }
-const CreateIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>` }
-const StarIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/></svg>` }
-const MoreIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>` }
-const LoadIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>` }
-const DuplicateIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg>` }
-const ShareIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"/></svg>` }
-const ValidateIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.061L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/></svg>` }
-const UploadIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg>` }
-const EditIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708L15.207 4.5 14 5.707 13.293 5 14.5 3.793l-1-1L4.646 11.646a.5.5 0 0 1-.14.14L1.646 14.646a.5.5 0 0 1-.708-.708L4.646 10.854l6.5-6.5.146-.146a.5.5 0 0 1 .708 0z"/><path d="M5.5 13.5l.5-.5v.5h-.5z"/></svg>` }
-const DeleteIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>` }
+const BuildIcon = {
+  template: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9l-5 4.87L18.18 22 12 18.77 5.82 22 7 13.87 2 9l6.91-.74L12 2z"/></svg>`,
+}
+const SaveIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v7.293l2.646-2.647a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L7.5 9.293V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1H2z"/></svg>`,
+}
+const ImportIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>`,
+}
+const ExportIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg>`,
+}
+const SavedIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2.5a2.5 2.5 0 0 1 5 0 2.5 2.5 0 0 1 5 0v.006c0 .34 0 .654.086.984.09.33.227.613.426.857.526.661.861 1.567.863 2.687a.8.8 0 0 1-.254.58C13.617 7.98 13.3 8 13 8a.5.5 0 0 1-.276-.916c.013-.006.02-.01.021-.012a.003.003 0 0 0 .003-.003V7.5a5.006 5.006 0 0 0-.777-2.675.926.926 0 0 1-.196-.43c-.01-.14-.010-.333-.010-.395V2.5A1.5 1.5 0 0 0 10.5 1h-5A1.5 1.5 0 0 0 4 2.5v1.5c0 .062 0 .255-.01.395a.926.926 0 0 1-.196.43A5.006 5.006 0 0 0 3 7.5v-.069a.003.003 0 0 0 .003.003c.001.002.008.006.021.012A.5.5 0 0 1 3 8c-.3 0-.617-.02-1.121-.387a.8.8 0 0 1-.254-.58c.002-1.12.337-2.026.863-2.687.199-.244.336-.527.426-.857C3.001 3.154 3 2.84 3 2.506V2.5z"/><path d="M4 8.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-7z"/></svg>`,
+}
+const SearchIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>`,
+}
+const CreateIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>`,
+}
+const StarIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/></svg>`,
+}
+const MoreIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>`,
+}
+const LoadIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>`,
+}
+const DuplicateIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg>`,
+}
+const ShareIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"/></svg>`,
+}
+const ValidateIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.061L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/></svg>`,
+}
+const UploadIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg>`,
+}
+const EditIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708L15.207 4.5 14 5.707 13.293 5 14.5 3.793l-1-1L4.646 11.646a.5.5 0 0 1-.14.14L1.646 14.646a.5.5 0 0 1-.708-.708L4.646 10.854l6.5-6.5.146-.146a.5.5 0 0 1 .708 0z"/><path d="M5.5 13.5l.5-.5v.5h-.5z"/></svg>`,
+}
+const DeleteIcon = {
+  template: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>`,
+}
 </script>
 
 <style scoped>
@@ -1026,7 +1097,11 @@ const DeleteIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" 
 .current-build-summary {
   margin-top: 1.5rem;
   padding: 1.5rem;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.05) 0%,
+    rgba(59, 130, 246, 0.1) 100%
+  );
   border-radius: 8px;
   border: 1px solid rgba(59, 130, 246, 0.2);
 }
@@ -1084,11 +1159,21 @@ const DeleteIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" 
   color: var(--text-primary);
 }
 
-.stat-value.rating-S { color: #dc2626; }
-.stat-value.rating-A { color: #ea580c; }
-.stat-value.rating-B { color: #ca8a04; }
-.stat-value.rating-C { color: #65a30d; }
-.stat-value.rating-D { color: #6b7280; }
+.stat-value.rating-S {
+  color: #dc2626;
+}
+.stat-value.rating-A {
+  color: #ea580c;
+}
+.stat-value.rating-B {
+  color: #ca8a04;
+}
+.stat-value.rating-C {
+  color: #65a30d;
+}
+.stat-value.rating-D {
+  color: #6b7280;
+}
 
 /* Section Header */
 .section-header {
@@ -1166,7 +1251,9 @@ const DeleteIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" 
 }
 
 /* Loading and Empty States */
-.loading-state, .empty-state, .no-results {
+.loading-state,
+.empty-state,
+.no-results {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1186,7 +1273,8 @@ const DeleteIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" 
   margin-bottom: 1rem;
 }
 
-.empty-icon, .no-results-icon {
+.empty-icon,
+.no-results-icon {
   font-size: 3rem;
   margin-bottom: 1rem;
 }
@@ -1281,11 +1369,26 @@ const DeleteIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" 
   font-weight: 600;
 }
 
-.build-rating.rating-S { background: #fecaca; color: #dc2626; }
-.build-rating.rating-A { background: #fed7aa; color: #ea580c; }
-.build-rating.rating-B { background: #fef3c7; color: #ca8a04; }
-.build-rating.rating-C { background: #dcfce7; color: #65a30d; }
-.build-rating.rating-D { background: #f3f4f6; color: #6b7280; }
+.build-rating.rating-S {
+  background: #fecaca;
+  color: #dc2626;
+}
+.build-rating.rating-A {
+  background: #fed7aa;
+  color: #ea580c;
+}
+.build-rating.rating-B {
+  background: #fef3c7;
+  color: #ca8a04;
+}
+.build-rating.rating-C {
+  background: #dcfce7;
+  color: #65a30d;
+}
+.build-rating.rating-D {
+  background: #f3f4f6;
+  color: #6b7280;
+}
 
 .build-actions {
   display: flex;
@@ -1388,10 +1491,18 @@ const DeleteIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" 
   color: white;
 }
 
-.relic-chip.rarity-common { background: #9ca3af; }
-.relic-chip.rarity-rare { background: #3b82f6; }
-.relic-chip.rarity-epic { background: #8b5cf6; }
-.relic-chip.rarity-legendary { background: #f59e0b; }
+.relic-chip.rarity-common {
+  background: #9ca3af;
+}
+.relic-chip.rarity-rare {
+  background: #3b82f6;
+}
+.relic-chip.rarity-epic {
+  background: #8b5cf6;
+}
+.relic-chip.rarity-legendary {
+  background: #f59e0b;
+}
 
 .relic-name {
   overflow: hidden;
@@ -1415,7 +1526,9 @@ const DeleteIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" 
   gap: 0.5rem;
 }
 
-.load-btn, .duplicate-btn, .share-btn {
+.load-btn,
+.duplicate-btn,
+.share-btn {
   flex: 1;
   display: flex;
   align-items: center;
@@ -1440,18 +1553,22 @@ const DeleteIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" 
   background: #2980b9;
 }
 
-.duplicate-btn, .share-btn {
+.duplicate-btn,
+.share-btn {
   background: white;
   color: var(--text-secondary);
 }
 
-.duplicate-btn:hover, .share-btn:hover {
+.duplicate-btn:hover,
+.share-btn:hover {
   background: var(--gray-50);
   color: var(--text-primary);
 }
 
 /* Modals */
-.save-dialog-content, .create-dialog-content, .import-dialog-content {
+.save-dialog-content,
+.create-dialog-content,
+.import-dialog-content {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -1469,7 +1586,9 @@ const DeleteIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" 
   color: var(--text-primary);
 }
 
-.form-input, .form-textarea, .form-select {
+.form-input,
+.form-textarea,
+.form-select {
   padding: 0.75rem;
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -1477,7 +1596,9 @@ const DeleteIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" 
   transition: border-color 0.2s;
 }
 
-.form-input:focus, .form-textarea:focus, .form-select:focus {
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -1714,7 +1835,9 @@ const DeleteIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" 
 
 /* Animations */
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive */
@@ -1724,49 +1847,49 @@ const DeleteIcon = { template: `<svg width="16" height="16" viewBox="0 0 16 16" 
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .header-actions {
     align-self: stretch;
   }
-  
+
   .section-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .section-controls {
     flex-wrap: wrap;
     align-self: stretch;
   }
-  
+
   .search-input {
     width: 100%;
   }
-  
+
   .summary-stats {
     grid-template-columns: 1fr;
   }
-  
+
   .builds-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .build-card-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
   }
-  
+
   .build-actions {
     align-self: stretch;
   }
-  
+
   .stat-group {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .build-card-actions {
     flex-direction: column;
   }

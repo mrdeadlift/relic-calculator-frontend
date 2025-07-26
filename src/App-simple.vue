@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const apiStatus = ref<{success: boolean, message: string} | null>(null)
+const apiStatus = ref<{ success: boolean; message: string } | null>(null)
 
 const testAPI = async () => {
   try {
@@ -20,7 +20,10 @@ const testAPI = async () => {
     if (response.ok) {
       apiStatus.value = { success: true, message: 'API接続成功！' }
     } else {
-      apiStatus.value = { success: false, message: `API接続失敗: ${response.status}` }
+      apiStatus.value = {
+        success: false,
+        message: `API接続失敗: ${response.status}`,
+      }
     }
   } catch (error) {
     apiStatus.value = { success: false, message: `接続エラー: ${error}` }

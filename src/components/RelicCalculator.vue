@@ -10,7 +10,7 @@ const calculatorState = ref({
   selectedRelics: [] as Relic[],
   baseAttackPower: 100,
   characterLevel: 1,
-  weaponType: 'straight-sword'
+  weaponType: 'straight-sword',
 })
 
 // Calculate attack power based on selected relics
@@ -22,7 +22,7 @@ const calculateAttackPower = (): AttackCalculationResult => {
   calculatorState.value.selectedRelics.forEach(relic => {
     relic.effects.forEach(effect => {
       const effectValue = typeof effect.value === 'number' ? effect.value : 0
-      
+
       if (effect.type === 'attack_percentage') {
         const multiplierValue = effectValue / 100
         totalMultiplier += multiplierValue
@@ -33,10 +33,10 @@ const calculateAttackPower = (): AttackCalculationResult => {
           value: effectValue,
           runningTotal: totalMultiplier,
           relicName: relic.name,
-          effectName: effect.name
+          effectName: effect.name,
         })
       } else if (effect.type === 'attack_multiplier') {
-        totalMultiplier *= (1 + effectValue / 100)
+        totalMultiplier *= 1 + effectValue / 100
         breakdown.push({
           step: breakdown.length + 1,
           description: `${relic.name} - ${effect.name}`,
@@ -44,7 +44,7 @@ const calculateAttackPower = (): AttackCalculationResult => {
           value: effectValue,
           runningTotal: totalMultiplier,
           relicName: relic.name,
-          effectName: effect.name
+          effectName: effect.name,
         })
       } else if (effect.type === 'attack_flat') {
         flatBonuses += effectValue
@@ -55,13 +55,15 @@ const calculateAttackPower = (): AttackCalculationResult => {
           value: effectValue,
           runningTotal: flatBonuses,
           relicName: relic.name,
-          effectName: effect.name
+          effectName: effect.name,
         })
       }
     })
   })
 
-  const finalAttackPower = Math.round((calculatorState.value.baseAttackPower * totalMultiplier) + flatBonuses)
+  const finalAttackPower = Math.round(
+    calculatorState.value.baseAttackPower * totalMultiplier + flatBonuses
+  )
 
   return {
     totalMultiplier,
@@ -69,17 +71,17 @@ const calculateAttackPower = (): AttackCalculationResult => {
     stackingBonuses: [],
     conditionalEffects: [],
     warningsAndErrors: [],
-    damageByType: { 
+    damageByType: {
       physical: finalAttackPower,
       magical: 0,
       fire: 0,
       ice: 0,
       lightning: 0,
       dark: 0,
-      holy: 0
+      holy: 0,
     },
     finalAttackPower,
-    breakdown
+    breakdown,
   }
 }
 
@@ -95,7 +97,6 @@ const calculationResult = computed(() => {
 const onRelicSelectionChange = (selectedRelics: Relic[]) => {
   calculatorState.value.selectedRelics = selectedRelics
 }
-
 </script>
 
 <template>
@@ -104,7 +105,7 @@ const onRelicSelectionChange = (selectedRelics: Relic[]) => {
       <!-- Left Panel: Relic Selection -->
       <div class="relic-panel">
         <h2>遺物選択</h2>
-        <RelicSelector 
+        <RelicSelector
           :available-relics="SAMPLE_RELICS"
           :selected-relics="calculatorState.selectedRelics"
           @selection-change="onRelicSelectionChange"
@@ -114,27 +115,27 @@ const onRelicSelectionChange = (selectedRelics: Relic[]) => {
       <!-- Right Panel: Results -->
       <div class="results-panel">
         <h2>計算結果</h2>
-        
+
         <!-- Base Stats Input -->
         <div class="base-stats">
           <h3>基本ステータス</h3>
           <div class="stat-inputs">
             <div class="input-group">
               <label for="base-attack">基本攻撃力:</label>
-              <input 
+              <input
                 id="base-attack"
-                type="number" 
                 v-model.number="calculatorState.baseAttackPower"
+                type="number"
                 min="1"
                 max="9999"
               />
             </div>
             <div class="input-group">
               <label for="character-level">キャラクターレベル:</label>
-              <input 
+              <input
                 id="character-level"
-                type="number" 
                 v-model.number="calculatorState.characterLevel"
+                type="number"
                 min="1"
                 max="150"
               />
@@ -153,7 +154,7 @@ const onRelicSelectionChange = (selectedRelics: Relic[]) => {
         </div>
 
         <!-- Attack Calculation Display -->
-        <AttackDisplay 
+        <AttackDisplay
           :calculation-result="calculationResult"
           :selected-relics="calculatorState.selectedRelics"
         />
@@ -175,14 +176,16 @@ const onRelicSelectionChange = (selectedRelics: Relic[]) => {
   align-items: start;
 }
 
-.relic-panel, .results-panel {
+.relic-panel,
+.results-panel {
   background: #f8f9fa;
   border-radius: 8px;
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.relic-panel h2, .results-panel h2 {
+.relic-panel h2,
+.results-panel h2 {
   color: #2c3e50;
   margin-bottom: 1rem;
   font-size: 1.5rem;
@@ -220,14 +223,16 @@ const onRelicSelectionChange = (selectedRelics: Relic[]) => {
   font-size: 0.9rem;
 }
 
-.input-group input, .input-group select {
+.input-group input,
+.input-group select {
   padding: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
 }
 
-.input-group input:focus, .input-group select:focus {
+.input-group input:focus,
+.input-group select:focus {
   outline: none;
   border-color: #3498db;
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
@@ -238,8 +243,9 @@ const onRelicSelectionChange = (selectedRelics: Relic[]) => {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
-  .relic-panel, .results-panel {
+
+  .relic-panel,
+  .results-panel {
     padding: 1rem;
   }
 }

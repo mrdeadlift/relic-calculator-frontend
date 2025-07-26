@@ -6,20 +6,20 @@
         <div class="result-header">
           <h3 class="result-title">攻撃倍率計算結果</h3>
           <div class="result-actions">
-            <BaseButton 
+            <BaseButton
               v-if="canRecalculate"
-              @click="handleRecalculate"
               variant="outline"
               size="sm"
               :loading="loading"
+              @click="handleRecalculate"
             >
               再計算
             </BaseButton>
-            <BaseButton 
+            <BaseButton
               v-if="result"
-              @click="handleExport"
               variant="ghost"
               size="sm"
+              @click="handleExport"
             >
               エクスポート
             </BaseButton>
@@ -41,7 +41,7 @@
         <div class="error-icon">⚠️</div>
         <h4>計算エラー</h4>
         <p class="error-message">{{ error }}</p>
-        <BaseButton @click="handleRecalculate" variant="primary" size="sm">
+        <BaseButton variant="primary" size="sm" @click="handleRecalculate">
           再試行
         </BaseButton>
       </div>
@@ -55,24 +55,28 @@
             <span class="multiplier-unit">倍</span>
           </div>
           <div class="multiplier-context">
-            <span class="context-label">{{ result.context || '通常攻撃' }}</span>
-            <span v-if="result.bonusType" class="bonus-type">{{ result.bonusType }}</span>
+            <span class="context-label">{{
+              result.context || '通常攻撃'
+            }}</span>
+            <span v-if="result.bonusType" class="bonus-type">{{
+              result.bonusType
+            }}</span>
           </div>
         </div>
 
         <!-- Calculation Breakdown -->
         <div v-if="showBreakdown" class="calculation-breakdown">
           <h4 class="breakdown-title">
-            <BaseButton 
-              @click="toggleBreakdown"
+            <BaseButton
               variant="ghost"
               size="sm"
               class="breakdown-toggle"
+              @click="toggleBreakdown"
             >
               計算内訳 {{ breakdownExpanded ? '▼' : '▶' }}
             </BaseButton>
           </h4>
-          
+
           <Transition name="breakdown">
             <div v-if="breakdownExpanded" class="breakdown-content">
               <!-- Base Stats -->
@@ -81,11 +85,15 @@
                 <div class="stat-grid">
                   <div class="stat-item">
                     <span class="stat-label">基礎攻撃力:</span>
-                    <span class="stat-value">{{ result.baseStats?.attack || 0 }}</span>
+                    <span class="stat-value">{{
+                      result.baseStats?.attack || 0
+                    }}</span>
                   </div>
                   <div class="stat-item">
                     <span class="stat-label">武器攻撃力:</span>
-                    <span class="stat-value">{{ result.baseStats?.weaponAttack || 0 }}</span>
+                    <span class="stat-value">{{
+                      result.baseStats?.weaponAttack || 0
+                    }}</span>
                   </div>
                 </div>
               </div>
@@ -94,8 +102,8 @@
               <div v-if="result.effectBreakdown" class="breakdown-section">
                 <h5>効果詳細</h5>
                 <div class="effects-list">
-                  <div 
-                    v-for="effect in result.effectBreakdown" 
+                  <div
+                    v-for="effect in result.effectBreakdown"
                     :key="effect.id"
                     class="effect-breakdown-item"
                   >
@@ -104,8 +112,12 @@
                       <span class="effect-source">{{ effect.sourceName }}</span>
                     </div>
                     <div class="effect-calculation">
-                      <span class="effect-type">{{ getEffectTypeLabel(effect.type) }}</span>
-                      <span class="effect-value">{{ formatEffectValue(effect) }}</span>
+                      <span class="effect-type">{{
+                        getEffectTypeLabel(effect.type)
+                      }}</span>
+                      <span class="effect-value">{{
+                        formatEffectValue(effect)
+                      }}</span>
                     </div>
                   </div>
                 </div>
@@ -115,7 +127,9 @@
               <div class="breakdown-section final-calculation">
                 <h5>最終計算式</h5>
                 <div class="calculation-formula">
-                  <code>{{ result.calculationFormula || '計算式が利用できません' }}</code>
+                  <code>{{
+                    result.calculationFormula || '計算式が利用できません'
+                  }}</code>
                 </div>
               </div>
             </div>
@@ -126,11 +140,15 @@
         <div v-if="result.performance" class="performance-stats">
           <div class="stat-item">
             <span class="stat-label">計算時間:</span>
-            <span class="stat-value">{{ result.performance.executionTime }}ms</span>
+            <span class="stat-value"
+              >{{ result.performance.executionTime }}ms</span
+            >
           </div>
           <div class="stat-item">
             <span class="stat-label">処理した効果数:</span>
-            <span class="stat-value">{{ result.performance.effectsProcessed }}個</span>
+            <span class="stat-value"
+              >{{ result.performance.effectsProcessed }}個</span
+            >
           </div>
         </div>
       </div>
@@ -144,19 +162,19 @@
     </BaseCard>
 
     <!-- Comparison Display -->
-    <BaseCard 
-      v-if="showComparison && comparisonResults.length > 0" 
-      class="comparison-card" 
+    <BaseCard
+      v-if="showComparison && comparisonResults.length > 0"
+      class="comparison-card"
       variant="filled"
       padding="md"
     >
       <template #header>
         <h4>比較結果</h4>
       </template>
-      
+
       <div class="comparison-list">
-        <div 
-          v-for="comparison in comparisonResults" 
+        <div
+          v-for="comparison in comparisonResults"
           :key="comparison.id"
           class="comparison-item"
         >
@@ -165,8 +183,10 @@
             <span class="comparison-context">{{ comparison.context }}</span>
           </div>
           <div class="comparison-value">
-            <span class="multiplier">{{ formatMultiplier(comparison.multiplier) }}倍</span>
-            <span 
+            <span class="multiplier"
+              >{{ formatMultiplier(comparison.multiplier) }}倍</span
+            >
+            <span
               :class="['difference', getDifferenceClass(comparison.difference)]"
             >
               {{ formatDifference(comparison.difference) }}
@@ -177,39 +197,43 @@
     </BaseCard>
 
     <!-- Export Modal -->
-    <BaseModal v-model:show="showExportModal" title="結果エクスポート" size="md">
+    <BaseModal
+      v-model:show="showExportModal"
+      title="結果エクスポート"
+      size="md"
+    >
       <div class="export-options">
         <h5>エクスポート形式</h5>
         <div class="export-formats">
-          <BaseButton 
-            @click="exportAs('json')"
+          <BaseButton
             variant="outline"
             size="sm"
             full-width
+            @click="exportAs('json')"
           >
             JSON形式
           </BaseButton>
-          <BaseButton 
-            @click="exportAs('csv')"
-            variant="outline" 
+          <BaseButton
+            variant="outline"
             size="sm"
             full-width
+            @click="exportAs('csv')"
           >
             CSV形式
           </BaseButton>
-          <BaseButton 
-            @click="exportAs('text')"
+          <BaseButton
             variant="outline"
-            size="sm" 
+            size="sm"
             full-width
+            @click="exportAs('text')"
           >
             テキスト形式
           </BaseButton>
         </div>
       </div>
-      
+
       <template #footer>
-        <BaseButton @click="showExportModal = false" variant="ghost">
+        <BaseButton variant="ghost" @click="showExportModal = false">
           キャンセル
         </BaseButton>
       </template>
@@ -219,9 +243,12 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import type { AttackMultiplierResult, ComparisonResult } from '../types/calculation'
+import type {
+  AttackMultiplierResult,
+  ComparisonResult,
+} from '../types/calculation'
 import BaseCard from './ui/BaseCard.vue'
-import BaseButton from './ui/BaseButton.vue' 
+import BaseButton from './ui/BaseButton.vue'
 import BaseModal from './ui/BaseModal.vue'
 
 // Props
@@ -251,7 +278,7 @@ const props = withDefaults(defineProps<Props>(), {
   showComparison: false,
   comparisonResults: () => [],
   progress: 0,
-  canRecalculate: true
+  canRecalculate: true,
 })
 
 const emit = defineEmits<Emits>()
@@ -281,9 +308,9 @@ const handleExport = () => {
 
 const exportAs = (format: string) => {
   if (!props.result) return
-  
+
   let exportData: any
-  
+
   switch (format) {
     case 'json':
       exportData = JSON.stringify(props.result, null, 2)
@@ -297,7 +324,7 @@ const exportAs = (format: string) => {
     default:
       return
   }
-  
+
   emit('export', format, exportData)
   showExportModal.value = false
 }
@@ -308,9 +335,9 @@ const convertToCSV = (result: AttackMultiplierResult): string => {
     ['攻撃倍率', result.finalMultiplier.toString()],
     ['コンテキスト', result.context || ''],
     ['計算時間', `${result.performance?.executionTime || 0}ms`],
-    ['処理した効果数', `${result.performance?.effectsProcessed || 0}`]
+    ['処理した効果数', `${result.performance?.effectsProcessed || 0}`],
   ]
-  
+
   return [headers.join(','), ...rows.map(row => row.join(','))].join('\n')
 }
 
@@ -319,20 +346,20 @@ const convertToText = (result: AttackMultiplierResult): string => {
   text += `==================\n`
   text += `最終倍率: ${result.finalMultiplier.toFixed(2)}倍\n`
   text += `コンテキスト: ${result.context || '通常攻撃'}\n`
-  
+
   if (result.performance) {
     text += `\n性能統計:\n`
     text += `- 計算時間: ${result.performance.executionTime}ms\n`
     text += `- 処理した効果数: ${result.performance.effectsProcessed}個\n`
   }
-  
+
   if (result.effectBreakdown) {
     text += `\n効果詳細:\n`
     result.effectBreakdown.forEach(effect => {
       text += `- ${effect.name} (${effect.sourceName}): ${formatEffectValue(effect)}\n`
     })
   }
-  
+
   return text
 }
 
@@ -353,11 +380,16 @@ const getDifferenceClass = (difference: number): string => {
 
 const getEffectTypeLabel = (type: string): string => {
   switch (type) {
-    case 'additive': return '加算'
-    case 'multiplicative': return '乗算'
-    case 'overwrite': return '上書き'
-    case 'unique': return '固有'
-    default: return type
+    case 'additive':
+      return '加算'
+    case 'multiplicative':
+      return '乗算'
+    case 'overwrite':
+      return '上書き'
+    case 'unique':
+      return '固有'
+    default:
+      return type
   }
 }
 
@@ -372,11 +404,15 @@ const formatEffectValue = (effect: any): string => {
 }
 
 // Watch for result changes to auto-expand breakdown
-watch(() => props.result, (newResult) => {
-  if (newResult && props.showBreakdown) {
-    breakdownExpanded.value = true
-  }
-}, { immediate: true })
+watch(
+  () => props.result,
+  newResult => {
+    if (newResult && props.showBreakdown) {
+      breakdownExpanded.value = true
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped>
@@ -792,43 +828,43 @@ watch(() => props.result, (newResult) => {
     gap: 1rem;
     align-items: flex-start;
   }
-  
+
   .result-actions {
     align-self: stretch;
   }
-  
+
   .main-result {
     padding: 1.5rem 1rem;
   }
-  
+
   .multiplier-number {
     font-size: 2.5rem;
   }
-  
+
   .stat-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .effect-breakdown-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .effect-calculation {
     align-items: flex-start;
   }
-  
+
   .comparison-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .comparison-value {
     align-items: flex-start;
   }
-  
+
   .performance-stats {
     flex-direction: column;
     gap: 0.5rem;
@@ -840,55 +876,55 @@ watch(() => props.result, (newResult) => {
   .result-title {
     color: #f9fafb;
   }
-  
+
   .main-result {
     background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
   }
-  
+
   .context-label {
     color: #d1d5db;
   }
-  
+
   .bonus-type {
     background: #374151;
     color: #d1d5db;
   }
-  
+
   .breakdown-content {
     border-color: #374151;
   }
-  
+
   .breakdown-section h5 {
     color: #d1d5db;
   }
-  
+
   .stat-item,
   .effect-breakdown-item {
     background: #374151;
   }
-  
+
   .effect-name {
     color: #f9fafb;
   }
-  
+
   .stat-value {
     color: #f9fafb;
   }
-  
+
   .final-calculation {
     background: #451a03;
   }
-  
+
   .performance-stats {
     background: #374151;
     border-color: #4b5563;
   }
-  
+
   .comparison-item {
     background: #1f2937;
     border-color: #374151;
   }
-  
+
   .comparison-name {
     color: #f9fafb;
   }

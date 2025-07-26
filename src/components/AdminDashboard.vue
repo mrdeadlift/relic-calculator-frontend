@@ -6,24 +6,21 @@
       <div class="dashboard-actions">
         <BaseButton
           variant="primary"
-          @click="showImportModal = true"
           :loading="importLoading"
+          @click="showImportModal = true"
         >
           <i class="icon-upload"></i>
           インポート
         </BaseButton>
         <BaseButton
           variant="secondary"
-          @click="exportRelics"
           :loading="exportLoading"
+          @click="exportRelics"
         >
           <i class="icon-download"></i>
           エクスポート
         </BaseButton>
-        <BaseButton
-          variant="success"
-          @click="showCreateModal = true"
-        >
+        <BaseButton variant="success" @click="showCreateModal = true">
           <i class="icon-plus"></i>
           新規遺物作成
         </BaseButton>
@@ -43,7 +40,7 @@
             <div class="stat-label">総遺物数</div>
           </div>
         </div>
-        
+
         <div class="stat-card">
           <div class="stat-icon">
             <i class="icon-build"></i>
@@ -53,17 +50,19 @@
             <div class="stat-label">総ビルド数</div>
           </div>
         </div>
-        
+
         <div class="stat-card">
           <div class="stat-icon">
             <i class="icon-calculation"></i>
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ statistics?.totalCalculations || 0 }}</div>
+            <div class="stat-number">
+              {{ statistics?.totalCalculations || 0 }}
+            </div>
             <div class="stat-label">計算実行回数</div>
           </div>
         </div>
-        
+
         <div class="stat-card">
           <div class="stat-icon">
             <i class="icon-user"></i>
@@ -88,7 +87,11 @@
           />
           <select v-model="categoryFilter" class="filter-select">
             <option value="">全カテゴリ</option>
-            <option v-for="category in categories" :key="category" :value="category">
+            <option
+              v-for="category in categories"
+              :key="category"
+              :value="category"
+            >
               {{ category }}
             </option>
           </select>
@@ -116,10 +119,18 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="relic in filteredRelics" :key="relic.id" class="relic-row">
+            <tr
+              v-for="relic in filteredRelics"
+              :key="relic.id"
+              class="relic-row"
+            >
               <td class="relic-name">
                 <div class="relic-info">
-                  <img :src="relic.iconUrl" :alt="relic.name" class="relic-icon" />
+                  <img
+                    :src="relic.iconUrl"
+                    :alt="relic.name"
+                    class="relic-icon"
+                  />
                   <div>
                     <div class="name">{{ relic.name }}</div>
                     <div class="description">{{ relic.description }}</div>
@@ -127,7 +138,10 @@
                 </div>
               </td>
               <td>
-                <span class="badge" :class="`badge-${relic.category.toLowerCase()}`">
+                <span
+                  class="badge"
+                  :class="`badge-${relic.category.toLowerCase()}`"
+                >
                   {{ relic.category }}
                 </span>
               </td>
@@ -138,11 +152,15 @@
               </td>
               <td>
                 <div class="difficulty-bar">
-                  <div 
+                  <div
                     class="difficulty-fill"
-                    :style="{ width: `${(relic.obtainmentDifficulty / 10) * 100}%` }"
+                    :style="{
+                      width: `${(relic.obtainmentDifficulty / 10) * 100}%`,
+                    }"
                   ></div>
-                  <span class="difficulty-text">{{ relic.obtainmentDifficulty }}/10</span>
+                  <span class="difficulty-text"
+                    >{{ relic.obtainmentDifficulty }}/10</span
+                  >
                 </div>
               </td>
               <td>{{ relic.effects?.length || 0 }}</td>
@@ -159,8 +177,8 @@
                   <BaseButton
                     variant="danger"
                     size="small"
-                    @click="confirmDelete(relic)"
                     :loading="deletingId === relic.id"
+                    @click="confirmDelete(relic)"
                   >
                     削除
                   </BaseButton>
@@ -169,7 +187,7 @@
             </tr>
           </tbody>
         </table>
-        
+
         <!-- 空状態 -->
         <div v-if="filteredRelics.length === 0" class="empty-state">
           <i class="icon-empty"></i>
@@ -184,8 +202,8 @@
       <div class="integrity-actions">
         <BaseButton
           variant="primary"
-          @click="runIntegrityCheck"
           :loading="integrityLoading"
+          @click="runIntegrityCheck"
         >
           <i class="icon-check"></i>
           整合性チェック実行
@@ -199,9 +217,16 @@
           結果を表示 ({{ integrityResults.issues?.length || 0 }}件の問題)
         </BaseButton>
       </div>
-      
-      <div v-if="integrityResults && showIntegrityResults" class="integrity-results">
-        <div v-for="issue in integrityResults.issues" :key="issue.id" class="integrity-issue">
+
+      <div
+        v-if="integrityResults && showIntegrityResults"
+        class="integrity-results"
+      >
+        <div
+          v-for="issue in integrityResults.issues"
+          :key="issue.id"
+          class="integrity-issue"
+        >
           <div class="issue-severity" :class="`severity-${issue.severity}`">
             {{ issue.severity }}
           </div>
@@ -225,16 +250,12 @@
     </div>
 
     <!-- 遺物作成/編集モーダル -->
-    <BaseModal
-      v-model="showCreateModal"
-      title="新規遺物作成"
-      size="large"
-    >
+    <BaseModal v-model="showCreateModal" title="新規遺物作成" size="large">
       <RelicForm
         :relic="editingRelic"
+        :loading="saveLoading"
         @submit="saveRelic"
         @cancel="closeModal"
-        :loading="saveLoading"
       />
     </BaseModal>
 
@@ -245,32 +266,25 @@
       size="medium"
     >
       <ImportForm
+        :loading="importLoading"
         @submit="importRelics"
         @cancel="showImportModal = false"
-        :loading="importLoading"
       />
     </BaseModal>
 
     <!-- 削除確認モーダル -->
-    <BaseModal
-      v-model="showDeleteModal"
-      title="遺物削除確認"
-      size="small"
-    >
+    <BaseModal v-model="showDeleteModal" title="遺物削除確認" size="small">
       <div class="delete-confirmation">
         <p>「{{ deletingRelic?.name }}」を削除しますか？</p>
         <p class="warning-text">この操作は元に戻せません。</p>
         <div class="modal-actions">
-          <BaseButton
-            variant="secondary"
-            @click="showDeleteModal = false"
-          >
+          <BaseButton variant="secondary" @click="showDeleteModal = false">
             キャンセル
           </BaseButton>
           <BaseButton
             variant="danger"
-            @click="deleteRelic"
             :loading="deletingId === deletingRelic?.id"
+            @click="deleteRelic"
           >
             削除
           </BaseButton>
@@ -334,13 +348,16 @@ const integrityResults = ref<any>(null)
 // 計算プロパティ
 const filteredRelics = computed(() => {
   return relics.value.filter(relic => {
-    const matchesSearch = !searchQuery.value || 
+    const matchesSearch =
+      !searchQuery.value ||
       relic.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       relic.description.toLowerCase().includes(searchQuery.value.toLowerCase())
-    
-    const matchesCategory = !categoryFilter.value || relic.category === categoryFilter.value
-    const matchesRarity = !rarityFilter.value || relic.rarity === rarityFilter.value
-    
+
+    const matchesCategory =
+      !categoryFilter.value || relic.category === categoryFilter.value
+    const matchesRarity =
+      !rarityFilter.value || relic.rarity === rarityFilter.value
+
     return matchesSearch && matchesCategory && matchesRarity
   })
 })
@@ -353,13 +370,14 @@ onMounted(async () => {
 // メソッド
 const loadData = async () => {
   try {
-    const [relicsData, statisticsData, categoriesData, raritiesData] = await Promise.all([
-      adminService.getRelics(),
-      adminService.getStatistics(),
-      adminService.getCategories(),
-      adminService.getRarities()
-    ])
-    
+    const [relicsData, statisticsData, categoriesData, raritiesData] =
+      await Promise.all([
+        adminService.getRelics(),
+        adminService.getStatistics(),
+        adminService.getCategories(),
+        adminService.getRarities(),
+      ])
+
     relics.value = relicsData
     statistics.value = statisticsData
     categories.value = categoriesData
@@ -379,9 +397,12 @@ const saveRelic = async (relicData: any) => {
   saveLoading.value = true
   try {
     let savedRelic: Relic
-    
+
     if (editingRelic.value?.id) {
-      savedRelic = await adminService.updateRelic(editingRelic.value.id, relicData)
+      savedRelic = await adminService.updateRelic(
+        editingRelic.value.id,
+        relicData
+      )
       const index = relics.value.findIndex(r => r.id === savedRelic.id)
       if (index !== -1) {
         relics.value[index] = savedRelic
@@ -393,7 +414,7 @@ const saveRelic = async (relicData: any) => {
       relics.value.unshift(savedRelic)
       showToast('遺物を作成しました', 'success')
     }
-    
+
     closeModal()
   } catch (error) {
     console.error('Failed to save relic:', error)
@@ -410,7 +431,7 @@ const confirmDelete = (relic: Relic) => {
 
 const deleteRelic = async () => {
   if (!deletingRelic.value) return
-  
+
   deletingId.value = deletingRelic.value.id
   try {
     await adminService.deleteRelic(deletingRelic.value.id)
@@ -498,7 +519,7 @@ const formatDate = (date: string | Date) => {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   })
 }
 </script>
@@ -670,21 +691,44 @@ const formatDate = (date: string | Date) => {
   text-transform: uppercase;
 }
 
-.badge-attack { background: #fed7d7; color: #c53030; }
-.badge-defense { background: #c6f6d5; color: #2f855a; }
-.badge-utility { background: #bee3f8; color: #2c5282; }
-.badge-critical { background: #fbb6ce; color: #b83280; }
-.badge-elemental { background: #d6f5d6; color: #38a169; }
+.badge-attack {
+  background: #fed7d7;
+  color: #c53030;
+}
+.badge-defense {
+  background: #c6f6d5;
+  color: #2f855a;
+}
+.badge-utility {
+  background: #bee3f8;
+  color: #2c5282;
+}
+.badge-critical {
+  background: #fbb6ce;
+  color: #b83280;
+}
+.badge-elemental {
+  background: #d6f5d6;
+  color: #38a169;
+}
 
 .rarity {
   font-weight: 600;
   text-transform: capitalize;
 }
 
-.rarity-common { color: #718096; }
-.rarity-rare { color: #3182ce; }
-.rarity-epic { color: #805ad5; }
-.rarity-legendary { color: #d69e2e; }
+.rarity-common {
+  color: #718096;
+}
+.rarity-rare {
+  color: #3182ce;
+}
+.rarity-epic {
+  color: #805ad5;
+}
+.rarity-legendary {
+  color: #d69e2e;
+}
 
 .difficulty-bar {
   position: relative;
@@ -768,9 +812,18 @@ const formatDate = (date: string | Date) => {
   flex-shrink: 0;
 }
 
-.severity-error { background: #fed7d7; color: #c53030; }
-.severity-warning { background: #fefcbf; color: #d69e2e; }
-.severity-info { background: #bee3f8; color: #2c5282; }
+.severity-error {
+  background: #fed7d7;
+  color: #c53030;
+}
+.severity-warning {
+  background: #fefcbf;
+  color: #d69e2e;
+}
+.severity-info {
+  background: #bee3f8;
+  color: #2c5282;
+}
 
 .issue-content {
   flex: 1;
@@ -816,26 +869,26 @@ const formatDate = (date: string | Date) => {
   .admin-dashboard {
     padding: 1rem;
   }
-  
+
   .dashboard-header {
     flex-direction: column;
     align-items: stretch;
     gap: 1rem;
   }
-  
+
   .dashboard-actions {
     justify-content: center;
   }
-  
+
   .section-header {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .section-actions {
     flex-direction: column;
   }
-  
+
   .stats-cards {
     grid-template-columns: 1fr;
   }
