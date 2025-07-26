@@ -1,6 +1,11 @@
 // API Types for Nightreign Relic Calculator
 
-import type { Relic, Build, AttackCalculationResult, CalculationContext } from './relic'
+import type {
+  Relic,
+  Build,
+  AttackCalculationResult,
+  CalculationContext,
+} from './relic'
 
 // Generic API response wrapper
 export interface ApiResponse<T> {
@@ -23,7 +28,12 @@ export class ApiError extends Error {
   details?: Record<string, any>
   field?: string
 
-  constructor(message: string, status: number = 500, code: string = 'UNKNOWN_ERROR', details?: Record<string, any>) {
+  constructor(
+    message: string,
+    status: number = 500,
+    code: string = 'UNKNOWN_ERROR',
+    details?: Record<string, any>
+  ) {
     super(message)
     this.name = 'ApiError'
     this.code = code
@@ -38,30 +48,31 @@ export const API_ERROR_CODES = {
   SELECTION_LIMIT_EXCEEDED: 'SELECTION_LIMIT_EXCEEDED',
   CONFLICTING_RELICS: 'CONFLICTING_RELICS',
   INVALID_RELIC_ID: 'INVALID_RELIC_ID',
-  
+
   // Calculation errors
   CALCULATION_ERROR: 'CALCULATION_ERROR',
   CALCULATION_TIMEOUT: 'CALCULATION_TIMEOUT',
   INVALID_CALCULATION_CONTEXT: 'INVALID_CALCULATION_CONTEXT',
-  
+
   // Build errors
   BUILD_NOT_FOUND: 'BUILD_NOT_FOUND',
   BUILD_VALIDATION_ERROR: 'BUILD_VALIDATION_ERROR',
   SHARE_KEY_INVALID: 'SHARE_KEY_INVALID',
   BUILD_SAVE_ERROR: 'BUILD_SAVE_ERROR',
-  
+
   // Auth errors
   UNAUTHORIZED: 'UNAUTHORIZED',
   FORBIDDEN: 'FORBIDDEN',
-  
+
   // General errors
   NOT_FOUND: 'NOT_FOUND',
   INTERNAL_SERVER_ERROR: 'INTERNAL_SERVER_ERROR',
   VALIDATION_ERROR: 'VALIDATION_ERROR',
-  RATE_LIMIT_EXCEEDED: 'RATE_LIMIT_EXCEEDED'
+  RATE_LIMIT_EXCEEDED: 'RATE_LIMIT_EXCEEDED',
 } as const
 
-export type ApiErrorCode = typeof API_ERROR_CODES[keyof typeof API_ERROR_CODES]
+export type ApiErrorCode =
+  (typeof API_ERROR_CODES)[keyof typeof API_ERROR_CODES]
 
 // Relic API types
 export interface RelicsListParams {
@@ -267,7 +278,11 @@ export interface RequestOptions extends RequestConfig {
 
 // WebSocket types for real-time features (future enhancement)
 export interface WebSocketMessage {
-  type: 'calculation_update' | 'build_shared' | 'relic_updated' | 'system_message'
+  type:
+    | 'calculation_update'
+    | 'build_shared'
+    | 'relic_updated'
+    | 'system_message'
   payload: any
   timestamp: string
   id: string

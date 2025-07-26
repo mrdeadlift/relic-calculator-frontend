@@ -175,32 +175,45 @@ export interface CalculationHistory {
 }
 
 // Type guards
-export const isAttackMultiplierResult = (obj: any): obj is AttackMultiplierResult => {
-  return obj && 
+export const isAttackMultiplierResult = (
+  obj: any
+): obj is AttackMultiplierResult => {
+  return (
+    obj &&
     typeof obj.finalMultiplier === 'number' &&
     typeof obj.baseMultiplier === 'number' &&
     Array.isArray(obj.relicIds) &&
     typeof obj.timestamp === 'string'
+  )
 }
 
 export const isComparisonResult = (obj: any): obj is ComparisonResult => {
-  return obj &&
+  return (
+    obj &&
     typeof obj.id === 'string' &&
     typeof obj.name === 'string' &&
     typeof obj.multiplier === 'number' &&
     typeof obj.difference === 'number' &&
     Array.isArray(obj.relicIds)
+  )
 }
 
 export const isCalculationError = (obj: any): obj is CalculationError => {
-  return obj &&
+  return (
+    obj &&
     typeof obj.code === 'string' &&
     typeof obj.message === 'string' &&
     typeof obj.timestamp === 'string'
+  )
 }
 
 // Utility types
-export type CalculationStatus = 'idle' | 'calculating' | 'completed' | 'error' | 'cancelled'
+export type CalculationStatus =
+  | 'idle'
+  | 'calculating'
+  | 'completed'
+  | 'error'
+  | 'cancelled'
 
 export type MultiplierCategory = 'low' | 'medium' | 'high' | 'exceptional'
 
@@ -216,7 +229,7 @@ export const DEFAULT_MULTIPLIER_THRESHOLDS: MultiplierThresholds = {
   low: 1.5,
   medium: 2.0,
   high: 3.0,
-  exceptional: 5.0
+  exceptional: 5.0,
 }
 
 export const DEFAULT_CALCULATION_OPTIONS: CalculationOptions = {
@@ -225,7 +238,7 @@ export const DEFAULT_CALCULATION_OPTIONS: CalculationOptions = {
   optimizationLevel: 'basic',
   timeout: 30000,
   useCache: true,
-  includeAlternatives: false
+  includeAlternatives: false,
 }
 
 // Additional types for compatibility with new calculation engine

@@ -41,7 +41,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale3d(1, 1, 1);
   }
   50% {
@@ -134,7 +135,8 @@
 // Critical CSS utilities
 .critical {
   /* Inline critical styles here */
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
   color: #333;
 }
@@ -234,7 +236,7 @@
     animation-duration: 0.2s;
     transition-duration: 0.2s;
   }
-  
+
   .desktop-only {
     display: none;
   }
@@ -262,7 +264,7 @@
   .no-print {
     display: none !important;
   }
-  
+
   .print-optimized {
     background: white !important;
     color: black !important;

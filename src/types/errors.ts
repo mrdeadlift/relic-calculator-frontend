@@ -12,7 +12,7 @@ export interface EnhancedError extends Error {
 }
 
 // Error categories
-export type ErrorCategory = 
+export type ErrorCategory =
   | 'validation'
   | 'calculation'
   | 'network'

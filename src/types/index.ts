@@ -6,7 +6,7 @@ export * from './relic'
 // API communication types
 export * from './api'
 
-// Vue component types  
+// Vue component types
 export * from './components'
 
 // Error handling types
@@ -22,14 +22,14 @@ export type {
   RelicEffect,
   AttackCalculationResult,
   CalculationContext,
-  
+
   // Enums
   RelicCategory,
   RelicRarity,
   CombatStyle,
   DamageType,
   EffectType,
-  StackingRule
+  StackingRule,
 } from './relic'
 
 export type {
@@ -39,7 +39,7 @@ export type {
   CalculationResponse,
   PaginatedResponse,
   BuildCreateRequest,
-  BuildUpdateRequest
+  BuildUpdateRequest,
 } from './api'
 
 export type {
@@ -47,7 +47,7 @@ export type {
   RelicSelectorProps,
   AttackDisplayProps,
   BuildComparisonProps,
-  BuildManagerProps
+  BuildManagerProps,
 } from './components'
 
 export type {
@@ -55,7 +55,7 @@ export type {
   EnhancedError,
   ErrorCategory,
   ErrorSeverity,
-  ErrorHandler
+  ErrorHandler,
 } from './errors'
 
 export { ApiError } from './api'
@@ -65,34 +65,40 @@ import type { Relic, AttackCalculationResult } from './relic'
 import type { Build } from './build'
 
 export const isRelic = (obj: any): obj is Relic => {
-  return obj &&
+  return (
+    obj &&
     typeof obj.id === 'string' &&
     typeof obj.name === 'string' &&
     typeof obj.category === 'string' &&
     typeof obj.rarity === 'string' &&
     Array.isArray(obj.effects)
+  )
 }
 
 export const isBuild = (obj: any): obj is Build => {
-  return obj &&
+  return (
+    obj &&
     typeof obj.id === 'string' &&
     typeof obj.name === 'string' &&
     Array.isArray(obj.relics) &&
     typeof obj.combatStyle === 'string'
+  )
 }
 
 export const isApiError = (obj: any): obj is import('./api').ApiError => {
-  return obj &&
-    typeof obj.code === 'string' &&
-    typeof obj.message === 'string'
+  return obj && typeof obj.code === 'string' && typeof obj.message === 'string'
 }
 
-export const isAttackCalculationResult = (obj: any): obj is AttackCalculationResult => {
-  return obj &&
+export const isAttackCalculationResult = (
+  obj: any
+): obj is AttackCalculationResult => {
+  return (
+    obj &&
     typeof obj.totalMultiplier === 'number' &&
     typeof obj.baseMultiplier === 'number' &&
     Array.isArray(obj.stackingBonuses) &&
     Array.isArray(obj.conditionalEffects)
+  )
 }
 
 // Utility types for common patterns
@@ -210,7 +216,9 @@ export const DEFAULT_CALCULATION_TIMEOUT = 5000
 export const API_VERSION = 'v1'
 
 // Type-safe object keys utility
-export const typedKeys = <T extends Record<string, unknown>>(obj: T): Array<keyof T> => {
+export const typedKeys = <T extends Record<string, unknown>>(
+  obj: T
+): Array<keyof T> => {
   return Object.keys(obj) as Array<keyof T>
 }
 

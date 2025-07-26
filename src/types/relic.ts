@@ -1,18 +1,50 @@
 // Types for Nightreign Relic Calculator
 
 // Core enums for type safety
-export type RelicCategory = 'Attack' | 'Defense' | 'Utility' | 'Critical' | 'Elemental'
+export type RelicCategory =
+  | 'Attack'
+  | 'Defense'
+  | 'Utility'
+  | 'Critical'
+  | 'Elemental'
 export type RelicRarity = 'common' | 'rare' | 'epic' | 'legendary'
 export type RelicQuality = 'Delicate' | 'Polished' | 'Grand'
-export type EffectType = 'attack_multiplier' | 'attack_flat' | 'attack_percentage' | 'critical_multiplier' | 'critical_chance' | 'elemental_damage' | 'conditional_damage' | 'weapon_specific' | 'unique'
-export type StackingRule = 'additive' | 'multiplicative' | 'overwrite' | 'unique'
-export type DamageType = 'physical' | 'magical' | 'fire' | 'ice' | 'lightning' | 'dark' | 'holy'
+export type EffectType =
+  | 'attack_multiplier'
+  | 'attack_flat'
+  | 'attack_percentage'
+  | 'critical_multiplier'
+  | 'critical_chance'
+  | 'elemental_damage'
+  | 'conditional_damage'
+  | 'weapon_specific'
+  | 'unique'
+export type StackingRule =
+  | 'additive'
+  | 'multiplicative'
+  | 'overwrite'
+  | 'unique'
+export type DamageType =
+  | 'physical'
+  | 'magical'
+  | 'fire'
+  | 'ice'
+  | 'lightning'
+  | 'dark'
+  | 'holy'
 export type CombatStyle = 'melee' | 'ranged' | 'magic' | 'hybrid'
 
 // Effect condition interface
 export interface EffectCondition {
   id: string
-  type: 'weapon_type' | 'combat_style' | 'health_threshold' | 'chain_position' | 'enemy_type' | 'time_based' | 'equipment_count'
+  type:
+    | 'weapon_type'
+    | 'combat_style'
+    | 'health_threshold'
+    | 'chain_position'
+    | 'enemy_type'
+    | 'time_based'
+    | 'equipment_count'
   value: string | number
   description: string
 }
@@ -156,16 +188,16 @@ export const SAMPLE_RELICS: Relic[] = [
             id: 'per-level',
             type: 'equipment_count',
             value: 'character_level',
-            description: 'Scales with character level'
-          }
-        ]
-      }
+            description: 'Scales with character level',
+          },
+        ],
+      },
     ],
     category: 'Attack',
     rarity: 'common',
     iconUrl: '/icons/physical-attack-up.png',
     obtainmentDifficulty: 3,
-    conflicts: []
+    conflicts: [],
   },
   {
     id: 'improved-straight-sword',
@@ -187,16 +219,16 @@ export const SAMPLE_RELICS: Relic[] = [
             id: 'straight-sword',
             type: 'weapon_type',
             value: 'straight_sword',
-            description: 'Requires straight sword equipped'
-          }
-        ]
-      }
+            description: 'Requires straight sword equipped',
+          },
+        ],
+      },
     ],
     category: 'Attack',
     rarity: 'rare',
     iconUrl: '/icons/improved-straight-sword.png',
     obtainmentDifficulty: 5,
-    conflicts: []
+    conflicts: [],
   },
   {
     id: 'initial-attack-buff',
@@ -218,21 +250,22 @@ export const SAMPLE_RELICS: Relic[] = [
             id: 'first-attack',
             type: 'chain_position',
             value: 1,
-            description: 'First attack in combo chain'
-          }
-        ]
-      }
+            description: 'First attack in combo chain',
+          },
+        ],
+      },
     ],
     category: 'Attack',
     rarity: 'epic',
     iconUrl: '/icons/initial-attack-buff.png',
     obtainmentDifficulty: 7,
-    conflicts: []
+    conflicts: [],
   },
   {
     id: 'three-weapon-bonus',
     name: 'Three Weapon Type Bonus',
-    description: 'Provides damage bonus when using multiple weapons of the same type',
+    description:
+      'Provides damage bonus when using multiple weapons of the same type',
     type: 'set_bonus',
     quality: 'Polished',
     effects: [
@@ -249,16 +282,16 @@ export const SAMPLE_RELICS: Relic[] = [
             id: 'weapon-count',
             type: 'equipment_count',
             value: 3,
-            description: '3 or more weapons of same type'
-          }
-        ]
-      }
+            description: '3 or more weapons of same type',
+          },
+        ],
+      },
     ],
     category: 'Attack',
     rarity: 'rare',
     iconUrl: '/icons/three-weapon-bonus.png',
     obtainmentDifficulty: 6,
-    conflicts: []
+    conflicts: [],
   },
   {
     id: 'improved-critical-hits',
@@ -280,9 +313,9 @@ export const SAMPLE_RELICS: Relic[] = [
             id: 'critical-hit',
             type: 'combat_style',
             value: 'critical_strike',
-            description: 'On critical hits'
-          }
-        ]
+            description: 'On critical hits',
+          },
+        ],
       },
       {
         id: 'crit-multiplier-2',
@@ -297,9 +330,9 @@ export const SAMPLE_RELICS: Relic[] = [
             id: 'critical-hit-2',
             type: 'combat_style',
             value: 'critical_strike',
-            description: 'On critical hits'
-          }
-        ]
+            description: 'On critical hits',
+          },
+        ],
       },
       {
         id: 'crit-multiplier-3',
@@ -314,17 +347,17 @@ export const SAMPLE_RELICS: Relic[] = [
             id: 'critical-hit-3',
             type: 'combat_style',
             value: 'critical_strike',
-            description: 'On critical hits'
-          }
-        ]
-      }
+            description: 'On critical hits',
+          },
+        ],
+      },
     ],
     category: 'Critical',
     rarity: 'legendary',
     iconUrl: '/icons/improved-critical-hits.png',
     obtainmentDifficulty: 9,
-    conflicts: []
-  }
+    conflicts: [],
+  },
 ]
 
 // Relic filtering and search

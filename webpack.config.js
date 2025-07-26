@@ -13,14 +13,14 @@ module.exports = {
           test: /[\\/]node_modules[\\/]/,
           name: 'vendors',
           chunks: 'all',
-          priority: 10
+          priority: 10,
         },
         // Vue runtime
         vue: {
           test: /[\\/]node_modules[\\/]vue[\\/]/,
           name: 'vue',
           chunks: 'all',
-          priority: 20
+          priority: 20,
         },
         // Common utilities
         common: {
@@ -28,41 +28,43 @@ module.exports = {
           minChunks: 2,
           chunks: 'all',
           priority: 5,
-          reuseExistingChunk: true
+          reuseExistingChunk: true,
         },
         // Large libraries
         lodash: {
           test: /[\\/]node_modules[\\/]lodash[\\/]/,
           name: 'lodash',
           chunks: 'all',
-          priority: 15
-        }
-      }
+          priority: 15,
+        },
+      },
     },
     // Runtime chunk for better caching
-    runtimeChunk: 'single'
+    runtimeChunk: 'single',
   },
 
   // Performance budgets
   performance: {
     maxAssetSize: 250000, // 250KB
     maxEntrypointSize: 400000, // 400KB
-    hints: process.env.NODE_ENV === 'production' ? 'warning' : false
+    hints: process.env.NODE_ENV === 'production' ? 'warning' : false,
   },
 
   plugins: [
     // Bundle analysis (only in development)
     ...(process.env.ANALYZE_BUNDLE ? [new BundleAnalyzerPlugin()] : []),
-    
+
     // Gzip compression for production
-    ...(process.env.NODE_ENV === 'production' ? [
-      new CompressionPlugin({
-        algorithm: 'gzip',
-        test: /\.(js|css|html|svg)$/,
-        threshold: 8192,
-        minRatio: 0.8
-      })
-    ] : [])
+    ...(process.env.NODE_ENV === 'production'
+      ? [
+          new CompressionPlugin({
+            algorithm: 'gzip',
+            test: /\.(js|css|html|svg)$/,
+            threshold: 8192,
+            minRatio: 0.8,
+          }),
+        ]
+      : []),
   ],
 
   // Module resolution optimizations
@@ -72,21 +74,22 @@ module.exports = {
       '@components': path.resolve(__dirname, 'src/components'),
       '@composables': path.resolve(__dirname, 'src/composables'),
       '@utils': path.resolve(__dirname, 'src/utils'),
-      '@stores': path.resolve(__dirname, 'src/stores')
+      '@stores': path.resolve(__dirname, 'src/stores'),
     },
     // Prioritize ES modules
-    mainFields: ['browser', 'module', 'main']
+    mainFields: ['browser', 'module', 'main'],
   },
 
   // Source map optimization
-  devtool: process.env.NODE_ENV === 'production' ? 'source-map' : 'eval-source-map',
+  devtool:
+    process.env.NODE_ENV === 'production' ? 'source-map' : 'eval-source-map',
 
   // Cache configuration
   cache: {
     type: 'filesystem',
     buildDependencies: {
-      config: [__filename]
-    }
+      config: [__filename],
+    },
   },
 
   // Module rules for optimization
@@ -95,7 +98,7 @@ module.exports = {
       // Tree shaking for CSS
       {
         test: /\.css$/,
-        sideEffects: false
+        sideEffects: false,
       },
       // Optimize images
       {
@@ -103,22 +106,22 @@ module.exports = {
         type: 'asset',
         parser: {
           dataUrlCondition: {
-            maxSize: 8 * 1024 // 8KB
-          }
+            maxSize: 8 * 1024, // 8KB
+          },
         },
         generator: {
-          filename: 'images/[name].[hash:8][ext]'
-        }
+          filename: 'images/[name].[hash:8][ext]',
+        },
       },
       // Font optimization
       {
         test: /\.(woff2?|eot|ttf|otf)$/i,
         type: 'asset/resource',
         generator: {
-          filename: 'fonts/[name].[hash:8][ext]'
-        }
-      }
-    ]
+          filename: 'fonts/[name].[hash:8][ext]',
+        },
+      },
+    ],
   },
 
   // Development server optimizations
@@ -132,8 +135,8 @@ module.exports = {
       paths: ['src/**/*'],
       options: {
         usePolling: false,
-        interval: 1000
-      }
-    }
-  }
+        interval: 1000,
+      },
+    },
+  },
 }
