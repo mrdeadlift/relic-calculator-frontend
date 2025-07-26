@@ -1,11 +1,16 @@
 // Type-safe API client with validation
 import { apiService, apiHelpers } from './api'
-import { validators, withTypeValidation, validateApiResponse, validatePaginatedResponse } from './type-guards'
-import type { 
-  ApiResponse, 
+import {
+  validators,
+  withTypeValidation,
+  validateApiResponse,
+  validatePaginatedResponse,
+} from './type-guards'
+import type {
+  ApiResponse,
   PaginatedResponse,
-  Relic, 
-  Build, 
+  Relic,
+  Build,
   CalculationRequest,
   CalculationResult,
   OptimizationRequest,
@@ -13,7 +18,7 @@ import type {
   RelicSearchParams,
   BuildSearchParams,
   BuildCreateRequest,
-  BuildUpdateRequest
+  BuildUpdateRequest,
 } from '../types'
 
 // Type-safe API client with automatic validation
@@ -26,9 +31,15 @@ export class TypeSafeApiClient {
       'relics.getAll'
     ),
 
-    search: async (params: RelicSearchParams): Promise<PaginatedResponse<Relic[]>> => {
+    search: async (
+      params: RelicSearchParams
+    ): Promise<PaginatedResponse<Relic[]>> => {
       const response = await apiService.relics.search(params)
-      return validatePaginatedResponse(response, validators.relicArray, 'relics.search')
+      return validatePaginatedResponse(
+        response,
+        validators.relicArray,
+        'relics.search'
+      )
     },
 
     getById: withTypeValidation(
@@ -45,31 +56,36 @@ export class TypeSafeApiClient {
 
     getCategories: withTypeValidation(
       apiService.relics.getCategories,
-      (data): data is string[] => validators.array(data) && data.every(validators.string),
+      (data): data is string[] =>
+        validators.array(data) && data.every(validators.string),
       'relics.getCategories'
     ),
 
     getTypes: withTypeValidation(
       apiService.relics.getTypes,
-      (data): data is string[] => validators.array(data) && data.every(validators.string),
+      (data): data is string[] =>
+        validators.array(data) && data.every(validators.string),
       'relics.getTypes'
     ),
 
     getRarities: withTypeValidation(
       apiService.relics.getRarities,
-      (data): data is string[] => validators.array(data) && data.every(validators.string),
+      (data): data is string[] =>
+        validators.array(data) && data.every(validators.string),
       'relics.getRarities'
     ),
 
     getSources: withTypeValidation(
       apiService.relics.getSources,
-      (data): data is string[] => validators.array(data) && data.every(validators.string),
+      (data): data is string[] =>
+        validators.array(data) && data.every(validators.string),
       'relics.getSources'
     ),
 
     getEffectTypes: withTypeValidation(
       apiService.relics.getEffectTypes,
-      (data): data is string[] => validators.array(data) && data.every(validators.string),
+      (data): data is string[] =>
+        validators.array(data) && data.every(validators.string),
       'relics.getEffectTypes'
     ),
 
@@ -83,7 +99,7 @@ export class TypeSafeApiClient {
       apiService.relics.getRecommended,
       validators.relicArray,
       'relics.getRecommended'
-    )
+    ),
   }
 
   // Build operations
@@ -94,9 +110,15 @@ export class TypeSafeApiClient {
       'builds.getAll'
     ),
 
-    search: async (params: BuildSearchParams): Promise<PaginatedResponse<Build[]>> => {
+    search: async (
+      params: BuildSearchParams
+    ): Promise<PaginatedResponse<Build[]>> => {
       const response = await apiService.builds.search(params)
-      return validatePaginatedResponse(response, validators.buildArray, 'builds.search')
+      return validatePaginatedResponse(
+        response,
+        validators.buildArray,
+        'builds.search'
+      )
     },
 
     getById: withTypeValidation(
@@ -187,7 +209,7 @@ export class TypeSafeApiClient {
       apiService.builds.getByUser,
       validators.buildArray,
       'builds.getByUser'
-    )
+    ),
   }
 
   // Calculation operations
@@ -200,9 +222,10 @@ export class TypeSafeApiClient {
 
     batchCalculate: withTypeValidation(
       apiService.calculation.batchCalculate,
-      (data): data is CalculationResult[] => validators.array(data) && data.every(validators.calculationResult),
+      (data): data is CalculationResult[] =>
+        validators.array(data) && data.every(validators.calculationResult),
       'calculation.batchCalculate'
-    )
+    ),
   }
 
   // Optimization operations
@@ -217,7 +240,7 @@ export class TypeSafeApiClient {
       apiService.optimization.getRecommendations,
       validators.array,
       'optimization.getRecommendations'
-    )
+    ),
   }
 
   // Health check
@@ -234,7 +257,7 @@ export class TypeSafeApiClient {
   async batchGetRelics(ids: string[]): Promise<Relic[]> {
     const results = await apiHelpers.batchRequests(
       ids,
-      async (id) => {
+      async id => {
         const response = await this.relics.getById(id)
         return response.data
       },
@@ -242,7 +265,7 @@ export class TypeSafeApiClient {
         concurrency: 10,
         onError: (error, id) => {
           console.warn(`Failed to fetch relic ${id}:`, error)
-        }
+        },
       }
     )
     return results
@@ -251,7 +274,7 @@ export class TypeSafeApiClient {
   async batchGetBuilds(ids: string[]): Promise<Build[]> {
     const results = await apiHelpers.batchRequests(
       ids,
-      async (id) => {
+      async id => {
         const response = await this.builds.getById(id)
         return response.data
       },
@@ -259,7 +282,7 @@ export class TypeSafeApiClient {
         concurrency: 5,
         onError: (error, id) => {
           console.warn(`Failed to fetch build ${id}:`, error)
-        }
+        },
       }
     )
     return results
@@ -268,26 +291,28 @@ export class TypeSafeApiClient {
   // Paginated operations with automatic fetching
   async getAllRelics(options?: {
     maxPages?: number
-    onProgress?: (progress: { current: number; total: number; items: number }) => void
+    onProgress?: (progress: {
+      current: number
+      total: number
+      items: number
+    }) => void
   }): Promise<Relic[]> {
-    return apiHelpers.getAllPages(
-      async (page, perPage) => {
-        return this.relics.search({ page, perPage })
-      },
-      options
-    )
+    return apiHelpers.getAllPages(async (page, perPage) => {
+      return this.relics.search({ page, perPage })
+    }, options)
   }
 
   async getAllBuilds(options?: {
     maxPages?: number
-    onProgress?: (progress: { current: number; total: number; items: number }) => void
+    onProgress?: (progress: {
+      current: number
+      total: number
+      items: number
+    }) => void
   }): Promise<Build[]> {
-    return apiHelpers.getAllPages(
-      async (page, perPage) => {
-        return this.builds.search({ page, perPage })
-      },
-      options
-    )
+    return apiHelpers.getAllPages(async (page, perPage) => {
+      return this.builds.search({ page, perPage })
+    }, options)
   }
 
   // Cached operations
@@ -318,12 +343,15 @@ export class TypeSafeApiClient {
 
   // Debounced search operations
   searchRelics = apiHelpers.debounce(
-    async (query: string, filters?: Partial<RelicSearchParams>): Promise<Relic[]> => {
+    async (
+      query: string,
+      filters?: Partial<RelicSearchParams>
+    ): Promise<Relic[]> => {
       const response = await this.relics.search({
         query,
         ...filters,
         page: 1,
-        perPage: 50
+        perPage: 50,
       })
       return response.data
     },
@@ -331,12 +359,15 @@ export class TypeSafeApiClient {
   )
 
   searchBuilds = apiHelpers.debounce(
-    async (query: string, filters?: Partial<BuildSearchParams>): Promise<Build[]> => {
+    async (
+      query: string,
+      filters?: Partial<BuildSearchParams>
+    ): Promise<Build[]> => {
       const response = await this.builds.search({
         query,
         ...filters,
         page: 1,
-        perPage: 50
+        perPage: 50,
       })
       return response.data
     },
@@ -354,7 +385,7 @@ export class TypeSafeApiClient {
         // Fallback: try to get from cache or return null
         return this.relicCache.get(id) || null
       },
-      (error) => {
+      error => {
         // Use fallback for network errors or 5xx server errors
         return error.status === 0 || (error.status >= 500 && error.status < 600)
       }
@@ -370,7 +401,7 @@ export class TypeSafeApiClient {
       async () => {
         return this.buildCache.get(id) || null
       },
-      (error) => {
+      error => {
         return error.status === 0 || (error.status >= 500 && error.status < 600)
       }
     )
@@ -389,12 +420,12 @@ export class TypeSafeApiClient {
     return {
       relics: {
         size: this.relicCache.size(),
-        keys: this.relicCache.keys()
+        keys: this.relicCache.keys(),
       },
       builds: {
         size: this.buildCache.size(),
-        keys: this.buildCache.keys()
-      }
+        keys: this.buildCache.keys(),
+      },
     }
   }
 }

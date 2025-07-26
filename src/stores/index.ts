@@ -17,11 +17,8 @@ export const initializeStores = async () => {
   // Initialize stores in order
   errorStore.initialize()
   calculationStore.initialize()
-  
-  await Promise.all([
-    relicsStore.initialize(),
-    buildsStore.initialize()
-  ])
+
+  await Promise.all([relicsStore.initialize(), buildsStore.initialize()])
 
   console.log('All stores initialized successfully')
 }

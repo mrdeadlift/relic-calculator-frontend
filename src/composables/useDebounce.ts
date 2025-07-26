@@ -1,19 +1,16 @@
 import { ref, watch, type Ref } from 'vue'
 
-export function useDebounce<T>(
-  value: Ref<T>,
-  delay: number = 300
-): Ref<T> {
+export function useDebounce<T>(value: Ref<T>, delay: number = 300): Ref<T> {
   const debouncedValue = ref<T>(value.value) as Ref<T>
   let timeoutId: NodeJS.Timeout | null = null
 
   watch(
     value,
-    (newValue) => {
+    newValue => {
       if (timeoutId) {
         clearTimeout(timeoutId)
       }
-      
+
       timeoutId = setTimeout(() => {
         debouncedValue.value = newValue
       }, delay)
@@ -51,7 +48,7 @@ export function throttle<T extends (...args: any[]) => any>(
     if (!inThrottle) {
       func.apply(null, args)
       inThrottle = true
-      setTimeout(() => inThrottle = false, limit)
+      setTimeout(() => (inThrottle = false), limit)
     }
   }
 }

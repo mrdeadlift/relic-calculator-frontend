@@ -28,14 +28,16 @@ export const useRelicsStore = defineStore('relics', () => {
     // Apply search query
     if (searchQuery.value.trim()) {
       const query = searchQuery.value.toLowerCase()
-      filtered = filtered.filter(relic =>
-        relic.name.toLowerCase().includes(query) ||
-        relic.description?.toLowerCase().includes(query) ||
-        relic.type.toLowerCase().includes(query) ||
-        relic.effects?.some(effect => 
-          effect.type.toLowerCase().includes(query) ||
-          effect.description?.toLowerCase().includes(query)
-        )
+      filtered = filtered.filter(
+        relic =>
+          relic.name.toLowerCase().includes(query) ||
+          relic.description?.toLowerCase().includes(query) ||
+          relic.type.toLowerCase().includes(query) ||
+          relic.effects?.some(
+            effect =>
+              effect.type.toLowerCase().includes(query) ||
+              effect.description?.toLowerCase().includes(query)
+          )
       )
     }
 
@@ -69,21 +71,21 @@ export const useRelicsStore = defineStore('relics', () => {
     }
 
     if (filters.rarity && filters.rarity.length > 0) {
-      filtered = filtered.filter(relic => 
-        relic.rarity && filters.rarity!.includes(relic.rarity)
+      filtered = filtered.filter(
+        relic => relic.rarity && filters.rarity!.includes(relic.rarity)
       )
     }
 
     if (filters.source && filters.source.length > 0) {
-      filtered = filtered.filter(relic => 
-        relic.source && filters.source!.includes(relic.source)
+      filtered = filtered.filter(
+        relic => relic.source && filters.source!.includes(relic.source)
       )
     }
 
     return filtered
   })
 
-  const selectedRelicIds = computed(() => 
+  const selectedRelicIds = computed(() =>
     selectedRelics.value.map(relic => relic.id)
   )
 
@@ -93,20 +95,31 @@ export const useRelicsStore = defineStore('relics', () => {
     const selection = selectedRelics.value
     return {
       count: selection.length,
-      totalMultiplier: selection.reduce((sum, r) => sum + (r.attackMultiplier || 0), 0),
-      averageMultiplier: selection.length > 0 
-        ? selection.reduce((sum, r) => sum + (r.attackMultiplier || 0), 0) / selection.length
-        : 0,
-      averageDifficulty: selection.length > 0
-        ? selection.reduce((sum, r) => sum + (r.obtainmentDifficulty || 0), 0) / selection.length
-        : 0,
+      totalMultiplier: selection.reduce(
+        (sum, r) => sum + (r.attackMultiplier || 0),
+        0
+      ),
+      averageMultiplier:
+        selection.length > 0
+          ? selection.reduce((sum, r) => sum + (r.attackMultiplier || 0), 0) /
+            selection.length
+          : 0,
+      averageDifficulty:
+        selection.length > 0
+          ? selection.reduce(
+              (sum, r) => sum + (r.obtainmentDifficulty || 0),
+              0
+            ) / selection.length
+          : 0,
       types: [...new Set(selection.map(r => r.type))],
-      effects: [...new Set(selection.flatMap(r => (r.effects || []).map(e => e.type)))]
+      effects: [
+        ...new Set(selection.flatMap(r => (r.effects || []).map(e => e.type))),
+      ],
     }
   })
 
-  const isRelicSelected = computed(() => (relicId: string) => 
-    selectedRelicIds.value.includes(relicId)
+  const isRelicSelected = computed(
+    () => (relicId: string) => selectedRelicIds.value.includes(relicId)
   )
 
   const canSelectMore = computed(() => selectedRelics.value.length < 9)
@@ -118,7 +131,12 @@ export const useRelicsStore = defineStore('relics', () => {
     const cachedData = cache.value.get(cacheKey)
     const now = Date.now()
 
-    if (!force && cachedData && lastFetched.value && (now - lastFetched.value) < CACHE_DURATION) {
+    if (
+      !force &&
+      cachedData &&
+      lastFetched.value &&
+      now - lastFetched.value < CACHE_DURATION
+    ) {
       relics.value = cachedData
       return
     }
@@ -130,10 +148,9 @@ export const useRelicsStore = defineStore('relics', () => {
       const response = await apiService.relics.getAll()
       relics.value = response.data
       lastFetched.value = now
-      
+
       // Update cache
       cache.value.set(cacheKey, response.data)
-      
     } catch (err: any) {
       error.value = err.message || 'Failed to fetch relics'
       showError('Failed to load relics')
@@ -150,7 +167,6 @@ export const useRelicsStore = defineStore('relics', () => {
     try {
       const response = await apiService.relics.search(params)
       relics.value = response.data
-      
     } catch (err: any) {
       error.value = err.message || 'Failed to search relics'
       showError('Search failed')
@@ -173,15 +189,15 @@ export const useRelicsStore = defineStore('relics', () => {
     try {
       const response = await apiService.relics.getById(id)
       const relic = response.data
-      
+
       // Add to main collection if not exists
       if (!relics.value.find(r => r.id === relic.id)) {
         relics.value.push(relic)
       }
-      
+
       // Cache single relic
       cache.value.set(cacheKey, [relic])
-      
+
       return relic
     } catch (err: any) {
       console.error('Get relic error:', err)
@@ -225,8 +241,9 @@ export const useRelicsStore = defineStore('relics', () => {
 
   const selectRelicsByIds = async (relicIds: string[]) => {
     selectedRelics.value = []
-    
-    for (const id of relicIds.slice(0, 9)) { // Limit to 9
+
+    for (const id of relicIds.slice(0, 9)) {
+      // Limit to 9
       const relic = await getRelic(id)
       if (relic) {
         selectedRelics.value.push(relic)
@@ -235,8 +252,12 @@ export const useRelicsStore = defineStore('relics', () => {
   }
 
   const reorderSelectedRelics = (fromIndex: number, toIndex: number) => {
-    if (fromIndex < 0 || fromIndex >= selectedRelics.value.length ||
-        toIndex < 0 || toIndex >= selectedRelics.value.length) {
+    if (
+      fromIndex < 0 ||
+      fromIndex >= selectedRelics.value.length ||
+      toIndex < 0 ||
+      toIndex >= selectedRelics.value.length
+    ) {
       return false
     }
 
@@ -267,22 +288,22 @@ export const useRelicsStore = defineStore('relics', () => {
     switch (preset) {
       case 'high_damage':
         setFilters({
-          attackMultiplier: { min: 0.5 }
+          attackMultiplier: { min: 0.5 },
         })
         break
       case 'easy_obtain':
         setFilters({
-          obtainmentDifficulty: { max: 3 }
+          obtainmentDifficulty: { max: 3 },
         })
         break
       case 'legendary':
         setFilters({
-          rarity: ['legendary']
+          rarity: ['legendary'],
         })
         break
       case 'synergy_focused':
         setFilters({
-          effects: ['synergy', 'combo', 'chain']
+          effects: ['synergy', 'combo', 'chain'],
         })
         break
       default:
@@ -291,15 +312,15 @@ export const useRelicsStore = defineStore('relics', () => {
   }
 
   // Utility functions
-  const getRelicsByType = (type: string) => 
+  const getRelicsByType = (type: string) =>
     relics.value.filter(relic => relic.type === type)
 
-  const getRelicsByEffect = (effectType: string) => 
-    relics.value.filter(relic => 
+  const getRelicsByEffect = (effectType: string) =>
+    relics.value.filter(relic =>
       relic.effects?.some(effect => effect.type === effectType)
     )
 
-  const getTopRelics = (limit = 10) => 
+  const getTopRelics = (limit = 10) =>
     [...relics.value]
       .sort((a, b) => (b.attackMultiplier || 0) - (a.attackMultiplier || 0))
       .slice(0, limit)
@@ -319,7 +340,7 @@ export const useRelicsStore = defineStore('relics', () => {
     return {
       size: cache.value.size,
       keys: Array.from(cache.value.keys()),
-      lastFetched: lastFetched.value ? new Date(lastFetched.value) : null
+      lastFetched: lastFetched.value ? new Date(lastFetched.value) : null,
     }
   }
 
@@ -368,6 +389,6 @@ export const useRelicsStore = defineStore('relics', () => {
     getTopRelics,
     getRandomRelics,
     clearCache,
-    getCacheInfo
+    getCacheInfo,
   }
 })

@@ -1,6 +1,10 @@
 import { ref, computed, reactive, watch } from 'vue'
 import type { Relic, RelicEffect } from '../types/relic'
-import type { AttackMultiplierResult, CalculationStep, EffectCategory } from '../types/calculation'
+import type {
+  AttackMultiplierResult,
+  CalculationStep,
+  EffectCategory,
+} from '../types/calculation'
 import { useToast } from './useToast'
 
 // Calculation state interface
@@ -22,7 +26,7 @@ export const useCalculation = () => {
     lastCalculationTime: 0,
     error: null,
     cacheEnabled: true,
-    debugMode: false
+    debugMode: false,
   })
 
   const { error: showError } = useToast()
@@ -30,11 +34,11 @@ export const useCalculation = () => {
   // Generate cache key for relics combination
   const generateCacheKey = (relics: Relic[]): string => {
     const sortedIds = relics.map(r => r.id).sort()
-    const effectStates = relics.flatMap(r => 
+    const effectStates = relics.flatMap(r =>
       r.effects.map(e => ({
         id: e.id,
         active: e.isConditional ? e.condition?.active : true,
-        value: e.condition?.value
+        value: e.condition?.value,
       }))
     )
     return JSON.stringify({ ids: sortedIds, states: effectStates })
@@ -46,7 +50,9 @@ export const useCalculation = () => {
   }
 
   // Calculate attack multiplier for given relics
-  const calculateAttackMultiplier = async (relics: Relic[]): Promise<number> => {
+  const calculateAttackMultiplier = async (
+    relics: Relic[]
+  ): Promise<number> => {
     if (!relics || relics.length === 0) return 1.0
 
     state.isCalculating = true
@@ -77,8 +83,11 @@ export const useCalculation = () => {
           timestamp: Date.now(),
           performance: {
             executionTime: Math.round(endTime - startTime),
-            effectsProcessed: relics.reduce((count, r) => count + r.effects.length, 0)
-          }
+            effectsProcessed: relics.reduce(
+              (count, r) => count + r.effects.length,
+              0
+            ),
+          },
         })
       }
 
@@ -86,9 +95,9 @@ export const useCalculation = () => {
       state.isCalculating = false
 
       return result.finalMultiplier
-
     } catch (error) {
-      state.error = error instanceof Error ? error.message : 'Calculation failed'
+      state.error =
+        error instanceof Error ? error.message : 'Calculation failed'
       state.isCalculating = false
       showError(`計算エラー: ${state.error}`)
       throw error
@@ -96,25 +105,29 @@ export const useCalculation = () => {
   }
 
   // Perform the actual calculation logic
-  const performCalculation = async (relics: Relic[]): Promise<AttackMultiplierResult> => {
+  const performCalculation = async (
+    relics: Relic[]
+  ): Promise<AttackMultiplierResult> => {
     // Simulate async calculation for complex operations
     await new Promise(resolve => setTimeout(resolve, 50))
 
     let baseMultiplier = 1.0
     let additiveBonus = 0
     let multiplicativeBonus = 1.0
-    
+
     const effectBreakdown: any[] = []
     const appliedEffects = new Set<string>()
 
     // Process effects in order of priority
-    const allEffects = relics.flatMap(relic => 
-      relic.effects.map(effect => ({
-        ...effect,
-        relicName: relic.name,
-        priority: getEffectPriority(effect.type)
-      }))
-    ).sort((a, b) => b.priority - a.priority)
+    const allEffects = relics
+      .flatMap(relic =>
+        relic.effects.map(effect => ({
+          ...effect,
+          relicName: relic.name,
+          priority: getEffectPriority(effect.type),
+        }))
+      )
+      .sort((a, b) => b.priority - a.priority)
 
     for (const effect of allEffects) {
       // Skip if condition not met
@@ -129,7 +142,7 @@ export const useCalculation = () => {
 
       // Apply effect based on type
       const effectValue = calculateEffectValue(effect)
-      
+
       switch (effect.type) {
         case 'attack_percentage':
           additiveBonus += effectValue
@@ -162,25 +175,30 @@ export const useCalculation = () => {
         type: effect.type,
         value: effectValue,
         appliedValue: effectValue,
-        formula: generateEffectFormula(effect, effectValue)
+        formula: generateEffectFormula(effect, effectValue),
       })
 
       appliedEffects.add(effect.id)
     }
 
     // Calculate final multiplier
-    const finalMultiplier = baseMultiplier * (1 + additiveBonus / 100) * multiplicativeBonus
+    const finalMultiplier =
+      baseMultiplier * (1 + additiveBonus / 100) * multiplicativeBonus
 
     return {
       finalMultiplier,
       baseStats: {
         attack: 1000, // Default base attack
-        weaponAttack: 500 // Default weapon attack
+        weaponAttack: 500, // Default weapon attack
       },
       effectBreakdown,
-      calculationFormula: generateCalculationFormula(baseMultiplier, additiveBonus, multiplicativeBonus),
+      calculationFormula: generateCalculationFormula(
+        baseMultiplier,
+        additiveBonus,
+        multiplicativeBonus
+      ),
       context: 'Normal Attack',
-      timestamp: Date.now()
+      timestamp: Date.now(),
     }
   }
 
@@ -197,42 +215,58 @@ export const useCalculation = () => {
       type: 'base',
       value: 1.0,
       formula: 'Base = 1.0',
-      effects: []
+      effects: [],
     })
 
     // Step 2: Additive effects
-    const additiveEffects = relics.flatMap(r => 
-      r.effects.filter(e => e.type === 'attack_percentage' && (!e.isConditional || isConditionMet(e)))
+    const additiveEffects = relics.flatMap(r =>
+      r.effects
+        .filter(
+          e =>
+            e.type === 'attack_percentage' &&
+            (!e.isConditional || isConditionMet(e))
+        )
         .map(e => ({ ...e, relicName: r.name }))
     )
 
     if (additiveEffects.length > 0) {
-      const total = additiveEffects.reduce((sum, e) => sum + calculateEffectValue(e), 0)
+      const total = additiveEffects.reduce(
+        (sum, e) => sum + calculateEffectValue(e),
+        0
+      )
       steps.push({
         id: 'additive',
         title: 'Additive Bonuses',
         type: 'addition',
         value: total / 100,
         formula: `(1 + ${total}%)`,
-        effects: additiveEffects
+        effects: additiveEffects,
       })
     }
 
     // Step 3: Multiplicative effects
-    const multiplicativeEffects = relics.flatMap(r => 
-      r.effects.filter(e => e.type === 'attack_multiplier' && (!e.isConditional || isConditionMet(e)))
+    const multiplicativeEffects = relics.flatMap(r =>
+      r.effects
+        .filter(
+          e =>
+            e.type === 'attack_multiplier' &&
+            (!e.isConditional || isConditionMet(e))
+        )
         .map(e => ({ ...e, relicName: r.name }))
     )
 
     if (multiplicativeEffects.length > 0) {
-      const total = multiplicativeEffects.reduce((product, e) => product * calculateEffectValue(e), 1)
+      const total = multiplicativeEffects.reduce(
+        (product, e) => product * calculateEffectValue(e),
+        1
+      )
       steps.push({
         id: 'multiplicative',
         title: 'Multiplicative Bonuses',
         type: 'multiplication',
         value: total,
         formula: `× ${total.toFixed(2)}`,
-        effects: multiplicativeEffects
+        effects: multiplicativeEffects,
       })
     }
 
@@ -242,21 +276,45 @@ export const useCalculation = () => {
   // Get effect breakdown by category
   const getCategoryBreakdown = (relics: Relic[]): EffectCategory[] => {
     const categories: EffectCategory[] = [
-      { type: 'Attack', name: 'Attack Effects', total: 1.0, effects: [], icon: 'AttackIcon' },
-      { type: 'Critical', name: 'Critical Effects', total: 1.0, effects: [], icon: 'CriticalIcon' },
-      { type: 'Conditional', name: 'Conditional Effects', total: 1.0, effects: [], icon: 'ConditionalIcon' },
-      { type: 'Weapon', name: 'Weapon Specific', total: 1.0, effects: [], icon: 'WeaponIcon' }
+      {
+        type: 'Attack',
+        name: 'Attack Effects',
+        total: 1.0,
+        effects: [],
+        icon: 'AttackIcon',
+      },
+      {
+        type: 'Critical',
+        name: 'Critical Effects',
+        total: 1.0,
+        effects: [],
+        icon: 'CriticalIcon',
+      },
+      {
+        type: 'Conditional',
+        name: 'Conditional Effects',
+        total: 1.0,
+        effects: [],
+        icon: 'ConditionalIcon',
+      },
+      {
+        type: 'Weapon',
+        name: 'Weapon Specific',
+        total: 1.0,
+        effects: [],
+        icon: 'WeaponIcon',
+      },
     ]
 
     relics.forEach(relic => {
       relic.effects.forEach(effect => {
         const category = getCategoryForEffect(effect.type)
         const categoryObj = categories.find(c => c.type === category)
-        
+
         if (categoryObj && (!effect.isConditional || isConditionMet(effect))) {
           categoryObj.effects.push({
             ...effect,
-            relicName: relic.name
+            relicName: relic.name,
           })
         }
       })
@@ -265,10 +323,15 @@ export const useCalculation = () => {
     // Calculate totals for each category
     categories.forEach(category => {
       if (category.effects.length > 0) {
-        category.total = category.effects.reduce((total, effect) => {
-          const value = calculateEffectValue(effect)
-          return effect.type === 'attack_multiplier' ? total * value : total + (value / 100)
-        }, category.type === 'Attack' ? 1.0 : 0)
+        category.total = category.effects.reduce(
+          (total, effect) => {
+            const value = calculateEffectValue(effect)
+            return effect.type === 'attack_multiplier'
+              ? total * value
+              : total + value / 100
+          },
+          category.type === 'Attack' ? 1.0 : 0
+        )
       }
     })
 
@@ -278,12 +341,12 @@ export const useCalculation = () => {
   // Helper functions
   const getEffectPriority = (type: string): number => {
     const priorities = {
-      'base': 100,
-      'attack_multiplier': 90,
-      'attack_percentage': 80,
-      'critical_multiplier': 70,
-      'weapon_specific': 60,
-      'conditional_damage': 50
+      base: 100,
+      attack_multiplier: 90,
+      attack_percentage: 80,
+      critical_multiplier: 70,
+      weapon_specific: 60,
+      conditional_damage: 50,
     }
     return priorities[type as keyof typeof priorities] || 0
   }
@@ -297,13 +360,19 @@ export const useCalculation = () => {
       case 'numeric':
         return (effect.condition.value || 0) >= (effect.condition.min || 0)
       case 'select':
-        return effect.condition.value !== null && effect.condition.value !== undefined
+        return (
+          effect.condition.value !== null &&
+          effect.condition.value !== undefined
+        )
       default:
         return false
     }
   }
 
-  const hasConflict = (effect: RelicEffect, appliedEffects: Set<string>): boolean => {
+  const hasConflict = (
+    effect: RelicEffect,
+    appliedEffects: Set<string>
+  ): boolean => {
     // Check for unique effects that can't stack
     if (effect.stacking === 'unique') {
       const sameTypeApplied = Array.from(appliedEffects).some(id => {
@@ -323,11 +392,15 @@ export const useCalculation = () => {
     if (effect.isConditional && effect.condition) {
       switch (effect.condition.type) {
         case 'numeric':
-          const ratio = (effect.condition.value || 0) / (effect.condition.max || 1)
+          const ratio =
+            (effect.condition.value || 0) / (effect.condition.max || 1)
           baseValue *= ratio
           break
         case 'select':
-          const multiplier = effect.condition.options?.find(o => o.value === effect.condition?.value)?.multiplier || 1
+          const multiplier =
+            effect.condition.options?.find(
+              o => o.value === effect.condition?.value
+            )?.multiplier || 1
           baseValue *= multiplier
           break
       }
@@ -345,7 +418,10 @@ export const useCalculation = () => {
     return effect.condition?.active === true
   }
 
-  const generateEffectFormula = (effect: RelicEffect, value: number): string => {
+  const generateEffectFormula = (
+    effect: RelicEffect,
+    value: number
+  ): string => {
     switch (effect.type) {
       case 'attack_percentage':
         return `+${value}%`
@@ -358,18 +434,22 @@ export const useCalculation = () => {
     }
   }
 
-  const generateCalculationFormula = (base: number, additive: number, multiplicative: number): string => {
+  const generateCalculationFormula = (
+    base: number,
+    additive: number,
+    multiplicative: number
+  ): string => {
     return `${base} × (1 + ${additive.toFixed(1)}%) × ${multiplicative.toFixed(2)} = ${(base * (1 + additive / 100) * multiplicative).toFixed(2)}`
   }
 
   const getCategoryForEffect = (effectType: string): string => {
     const categoryMap = {
-      'attack_percentage': 'Attack',
-      'attack_multiplier': 'Attack',
-      'critical_multiplier': 'Critical',
-      'critical_chance': 'Critical',
-      'weapon_specific': 'Weapon',
-      'conditional_damage': 'Conditional'
+      attack_percentage: 'Attack',
+      attack_multiplier: 'Attack',
+      critical_multiplier: 'Critical',
+      critical_chance: 'Critical',
+      weapon_specific: 'Weapon',
+      conditional_damage: 'Conditional',
     }
     return categoryMap[effectType as keyof typeof categoryMap] || 'Attack'
   }
@@ -380,9 +460,11 @@ export const useCalculation = () => {
   }
 
   // Get detailed calculation result
-  const getDetailedResult = async (relics: Relic[]): Promise<AttackMultiplierResult> => {
+  const getDetailedResult = async (
+    relics: Relic[]
+  ): Promise<AttackMultiplierResult> => {
     state.isCalculating = true
-    
+
     try {
       const result = await performCalculation(relics)
       state.isCalculating = false
@@ -394,14 +476,16 @@ export const useCalculation = () => {
   }
 
   // Compare multiple relic combinations
-  const compareCalculations = async (relicCombinations: Relic[][]): Promise<any[]> => {
+  const compareCalculations = async (
+    relicCombinations: Relic[][]
+  ): Promise<any[]> => {
     const results = await Promise.all(
       relicCombinations.map(async (relics, index) => ({
         id: `combo-${index}`,
         name: `Combination ${index + 1}`,
         relics,
         multiplier: await calculateAttackMultiplier(relics),
-        context: 'Normal Attack'
+        context: 'Normal Attack',
       }))
     )
 
@@ -409,7 +493,7 @@ export const useCalculation = () => {
     const baseMultiplier = results[0]?.multiplier || 1
     return results.map(result => ({
       ...result,
-      difference: result.multiplier - baseMultiplier
+      difference: result.multiplier - baseMultiplier,
     }))
   }
 
@@ -429,9 +513,13 @@ export const useCalculation = () => {
 
     // Utility methods
     clearCache,
-    
+
     // Configuration
-    setCacheEnabled: (enabled: boolean) => { state.cacheEnabled = enabled },
-    setDebugMode: (debug: boolean) => { state.debugMode = debug }
+    setCacheEnabled: (enabled: boolean) => {
+      state.cacheEnabled = enabled
+    },
+    setDebugMode: (debug: boolean) => {
+      state.debugMode = debug
+    },
   }
 }

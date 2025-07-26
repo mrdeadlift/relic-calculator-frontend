@@ -1,4 +1,9 @@
-import type { CalculationResult, CalculationRequest, Relic, ConditionalEffects } from '../types'
+import type {
+  CalculationResult,
+  CalculationRequest,
+  Relic,
+  ConditionalEffects,
+} from '../types'
 import { calculationEngine } from './calculation-engine'
 import { typeSafeApiClient } from './api-client'
 import { calculationMemoizer } from './memoization-manager'
@@ -60,7 +65,7 @@ export class CalculationValidator {
     averageDiscrepancy: 0,
     clientAccuracy: 0,
     serverReliability: 0,
-    averageValidationTime: 0
+    averageValidationTime: 0,
   }
 
   private validationHistory: ValidationResult[] = []
@@ -71,13 +76,13 @@ export class CalculationValidator {
       tolerances: {
         attackMultiplier: 0.01, // 1% tolerance
         efficiency: 0.05, // 5% tolerance
-        obtainmentDifficulty: 0.02 // 2% tolerance
+        obtainmentDifficulty: 0.02, // 2% tolerance
       },
       enableAutoFallback: true,
       fallbackStrategy: 'prefer_server',
       validationFrequency: 0.1, // Validate 10% of calculations
       maxValidationTime: 5000, // 5 seconds
-      ...config
+      ...config,
     }
   }
 
@@ -91,18 +96,23 @@ export class CalculationValidator {
 
     try {
       // Get client result if not provided
-      const clientCalculation = clientResult || await calculationEngine.calculate(
-        relics,
-        conditions,
-        {},
-        { useCache: true, enableOptimizations: true }
-      )
+      const clientCalculation =
+        clientResult ||
+        (await calculationEngine.calculate(
+          relics,
+          conditions,
+          {},
+          { useCache: true, enableOptimizations: true }
+        ))
 
       // Get server result with timeout
       const serverCalculation = await this.getServerResult(relics, conditions)
 
       // Compare results
-      const validation = this.compareResults(clientCalculation, serverCalculation)
+      const validation = this.compareResults(
+        clientCalculation,
+        serverCalculation
+      )
 
       // Update statistics
       this.updateStats(validation, performance.now() - startTime)
@@ -111,30 +121,31 @@ export class CalculationValidator {
       this.addToHistory(validation)
 
       return validation
-
     } catch (error) {
       console.error('Validation failed:', error)
-      
+
       // Return a default validation result for errors
       return {
         isValid: false,
-        discrepancies: [{
-          field: 'validation_error',
-          clientValue: 0,
-          serverValue: 0,
-          difference: 0,
-          percentageDifference: 0,
-          severity: 'critical',
-          description: `Validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-        }],
+        discrepancies: [
+          {
+            field: 'validation_error',
+            clientValue: 0,
+            serverValue: 0,
+            difference: 0,
+            percentageDifference: 0,
+            severity: 'critical',
+            description: `Validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          },
+        ],
         confidence: 0,
         recommendedAction: 'manual_review',
         metadata: {
-          clientResult: clientResult || {} as CalculationResult,
+          clientResult: clientResult || ({} as CalculationResult),
           serverResult: {} as CalculationResult,
           validatedAt: new Date().toISOString(),
-          validationDuration: performance.now() - startTime
-        }
+          validationDuration: performance.now() - startTime,
+        },
       }
     }
   }
@@ -144,9 +155,14 @@ export class CalculationValidator {
     relics: Relic[],
     conditions: ConditionalEffects,
     forceValidation = false
-  ): Promise<{ result: CalculationResult; validated: boolean; validation?: ValidationResult }> {
+  ): Promise<{
+    result: CalculationResult
+    validated: boolean
+    validation?: ValidationResult
+  }> {
     // Check if validation is needed
-    const shouldValidate = forceValidation || Math.random() < this.config.validationFrequency
+    const shouldValidate =
+      forceValidation || Math.random() < this.config.validationFrequency
 
     // Get client result
     const clientResult = await calculationEngine.calculate(
@@ -159,12 +175,16 @@ export class CalculationValidator {
     if (!shouldValidate) {
       return {
         result: clientResult,
-        validated: false
+        validated: false,
       }
     }
 
     // Perform validation
-    const validation = await this.validateCalculation(relics, conditions, clientResult)
+    const validation = await this.validateCalculation(
+      relics,
+      conditions,
+      clientResult
+    )
 
     // Determine which result to return
     const finalResult = this.selectBestResult(validation)
@@ -172,7 +192,7 @@ export class CalculationValidator {
     return {
       result: finalResult,
       validated: true,
-      validation
+      validation,
     }
   }
 
@@ -190,14 +210,14 @@ export class CalculationValidator {
   ): Promise<ValidationResult[]> {
     const { concurrency = 3, onProgress } = options
     const results: ValidationResult[] = []
-    
+
     let completed = 0
 
     // Process in batches to avoid overwhelming the server
     for (let i = 0; i < calculations.length; i += concurrency) {
       const batch = calculations.slice(i, i + concurrency)
-      
-      const batchPromises = batch.map(async (calc) => {
+
+      const batchPromises = batch.map(async calc => {
         const result = await this.validateCalculation(
           calc.relics,
           calc.conditions,
@@ -222,16 +242,20 @@ export class CalculationValidator {
   ): Promise<CalculationResult> {
     const request: CalculationRequest = {
       relicIds: relics.map(r => r.id),
-      conditionalEffects: conditions
+      conditionalEffects: conditions,
     }
 
     // Create timeout promise
     const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('Server validation timeout')), this.config.maxValidationTime)
+      setTimeout(
+        () => reject(new Error('Server validation timeout')),
+        this.config.maxValidationTime
+      )
     })
 
     // Race between API call and timeout
-    const apiPromise = typeSafeApiClient.calculation.calculate(request)
+    const apiPromise = typeSafeApiClient.calculation
+      .calculate(request)
       .then(response => response.data)
 
     return Promise.race([apiPromise, timeoutPromise])
@@ -248,7 +272,8 @@ export class CalculationValidator {
     const clientTotal = clientResult.attackMultipliers.total
     const serverTotal = serverResult.attackMultipliers.total
     const multiplierDiff = Math.abs(clientTotal - serverTotal)
-    const multiplierPercentDiff = serverTotal !== 0 ? (multiplierDiff / Math.abs(serverTotal)) * 100 : 0
+    const multiplierPercentDiff =
+      serverTotal !== 0 ? (multiplierDiff / Math.abs(serverTotal)) * 100 : 0
 
     if (multiplierPercentDiff > this.config.tolerances.attackMultiplier * 100) {
       discrepancies.push({
@@ -258,14 +283,18 @@ export class CalculationValidator {
         difference: multiplierDiff,
         percentageDifference: multiplierPercentDiff,
         severity: this.getSeverity(multiplierPercentDiff),
-        description: `Attack multiplier differs by ${multiplierPercentDiff.toFixed(2)}%`
+        description: `Attack multiplier differs by ${multiplierPercentDiff.toFixed(2)}%`,
       })
     }
 
     // Compare efficiency
-    const efficiencyDiff = Math.abs(clientResult.efficiency - serverResult.efficiency)
-    const efficiencyPercentDiff = serverResult.efficiency !== 0 ? 
-      (efficiencyDiff / Math.abs(serverResult.efficiency)) * 100 : 0
+    const efficiencyDiff = Math.abs(
+      clientResult.efficiency - serverResult.efficiency
+    )
+    const efficiencyPercentDiff =
+      serverResult.efficiency !== 0
+        ? (efficiencyDiff / Math.abs(serverResult.efficiency)) * 100
+        : 0
 
     if (efficiencyPercentDiff > this.config.tolerances.efficiency * 100) {
       discrepancies.push({
@@ -275,16 +304,23 @@ export class CalculationValidator {
         difference: efficiencyDiff,
         percentageDifference: efficiencyPercentDiff,
         severity: this.getSeverity(efficiencyPercentDiff),
-        description: `Efficiency differs by ${efficiencyPercentDiff.toFixed(2)}%`
+        description: `Efficiency differs by ${efficiencyPercentDiff.toFixed(2)}%`,
       })
     }
 
     // Compare obtainment difficulty
-    const difficultyDiff = Math.abs(clientResult.obtainmentDifficulty - serverResult.obtainmentDifficulty)
-    const difficultyPercentDiff = serverResult.obtainmentDifficulty !== 0 ? 
-      (difficultyDiff / Math.abs(serverResult.obtainmentDifficulty)) * 100 : 0
+    const difficultyDiff = Math.abs(
+      clientResult.obtainmentDifficulty - serverResult.obtainmentDifficulty
+    )
+    const difficultyPercentDiff =
+      serverResult.obtainmentDifficulty !== 0
+        ? (difficultyDiff / Math.abs(serverResult.obtainmentDifficulty)) * 100
+        : 0
 
-    if (difficultyPercentDiff > this.config.tolerances.obtainmentDifficulty * 100) {
+    if (
+      difficultyPercentDiff >
+      this.config.tolerances.obtainmentDifficulty * 100
+    ) {
       discrepancies.push({
         field: 'obtainmentDifficulty',
         clientValue: clientResult.obtainmentDifficulty,
@@ -292,7 +328,7 @@ export class CalculationValidator {
         difference: difficultyDiff,
         percentageDifference: difficultyPercentDiff,
         severity: this.getSeverity(difficultyPercentDiff),
-        description: `Obtainment difficulty differs by ${difficultyPercentDiff.toFixed(2)}%`
+        description: `Obtainment difficulty differs by ${difficultyPercentDiff.toFixed(2)}%`,
       })
     }
 
@@ -300,7 +336,10 @@ export class CalculationValidator {
     const confidence = this.calculateConfidence(discrepancies)
 
     // Determine recommended action
-    const recommendedAction = this.determineRecommendedAction(discrepancies, confidence)
+    const recommendedAction = this.determineRecommendedAction(
+      discrepancies,
+      confidence
+    )
 
     return {
       isValid: discrepancies.length === 0,
@@ -311,13 +350,15 @@ export class CalculationValidator {
         clientResult,
         serverResult,
         validatedAt: new Date().toISOString(),
-        validationDuration: 0 // Will be set by caller
-      }
+        validationDuration: 0, // Will be set by caller
+      },
     }
   }
 
   // Helper methods
-  private getSeverity(percentageDifference: number): 'low' | 'medium' | 'high' | 'critical' {
+  private getSeverity(
+    percentageDifference: number
+  ): 'low' | 'medium' | 'high' | 'critical' {
     if (percentageDifference < 2) return 'low'
     if (percentageDifference < 5) return 'medium'
     if (percentageDifference < 10) return 'high'
@@ -328,10 +369,13 @@ export class CalculationValidator {
     if (discrepancies.length === 0) return 1.0
 
     const severityWeights = { low: 0.1, medium: 0.3, high: 0.6, critical: 1.0 }
-    const totalWeight = discrepancies.reduce((sum, d) => sum + severityWeights[d.severity], 0)
+    const totalWeight = discrepancies.reduce(
+      (sum, d) => sum + severityWeights[d.severity],
+      0
+    )
     const maxPossibleWeight = discrepancies.length * 1.0
 
-    return Math.max(0, 1 - (totalWeight / maxPossibleWeight))
+    return Math.max(0, 1 - totalWeight / maxPossibleWeight)
   }
 
   private determineRecommendedAction(
@@ -341,7 +385,9 @@ export class CalculationValidator {
     if (confidence > 0.95) return 'use_client'
     if (confidence < 0.5) return 'manual_review'
 
-    const hasCriticalDiscrepancies = discrepancies.some(d => d.severity === 'critical')
+    const hasCriticalDiscrepancies = discrepancies.some(
+      d => d.severity === 'critical'
+    )
     if (hasCriticalDiscrepancies) return 'manual_review'
 
     // Apply fallback strategy
@@ -369,9 +415,13 @@ export class CalculationValidator {
         return validation.metadata.serverResult
       case 'manual_review':
         // For manual review cases, use the more conservative result
-        const clientTotal = validation.metadata.clientResult.attackMultipliers.total
-        const serverTotal = validation.metadata.serverResult.attackMultipliers.total
-        return clientTotal <= serverTotal ? validation.metadata.clientResult : validation.metadata.serverResult
+        const clientTotal =
+          validation.metadata.clientResult.attackMultipliers.total
+        const serverTotal =
+          validation.metadata.serverResult.attackMultipliers.total
+        return clientTotal <= serverTotal
+          ? validation.metadata.clientResult
+          : validation.metadata.serverResult
       default:
         return validation.metadata.clientResult
     }
@@ -379,7 +429,7 @@ export class CalculationValidator {
 
   private updateStats(validation: ValidationResult, duration: number): void {
     this.stats.totalValidations++
-    
+
     if (validation.isValid) {
       this.stats.passedValidations++
     } else {
@@ -387,18 +437,26 @@ export class CalculationValidator {
     }
 
     // Update accuracy metrics
-    this.stats.clientAccuracy = this.stats.passedValidations / this.stats.totalValidations
+    this.stats.clientAccuracy =
+      this.stats.passedValidations / this.stats.totalValidations
     this.stats.serverReliability = this.calculateServerReliability()
 
     // Update average discrepancy
-    const avgDiscrepancy = validation.discrepancies.reduce((sum, d) => sum + d.percentageDifference, 0) / 
-                          Math.max(validation.discrepancies.length, 1)
-    this.stats.averageDiscrepancy = (this.stats.averageDiscrepancy * (this.stats.totalValidations - 1) + avgDiscrepancy) / 
-                                   this.stats.totalValidations
+    const avgDiscrepancy =
+      validation.discrepancies.reduce(
+        (sum, d) => sum + d.percentageDifference,
+        0
+      ) / Math.max(validation.discrepancies.length, 1)
+    this.stats.averageDiscrepancy =
+      (this.stats.averageDiscrepancy * (this.stats.totalValidations - 1) +
+        avgDiscrepancy) /
+      this.stats.totalValidations
 
     // Update validation time
-    this.stats.averageValidationTime = (this.stats.averageValidationTime * (this.stats.totalValidations - 1) + duration) / 
-                                      this.stats.totalValidations
+    this.stats.averageValidationTime =
+      (this.stats.averageValidationTime * (this.stats.totalValidations - 1) +
+        duration) /
+      this.stats.totalValidations
   }
 
   private calculateServerReliability(): number {
@@ -406,8 +464,10 @@ export class CalculationValidator {
     const recentValidations = this.validationHistory.slice(-20)
     if (recentValidations.length === 0) return 1.0
 
-    const reliableValidations = recentValidations.filter(v => 
-      v.confidence > 0.8 && !v.discrepancies.some(d => d.severity === 'critical')
+    const reliableValidations = recentValidations.filter(
+      v =>
+        v.confidence > 0.8 &&
+        !v.discrepancies.some(d => d.severity === 'critical')
     ).length
 
     return reliableValidations / recentValidations.length
@@ -415,10 +475,12 @@ export class CalculationValidator {
 
   private addToHistory(validation: ValidationResult): void {
     this.validationHistory.push(validation)
-    
+
     // Keep history size limited
     if (this.validationHistory.length > this.maxHistorySize) {
-      this.validationHistory = this.validationHistory.slice(-this.maxHistorySize / 2)
+      this.validationHistory = this.validationHistory.slice(
+        -this.maxHistorySize / 2
+      )
     }
   }
 
@@ -432,7 +494,7 @@ export class CalculationValidator {
       ...this.stats,
       configuredTolerances: this.config.tolerances,
       validationFrequency: this.config.validationFrequency,
-      recentValidations: this.validationHistory.length
+      recentValidations: this.validationHistory.length,
     }
   }
 
@@ -456,7 +518,7 @@ export class CalculationValidator {
       averageDiscrepancy: 0,
       clientAccuracy: 0,
       serverReliability: 0,
-      averageValidationTime: 0
+      averageValidationTime: 0,
     }
   }
 
@@ -488,17 +550,21 @@ export class CalculationValidator {
     }
 
     if (this.stats.averageDiscrepancy > 5) {
-      recommendations.push('High average discrepancy detected - review calculation methods')
+      recommendations.push(
+        'High average discrepancy detected - review calculation methods'
+      )
     }
 
     if (this.stats.averageValidationTime > 2000) {
-      recommendations.push('Validation times are high - consider optimizing server response')
+      recommendations.push(
+        'Validation times are high - consider optimizing server response'
+      )
     }
 
     return {
       summary: this.stats,
       recentDiscrepancies: recentDiscrepancies.slice(-20),
-      recommendations
+      recommendations,
     }
   }
 }
@@ -507,10 +573,12 @@ export class CalculationValidator {
 export const calculationValidator = new CalculationValidator({
   enableAutoFallback: true,
   fallbackStrategy: 'prefer_server',
-  validationFrequency: 0.1 // Validate 10% of calculations
+  validationFrequency: 0.1, // Validate 10% of calculations
 })
 
 // Export factory function
-export const createCalculationValidator = (config?: Partial<ValidationConfig>): CalculationValidator => {
+export const createCalculationValidator = (
+  config?: Partial<ValidationConfig>
+): CalculationValidator => {
   return new CalculationValidator(config)
 }

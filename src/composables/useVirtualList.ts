@@ -46,7 +46,7 @@ export function useVirtualList<T>(
       result.push({
         index: i,
         top,
-        bottom: top + itemHeight
+        bottom: top + itemHeight,
       })
     }
     return result
@@ -63,7 +63,9 @@ export function useVirtualList<T>(
 
   onMounted(() => {
     if (containerRef.value) {
-      containerRef.value.addEventListener('scroll', handleScroll, { passive: true })
+      containerRef.value.addEventListener('scroll', handleScroll, {
+        passive: true,
+      })
     }
   })
 
@@ -83,9 +85,9 @@ export function useVirtualList<T>(
         const targetScrollTop = index * (itemHeight + gap)
         containerRef.value.scrollTo({
           top: targetScrollTop,
-          behavior: 'smooth'
+          behavior: 'smooth',
         })
       }
-    }
+    },
   }
 }

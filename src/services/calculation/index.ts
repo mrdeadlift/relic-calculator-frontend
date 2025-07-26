@@ -1,12 +1,32 @@
 // Unified calculation service exports
-export { calculationEngine, createCalculationEngine } from '../calculation-engine'
-export { calculationMemoizer, searchMemoizer, apiMemoizer, MemoizationManager } from '../memoization-manager'
-export { calculationValidator, createCalculationValidator } from '../calculation-validator'
-export { offlineCalculator, createOfflineCalculator } from '../offline-calculator'
+export {
+  calculationEngine,
+  createCalculationEngine,
+} from '../calculation-engine'
+export {
+  calculationMemoizer,
+  searchMemoizer,
+  apiMemoizer,
+  MemoizationManager,
+} from '../memoization-manager'
+export {
+  calculationValidator,
+  createCalculationValidator,
+} from '../calculation-validator'
+export {
+  offlineCalculator,
+  createOfflineCalculator,
+} from '../offline-calculator'
 
 // Export types
-export type { ValidationResult, ValidationConfig } from '../calculation-validator'
-export type { MemoizationStrategy, MemoizationOptions } from '../memoization-manager'
+export type {
+  ValidationResult,
+  ValidationConfig,
+} from '../calculation-validator'
+export type {
+  MemoizationStrategy,
+  MemoizationOptions,
+} from '../memoization-manager'
 export type { OfflineCalculationOptions } from '../offline-calculator'
 
 // Unified calculation service
@@ -21,16 +41,16 @@ export interface UnifiedCalculationOptions {
   preferOffline?: boolean
   validateResults?: boolean
   forceValidation?: boolean
-  
+
   // Performance options
   useCache?: boolean
   enableOptimizations?: boolean
   precision?: number
-  
+
   // Fallback options
   enableOfflineFallback?: boolean
   enableBasicFallback?: boolean
-  
+
   // Debug options
   includeDebugInfo?: boolean
   trackPerformance?: boolean
@@ -64,7 +84,7 @@ export class UnifiedCalculationService {
   ): Promise<CalculationServiceResult> {
     const startTime = performance.now()
     const networkStatus = navigator.onLine ? 'online' : 'offline'
-    
+
     let result: CalculationResult
     let source: 'online' | 'offline' | 'fallback' = 'online'
     let validated = false
@@ -80,26 +100,37 @@ export class UnifiedCalculationService {
           source = 'offline'
         } else if (options.enableOfflineFallback && navigator.onLine) {
           // Fallback to online if offline not available
-          result = await this.performOnlineCalculation(relics, conditions, options)
+          result = await this.performOnlineCalculation(
+            relics,
+            conditions,
+            options
+          )
           source = 'online'
         } else {
-          throw new Error('Offline calculation not available and fallback disabled')
+          throw new Error(
+            'Offline calculation not available and fallback disabled'
+          )
         }
       } else {
         // Online calculation
-        result = await this.performOnlineCalculation(relics, conditions, options)
+        result = await this.performOnlineCalculation(
+          relics,
+          conditions,
+          options
+        )
         source = 'online'
       }
 
       // Validation if requested
       if (options.validateResults || options.forceValidation) {
         try {
-          const validationResult = await calculationValidator.calculateWithValidation(
-            relics,
-            conditions,
-            options.forceValidation
-          )
-          
+          const validationResult =
+            await calculationValidator.calculateWithValidation(
+              relics,
+              conditions,
+              options.forceValidation
+            )
+
           result = validationResult.result
           validated = validationResult.validated
           validation = validationResult.validation
@@ -111,12 +142,14 @@ export class UnifiedCalculationService {
 
       // Check if result was cached
       cached = result.metadata?.cached || false
-
     } catch (error) {
       console.error('Primary calculation failed:', error)
-      
+
       // Try fallback strategies
-      if (options.enableOfflineFallback && offlineCalculator.isOfflineCapable()) {
+      if (
+        options.enableOfflineFallback &&
+        offlineCalculator.isOfflineCapable()
+      ) {
         console.log('Attempting offline fallback')
         try {
           result = await offlineCalculator.calculateOffline(relics, conditions)
@@ -148,7 +181,7 @@ export class UnifiedCalculationService {
         duration,
         source,
         relicCount: relics.length,
-        success: true
+        success: true,
       })
 
       // Keep metrics history limited
@@ -165,8 +198,8 @@ export class UnifiedCalculationService {
         cached,
         duration,
         networkStatus,
-        validation
-      }
+        validation,
+      },
     }
   }
 
@@ -182,18 +215,23 @@ export class UnifiedCalculationService {
       if (cached) {
         return {
           ...cached,
-          metadata: { ...cached.metadata, cached: true }
+          metadata: { ...cached.metadata, cached: true },
         }
       }
     }
 
     // Perform calculation
-    const result = await calculationEngine.calculate(relics, conditions, {}, {
-      useCache: options.useCache,
-      enableOptimizations: options.enableOptimizations,
-      includeDebugInfo: options.includeDebugInfo,
-      precision: options.precision
-    })
+    const result = await calculationEngine.calculate(
+      relics,
+      conditions,
+      {},
+      {
+        useCache: options.useCache,
+        enableOptimizations: options.enableOptimizations,
+        includeDebugInfo: options.includeDebugInfo,
+        precision: options.precision,
+      }
+    )
 
     // Cache the result
     if (options.useCache !== false) {
@@ -208,8 +246,9 @@ export class UnifiedCalculationService {
     relics: Relic[],
     conditions: ConditionalEffects
   ): CalculationResult {
-    const baseMultiplier = relics.reduce((sum, relic) => 
-      sum + (relic.attackMultiplier || 0.1), 0
+    const baseMultiplier = relics.reduce(
+      (sum, relic) => sum + (relic.attackMultiplier || 0.1),
+      0
     )
 
     return {
@@ -217,7 +256,7 @@ export class UnifiedCalculationService {
         total: Math.round(baseMultiplier * 100) / 100,
         base: Math.round(baseMultiplier * 100) / 100,
         synergy: 0,
-        conditional: 0
+        conditional: 0,
       },
       efficiency: Math.max(0.1, baseMultiplier / 2),
       obtainmentDifficulty: Math.min(5, relics.length * 0.5),
@@ -227,20 +266,22 @@ export class UnifiedCalculationService {
         contribution: relic.attackMultiplier || 0.1,
         effects: [],
         synergies: [],
-        conditionalBonuses: []
+        conditionalBonuses: [],
       })),
       effectBreakdown: [],
-      calculationSteps: [{
-        step: 1,
-        description: 'Basic fallback calculation',
-        value: baseMultiplier
-      }],
+      calculationSteps: [
+        {
+          step: 1,
+          description: 'Basic fallback calculation',
+          value: baseMultiplier,
+        },
+      ],
       metadata: {
         calculatedAt: new Date().toISOString(),
         clientSide: true,
         fallback: true,
-        source: 'basic_fallback'
-      }
+        source: 'basic_fallback',
+      },
     }
   }
 
@@ -249,14 +290,17 @@ export class UnifiedCalculationService {
     conditions: ConditionalEffects,
     options: UnifiedCalculationOptions
   ): string {
-    const relicIds = relics.map(r => r.id).sort().join(',')
+    const relicIds = relics
+      .map(r => r.id)
+      .sort()
+      .join(',')
     const conditionsHash = this.hashObject(conditions)
     const optionsHash = this.hashObject({
       enableOptimizations: options.enableOptimizations,
       precision: options.precision,
-      includeDebugInfo: options.includeDebugInfo
+      includeDebugInfo: options.includeDebugInfo,
     })
-    
+
     return `unified_${relicIds}_${conditionsHash}_${optionsHash}`
   }
 
@@ -265,7 +309,7 @@ export class UnifiedCalculationService {
     let hash = 0
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i)
-      hash = ((hash << 5) - hash) + char
+      hash = (hash << 5) - hash + char
       hash = hash & hash
     }
     return hash.toString(36)
@@ -290,17 +334,21 @@ export class UnifiedCalculationService {
     // Process in batches
     for (let i = 0; i < calculations.length; i += concurrency) {
       const batch = calculations.slice(i, i + concurrency)
-      
-      const batchPromises = batch.map(async (calc) => {
-        const result = await this.calculate(calc.relics, calc.conditions, calc.options)
+
+      const batchPromises = batch.map(async calc => {
+        const result = await this.calculate(
+          calc.relics,
+          calc.conditions,
+          calc.options
+        )
         completed++
         if (onProgress) onProgress(completed, calculations.length)
         return result
       })
 
       const batchResults = await Promise.allSettled(batchPromises)
-      
-      batchResults.forEach((result) => {
+
+      batchResults.forEach(result => {
         if (result.status === 'fulfilled') {
           results.push(result.value)
         } else {
@@ -313,8 +361,8 @@ export class UnifiedCalculationService {
               cached: false,
               duration: 0,
               networkStatus: navigator.onLine ? 'online' : 'offline',
-              error: result.reason
-            }
+              error: result.reason,
+            },
           })
         }
       })
@@ -337,43 +385,47 @@ export class UnifiedCalculationService {
     }
   } {
     const perfStats = this.calculatePerformanceStats()
-    
+
     return {
       online: navigator.onLine,
       offlineCapable: offlineCalculator.isOfflineCapable(),
       cacheStats: calculationMemoizer.getStats(),
       validationStats: calculationValidator.getStats(),
-      performanceStats: perfStats
+      performanceStats: perfStats,
     }
   }
 
   private calculatePerformanceStats() {
     const metrics = this.performanceMetrics
     const totalCalculations = metrics.length
-    
+
     if (totalCalculations === 0) {
       return {
         averageDuration: 0,
         totalCalculations: 0,
         successRate: 100,
-        sourceDistribution: {}
+        sourceDistribution: {},
       }
     }
 
-    const averageDuration = metrics.reduce((sum, m) => sum + m.duration, 0) / totalCalculations
+    const averageDuration =
+      metrics.reduce((sum, m) => sum + m.duration, 0) / totalCalculations
     const successCount = metrics.filter(m => m.success).length
     const successRate = (successCount / totalCalculations) * 100
 
-    const sourceDistribution = metrics.reduce((dist, m) => {
-      dist[m.source] = (dist[m.source] || 0) + 1
-      return dist
-    }, {} as Record<string, number>)
+    const sourceDistribution = metrics.reduce(
+      (dist, m) => {
+        dist[m.source] = (dist[m.source] || 0) + 1
+        return dist
+      },
+      {} as Record<string, number>
+    )
 
     return {
       averageDuration: Math.round(averageDuration * 100) / 100,
       totalCalculations,
       successRate: Math.round(successRate * 100) / 100,
-      sourceDistribution
+      sourceDistribution,
     }
   }
 
@@ -397,6 +449,12 @@ export class UnifiedCalculationService {
 export const unifiedCalculationService = new UnifiedCalculationService()
 
 // Export convenience functions
-export const calculate = unifiedCalculationService.calculate.bind(unifiedCalculationService)
-export const batchCalculate = unifiedCalculationService.batchCalculate.bind(unifiedCalculationService)
-export const getServiceStatus = unifiedCalculationService.getServiceStatus.bind(unifiedCalculationService)
+export const calculate = unifiedCalculationService.calculate.bind(
+  unifiedCalculationService
+)
+export const batchCalculate = unifiedCalculationService.batchCalculate.bind(
+  unifiedCalculationService
+)
+export const getServiceStatus = unifiedCalculationService.getServiceStatus.bind(
+  unifiedCalculationService
+)

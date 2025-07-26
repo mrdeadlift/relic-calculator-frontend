@@ -28,7 +28,11 @@ export interface IntegrityCheck {
   issues: {
     id: string
     severity: 'error' | 'warning' | 'info'
-    type: 'data_inconsistency' | 'missing_reference' | 'duplicate_data' | 'validation_error'
+    type:
+      | 'data_inconsistency'
+      | 'missing_reference'
+      | 'duplicate_data'
+      | 'validation_error'
     title: string
     description: string
     suggestion: string
@@ -114,7 +118,9 @@ class AdminService {
    * 遺物を作成
    */
   async createRelic(data: RelicCreateRequest): Promise<Relic> {
-    const response = await httpClient.post(`${this.baseUrl}/relics`, { relic: data })
+    const response = await httpClient.post(`${this.baseUrl}/relics`, {
+      relic: data,
+    })
     return response.data.data
   }
 
@@ -122,7 +128,9 @@ class AdminService {
    * 遺物を更新
    */
   async updateRelic(id: string, data: RelicUpdateRequest): Promise<Relic> {
-    const response = await httpClient.put(`${this.baseUrl}/relics/${id}`, { relic: data })
+    const response = await httpClient.put(`${this.baseUrl}/relics/${id}`, {
+      relic: data,
+    })
     return response.data.data
   }
 
@@ -149,7 +157,9 @@ class AdminService {
       suggestion: string
     }>
   }> {
-    const response = await httpClient.post(`${this.baseUrl}/relics/validate`, { relic: data })
+    const response = await httpClient.post(`${this.baseUrl}/relics/validate`, {
+      relic: data,
+    })
     return response.data
   }
 
@@ -159,20 +169,26 @@ class AdminService {
   async importRelics(file: File): Promise<ImportResult> {
     const formData = new FormData()
     formData.append('file', file)
-    
-    const response = await httpClient.post(`${this.baseUrl}/relics/import`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      },
-      // アップロード進捗を追跡する場合
-      onUploadProgress: (progressEvent) => {
-        if (progressEvent.total) {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          console.log(`Upload progress: ${percentCompleted}%`)
-        }
+
+    const response = await httpClient.post(
+      `${this.baseUrl}/relics/import`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        // アップロード進捗を追跡する場合
+        onUploadProgress: progressEvent => {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            )
+            console.log(`Upload progress: ${percentCompleted}%`)
+          }
+        },
       }
-    })
-    
+    )
+
     return response.data
   }
 
@@ -182,9 +198,9 @@ class AdminService {
   async exportRelics(format: 'json' | 'csv' = 'json'): Promise<Blob> {
     const response = await httpClient.get(`${this.baseUrl}/relics/export`, {
       params: { format },
-      responseType: 'blob'
+      responseType: 'blob',
     })
-    
+
     return response.data
   }
 
@@ -220,19 +236,23 @@ class AdminService {
     message: string
     fixedItems: string[]
   }> {
-    const response = await httpClient.post(`${this.baseUrl}/integrity-check/fix/${issueId}`)
+    const response = await httpClient.post(
+      `${this.baseUrl}/integrity-check/fix/${issueId}`
+    )
     return response.data
   }
 
   /**
    * システムキャッシュをクリア
    */
-  async clearCache(cacheType?: 'all' | 'calculations' | 'relics' | 'builds'): Promise<{
+  async clearCache(
+    cacheType?: 'all' | 'calculations' | 'relics' | 'builds'
+  ): Promise<{
     cleared: string[]
     message: string
   }> {
     const response = await httpClient.delete(`${this.baseUrl}/cache`, {
-      params: { type: cacheType || 'all' }
+      params: { type: cacheType || 'all' },
     })
     return response.data
   }
@@ -275,7 +295,9 @@ class AdminService {
     updated: string[]
     message: string
   }> {
-    const response = await httpClient.put(`${this.baseUrl}/settings`, { settings })
+    const response = await httpClient.put(`${this.baseUrl}/settings`, {
+      settings,
+    })
     return response.data
   }
 
@@ -352,7 +374,9 @@ class AdminService {
       total_count: number
     }
   }> {
-    const response = await httpClient.get(`${this.baseUrl}/audit-logs`, { params })
+    const response = await httpClient.get(`${this.baseUrl}/audit-logs`, {
+      params,
+    })
     return response.data
   }
 }
@@ -366,5 +390,5 @@ export type {
   IntegrityCheck,
   RelicCreateRequest,
   RelicUpdateRequest,
-  ImportResult
+  ImportResult,
 }

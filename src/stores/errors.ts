@@ -41,7 +41,7 @@ export const useErrorStore = defineStore('errors', () => {
     apiAvailable: true,
     latency: 0,
     failedRequests: 0,
-    consecutiveFailures: 0
+    consecutiveFailures: 0,
   })
 
   const globalErrorHandling = ref(true)
@@ -50,34 +50,44 @@ export const useErrorStore = defineStore('errors', () => {
   const notificationSettings = ref({
     showToasts: true,
     showCriticalOnly: false,
-    autoHideDelay: 5000
+    autoHideDelay: 5000,
   })
 
   // Composables
-  const { error: showToastError, warning: showToastWarning, success } = useToast()
+  const {
+    error: showToastError,
+    warning: showToastWarning,
+    success,
+  } = useToast()
 
   // Computed
-  const activeErrors = computed(() => 
+  const activeErrors = computed(() =>
     errors.value.filter(error => !error.resolved)
   )
 
-  const criticalErrors = computed(() => 
+  const criticalErrors = computed(() =>
     activeErrors.value.filter(error => error.severity === 'critical')
   )
 
   const errorsByType = computed(() => {
-    return errors.value.reduce((acc, error) => {
-      acc[error.type] = (acc[error.type] || 0) + 1
-      return acc
-    }, {} as Record<string, number>)
+    return errors.value.reduce(
+      (acc, error) => {
+        acc[error.type] = (acc[error.type] || 0) + 1
+        return acc
+      },
+      {} as Record<string, number>
+    )
   })
 
   const errorsByStore = computed(() => {
-    return errors.value.reduce((acc, error) => {
-      const store = error.context?.store || 'unknown'
-      acc[store] = (acc[store] || 0) + 1
-      return acc
-    }, {} as Record<string, number>)
+    return errors.value.reduce(
+      (acc, error) => {
+        const store = error.context?.store || 'unknown'
+        acc[store] = (acc[store] || 0) + 1
+        return acc
+      },
+      {} as Record<string, number>
+    )
   })
 
   const hasActiveErrors = computed(() => activeErrors.value.length > 0)
@@ -90,7 +100,7 @@ export const useErrorStore = defineStore('errors', () => {
     critical: criticalErrors.value.length,
     retryable: activeErrors.value.filter(e => e.retryable).length,
     byType: errorsByType.value,
-    byStore: errorsByStore.value
+    byStore: errorsByStore.value,
   }))
 
   // Actions
@@ -107,7 +117,7 @@ export const useErrorStore = defineStore('errors', () => {
       retryable: errorData.retryable || false,
       retryCount: 0,
       maxRetries: errorData.maxRetries || 3,
-      context: errorData.context
+      context: errorData.context,
     }
 
     errors.value.unshift(error)
@@ -119,7 +129,10 @@ export const useErrorStore = defineStore('errors', () => {
 
     // Handle notifications
     if (globalErrorHandling.value && notificationSettings.value.showToasts) {
-      if (!notificationSettings.value.showCriticalOnly || error.severity === 'critical') {
+      if (
+        !notificationSettings.value.showCriticalOnly ||
+        error.severity === 'critical'
+      ) {
         showErrorNotification(error)
       }
     }
@@ -130,7 +143,11 @@ export const useErrorStore = defineStore('errors', () => {
     }
 
     // Auto-retry if enabled and retryable
-    if (autoRetry.value && error.retryable && error.retryCount < error.maxRetries) {
+    if (
+      autoRetry.value &&
+      error.retryable &&
+      error.retryCount < error.maxRetries
+    ) {
       scheduleRetry(error.id)
     }
 
@@ -149,7 +166,7 @@ export const useErrorStore = defineStore('errors', () => {
       message,
       details,
       retryable: true,
-      context
+      context,
     })
   }
 
@@ -165,7 +182,7 @@ export const useErrorStore = defineStore('errors', () => {
       message,
       details,
       retryable: true,
-      context
+      context,
     })
   }
 
@@ -181,7 +198,7 @@ export const useErrorStore = defineStore('errors', () => {
       message,
       details,
       retryable: false,
-      context
+      context,
     })
   }
 
@@ -198,7 +215,7 @@ export const useErrorStore = defineStore('errors', () => {
       details,
       retryable: true,
       maxRetries: 1,
-      context
+      context,
     })
   }
 
@@ -214,7 +231,7 @@ export const useErrorStore = defineStore('errors', () => {
       message,
       details,
       retryable: true,
-      context
+      context,
     })
   }
 
@@ -249,19 +266,21 @@ export const useErrorStore = defineStore('errors', () => {
     try {
       // Implement retry logic based on error context
       await executeRetry(error)
-      
+
       error.resolved = true
       success(`Error resolved after retry ${error.retryCount}`)
       return true
-
     } catch (retryError) {
-      console.error(`Retry ${error.retryCount} failed for error ${errorId}:`, retryError)
-      
+      console.error(
+        `Retry ${error.retryCount} failed for error ${errorId}:`,
+        retryError
+      )
+
       if (error.retryCount >= error.maxRetries) {
         error.retryable = false
         showToastError(`Max retries reached for: ${error.title}`)
       }
-      
+
       return false
     }
   }
@@ -275,7 +294,7 @@ export const useErrorStore = defineStore('errors', () => {
     const beforeCount = errors.value.length
     errors.value = errors.value.filter(error => !error.resolved)
     const clearedCount = beforeCount - errors.value.length
-    
+
     if (clearedCount > 0) {
       success(`Cleared ${clearedCount} resolved errors`)
     }
@@ -300,7 +319,7 @@ export const useErrorStore = defineStore('errors', () => {
     } else {
       status.failedRequests++
       status.consecutiveFailures++
-      
+
       if (status.consecutiveFailures >= 3) {
         status.apiAvailable = false
       }
@@ -310,21 +329,20 @@ export const useErrorStore = defineStore('errors', () => {
   const checkNetworkStatus = async (): Promise<boolean> => {
     try {
       const startTime = performance.now()
-      
+
       // Simple ping to check API availability
-      const response = await fetch('/api/health', { 
+      const response = await fetch('/api/health', {
         method: 'HEAD',
-        cache: 'no-cache'
+        cache: 'no-cache',
       })
-      
+
       const endTime = performance.now()
       networkStatus.value.latency = endTime - startTime
 
       const isAvailable = response.ok
       updateNetworkStatus(isAvailable)
-      
-      return isAvailable
 
+      return isAvailable
     } catch (error) {
       updateNetworkStatus(false)
       return false
@@ -338,7 +356,7 @@ export const useErrorStore = defineStore('errors', () => {
 
   const showErrorNotification = (error: AppError): void => {
     const message = `${error.title}: ${error.message}`
-    
+
     switch (error.severity) {
       case 'critical':
         showToastError(message)
@@ -361,7 +379,7 @@ export const useErrorStore = defineStore('errors', () => {
 
     // Exponential backoff: 1s, 2s, 4s, 8s, etc.
     const delay = Math.min(1000 * Math.pow(2, error.retryCount), 30000)
-    
+
     setTimeout(() => {
       retryError(errorId)
     }, delay)
@@ -401,7 +419,9 @@ export const useErrorStore = defineStore('errors', () => {
   }
 
   // Settings
-  const updateSettings = (settings: Partial<typeof notificationSettings.value>): void => {
+  const updateSettings = (
+    settings: Partial<typeof notificationSettings.value>
+  ): void => {
     notificationSettings.value = { ...notificationSettings.value, ...settings }
   }
 
@@ -416,16 +436,16 @@ export const useErrorStore = defineStore('errors', () => {
   // Error reporting (for analytics/monitoring)
   const exportErrors = (includeResolved = false): string => {
     const errorsToExport = includeResolved ? errors.value : activeErrors.value
-    
+
     const exportData = {
       timestamp: new Date().toISOString(),
       networkStatus: networkStatus.value,
       errors: errorsToExport.map(error => ({
         ...error,
         // Remove sensitive details
-        details: error.details ? '[REDACTED]' : undefined
+        details: error.details ? '[REDACTED]' : undefined,
       })),
-      stats: errorStats.value
+      stats: errorStats.value,
     }
 
     return JSON.stringify(exportData, null, 2)
@@ -447,7 +467,7 @@ export const useErrorStore = defineStore('errors', () => {
   // Initialize
   const initialize = (): void => {
     setupNetworkListeners()
-    
+
     // Initial network check
     checkNetworkStatus()
 
@@ -459,7 +479,7 @@ export const useErrorStore = defineStore('errors', () => {
     // State
     errors: computed(() => errors.value),
     networkStatus: computed(() => networkStatus.value),
-    
+
     // Computed
     activeErrors,
     criticalErrors,
@@ -497,6 +517,6 @@ export const useErrorStore = defineStore('errors', () => {
     toggleAutoRetry,
 
     // Utilities
-    exportErrors
+    exportErrors,
   }
 })

@@ -44,7 +44,7 @@ class ComputedCache<T> {
     this.cache.set(key, {
       value,
       timestamp: Date.now(),
-      accessCount: 1
+      accessCount: 1,
     })
   }
 
@@ -77,7 +77,7 @@ export function useMemoizedComputed<T>(
   const {
     maxAge = 60000,
     maxSize = 100,
-    keyGenerator = (...args) => JSON.stringify(args)
+    keyGenerator = (...args) => JSON.stringify(args),
   } = options
 
   const cache = new ComputedCache<T>(maxAge, maxSize)
@@ -121,9 +121,16 @@ export function useStableComputed<T>(
   const defaultEqualityFn = (a: T, b: T): boolean => {
     if (a === b) return true
     if (Array.isArray(a) && Array.isArray(b)) {
-      return a.length === b.length && a.every((item, index) => item === b[index])
+      return (
+        a.length === b.length && a.every((item, index) => item === b[index])
+      )
     }
-    if (typeof a === 'object' && typeof b === 'object' && a !== null && b !== null) {
+    if (
+      typeof a === 'object' &&
+      typeof b === 'object' &&
+      a !== null &&
+      b !== null
+    ) {
       const keysA = Object.keys(a)
       const keysB = Object.keys(b)
       return (
@@ -215,6 +222,6 @@ export function useAsyncComputed<T>(
   return {
     data: computed(() => data.value),
     loading: computed(() => loading.value),
-    error: computed(() => error.value)
+    error: computed(() => error.value),
   }
 }

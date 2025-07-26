@@ -21,8 +21,8 @@ export function useLazyLoading(
     if (!elementRef.value) return
 
     observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
+      entries => {
+        entries.forEach(entry => {
           if (entry.isIntersecting && !hasLoaded.value) {
             isVisible.value = true
             hasLoaded.value = true
@@ -34,7 +34,7 @@ export function useLazyLoading(
       {
         root,
         rootMargin,
-        threshold
+        threshold,
       }
     )
 
@@ -47,7 +47,7 @@ export function useLazyLoading(
 
   return {
     isVisible,
-    hasLoaded
+    hasLoaded,
   }
 }
 
@@ -64,7 +64,7 @@ export function useImageLazyLoading() {
     isError.value = false
 
     const img = new Image()
-    
+
     img.onload = () => {
       if (imageRef.value) {
         imageRef.value.src = src
@@ -81,21 +81,18 @@ export function useImageLazyLoading() {
     img.src = src
   }
 
-  const { isVisible } = useLazyLoading(
-    imageRef,
-    () => {
-      const src = imageRef.value?.dataset.src
-      if (src && !isLoaded.value) {
-        loadImage(src)
-      }
+  const { isVisible } = useLazyLoading(imageRef, () => {
+    const src = imageRef.value?.dataset.src
+    if (src && !isLoaded.value) {
+      loadImage(src)
     }
-  )
+  })
 
   return {
     imageRef,
     isLoaded,
     isError,
     isLoading,
-    isVisible
+    isVisible,
   }
 }

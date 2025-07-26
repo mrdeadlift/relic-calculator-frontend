@@ -14,7 +14,7 @@ export function usePerformanceMonitor() {
     memoryUsage: 0,
     loadTime: 0,
     renderTime: 0,
-    apiResponseTime: 0
+    apiResponseTime: 0,
   })
 
   const isMonitoring = ref(false)
@@ -26,9 +26,11 @@ export function usePerformanceMonitor() {
   const measureFPS = () => {
     frameCount++
     const currentTime = performance.now()
-    
+
     if (currentTime - lastTime >= 1000) {
-      metrics.value.fps = Math.round((frameCount * 1000) / (currentTime - lastTime))
+      metrics.value.fps = Math.round(
+        (frameCount * 1000) / (currentTime - lastTime)
+      )
       frameCount = 0
       lastTime = currentTime
     }
@@ -50,9 +52,13 @@ export function usePerformanceMonitor() {
 
   // Page load time
   const measureLoadTime = () => {
-    const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
+    const navigation = performance.getEntriesByType(
+      'navigation'
+    )[0] as PerformanceNavigationTiming
     if (navigation) {
-      metrics.value.loadTime = Math.round(navigation.loadEventEnd - navigation.navigationStart)
+      metrics.value.loadTime = Math.round(
+        navigation.loadEventEnd - navigation.navigationStart
+      )
     }
   }
 
@@ -72,19 +78,21 @@ export function usePerformanceMonitor() {
     identifier?: string
   ): Promise<T> => {
     const startTime = performance.now()
-    
+
     try {
       const result = await apiCall()
       const endTime = performance.now()
       const responseTime = Math.round(endTime - startTime)
-      
+
       metrics.value.apiResponseTime = responseTime
-      
+
       // Log slow API calls
       if (responseTime > 1000) {
-        console.warn(`Slow API call detected: ${identifier || 'Unknown'} took ${responseTime}ms`)
+        console.warn(
+          `Slow API call detected: ${identifier || 'Unknown'} took ${responseTime}ms`
+        )
       }
-      
+
       return result
     } catch (error) {
       const endTime = performance.now()
@@ -96,8 +104,8 @@ export function usePerformanceMonitor() {
   // Performance observer for long tasks
   const observeLongTasks = () => {
     if ('PerformanceObserver' in window) {
-      const observer = new PerformanceObserver((list) => {
-        list.getEntries().forEach((entry) => {
+      const observer = new PerformanceObserver(list => {
+        list.getEntries().forEach(entry => {
           if (entry.duration > 50) {
             console.warn(`Long task detected: ${entry.duration}ms`)
           }
@@ -119,7 +127,7 @@ export function usePerformanceMonitor() {
   const measureWebVitals = () => {
     // Largest Contentful Paint (LCP)
     if ('PerformanceObserver' in window) {
-      const lcpObserver = new PerformanceObserver((list) => {
+      const lcpObserver = new PerformanceObserver(list => {
         const entries = list.getEntries()
         const lastEntry = entries[entries.length - 1]
         console.log('LCP:', lastEntry.startTime)
@@ -132,8 +140,8 @@ export function usePerformanceMonitor() {
       }
 
       // First Input Delay (FID)
-      const fidObserver = new PerformanceObserver((list) => {
-        list.getEntries().forEach((entry) => {
+      const fidObserver = new PerformanceObserver(list => {
+        list.getEntries().forEach(entry => {
           console.log('FID:', (entry as any).processingStart - entry.startTime)
         })
       })
@@ -145,9 +153,9 @@ export function usePerformanceMonitor() {
       }
 
       // Cumulative Layout Shift (CLS)
-      const clsObserver = new PerformanceObserver((list) => {
+      const clsObserver = new PerformanceObserver(list => {
         let clsValue = 0
-        list.getEntries().forEach((entry) => {
+        list.getEntries().forEach(entry => {
           if (!(entry as any).hadRecentInput) {
             clsValue += (entry as any).value
           }
@@ -167,18 +175,22 @@ export function usePerformanceMonitor() {
   const analyzeResourceTiming = () => {
     const resources = performance.getEntriesByType('resource')
     const slowResources = resources.filter(resource => resource.duration > 500)
-    
+
     if (slowResources.length > 0) {
-      console.warn('Slow resources detected:', slowResources.map(r => ({
-        name: r.name,
-        duration: r.duration
-      })))
+      console.warn(
+        'Slow resources detected:',
+        slowResources.map(r => ({
+          name: r.name,
+          duration: r.duration,
+        }))
+      )
     }
 
     return {
       totalResources: resources.length,
       slowResources: slowResources.length,
-      averageLoadTime: resources.reduce((sum, r) => sum + r.duration, 0) / resources.length
+      averageLoadTime:
+        resources.reduce((sum, r) => sum + r.duration, 0) / resources.length,
     }
   }
 
@@ -187,10 +199,10 @@ export function usePerformanceMonitor() {
     measureFPS()
     measureLoadTime()
     measureWebVitals()
-    
+
     const longTaskObserver = observeLongTasks()
     const memoryInterval = setInterval(measureMemoryUsage, 5000)
-    
+
     onUnmounted(() => {
       clearInterval(memoryInterval)
       longTaskObserver?.disconnect()
@@ -206,35 +218,41 @@ export function usePerformanceMonitor() {
 
   const getPerformanceReport = () => {
     const resourceAnalysis = analyzeResourceTiming()
-    
+
     return {
       ...metrics.value,
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
       resourceAnalysis,
-      recommendations: generateRecommendations()
+      recommendations: generateRecommendations(),
     }
   }
 
   const generateRecommendations = () => {
     const recommendations: string[] = []
-    
+
     if (metrics.value.fps < 30) {
-      recommendations.push('FPS is low. Consider optimizing animations and DOM updates.')
+      recommendations.push(
+        'FPS is low. Consider optimizing animations and DOM updates.'
+      )
     }
-    
+
     if (metrics.value.memoryUsage > 80) {
       recommendations.push('Memory usage is high. Check for memory leaks.')
     }
-    
+
     if (metrics.value.loadTime > 3000) {
-      recommendations.push('Page load time is slow. Consider code splitting and lazy loading.')
+      recommendations.push(
+        'Page load time is slow. Consider code splitting and lazy loading.'
+      )
     }
-    
+
     if (metrics.value.apiResponseTime > 1000) {
-      recommendations.push('API response time is slow. Consider request optimization or caching.')
+      recommendations.push(
+        'API response time is slow. Consider request optimization or caching.'
+      )
     }
-    
+
     return recommendations
   }
 
@@ -254,6 +272,6 @@ export function usePerformanceMonitor() {
     measureRenderTime,
     trackApiCall,
     getPerformanceReport,
-    analyzeResourceTiming
+    analyzeResourceTiming,
   }
 }

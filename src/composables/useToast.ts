@@ -45,7 +45,7 @@ export function useToast() {
       type,
       duration: options.duration ?? (type === 'error' ? 6000 : 4000),
       persistent: options.persistent ?? false,
-      action: options.action
+      action: options.action,
     }
 
     toasts.value.push(toast)
@@ -63,28 +63,40 @@ export function useToast() {
   /**
    * 成功トーストを表示
    */
-  const showSuccess = (message: string, options?: Omit<Parameters<typeof showToast>[2], 'type'>) => {
+  const showSuccess = (
+    message: string,
+    options?: Omit<Parameters<typeof showToast>[2], 'type'>
+  ) => {
     return showToast(message, 'success', options)
   }
 
   /**
    * エラートーストを表示
    */
-  const showError = (message: string, options?: Omit<Parameters<typeof showToast>[2], 'type'>) => {
+  const showError = (
+    message: string,
+    options?: Omit<Parameters<typeof showToast>[2], 'type'>
+  ) => {
     return showToast(message, 'error', options)
   }
 
   /**
    * 警告トーストを表示
    */
-  const showWarning = (message: string, options?: Omit<Parameters<typeof showToast>[2], 'type'>) => {
+  const showWarning = (
+    message: string,
+    options?: Omit<Parameters<typeof showToast>[2], 'type'>
+  ) => {
     return showToast(message, 'warning', options)
   }
 
   /**
    * 情報トーストを表示
    */
-  const showInfo = (message: string, options?: Omit<Parameters<typeof showToast>[2], 'type'>) => {
+  const showInfo = (
+    message: string,
+    options?: Omit<Parameters<typeof showToast>[2], 'type'>
+  ) => {
     return showToast(message, 'info', options)
   }
 
@@ -122,17 +134,24 @@ export function useToast() {
   /**
    * ローディングトーストを更新
    */
-  const updateLoadingToast = (id: string, message: string, type: ToastType = 'success') => {
+  const updateLoadingToast = (
+    id: string,
+    message: string,
+    type: ToastType = 'success'
+  ) => {
     const toast = toasts.value.find(t => t.id === id)
     if (toast) {
       toast.message = message
       toast.type = type
       toast.persistent = false
-      
+
       // 自動削除タイマーを設定
-      setTimeout(() => {
-        removeToast(id)
-      }, type === 'error' ? 6000 : 4000)
+      setTimeout(
+        () => {
+          removeToast(id)
+        },
+        type === 'error' ? 6000 : 4000
+      )
     }
   }
 
@@ -144,7 +163,7 @@ export function useToast() {
     confirmLabel: string = '確認',
     cancelLabel: string = 'キャンセル'
   ): Promise<boolean> => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const toastId = showToast(message, 'warning', {
         persistent: true,
         action: {
@@ -152,8 +171,8 @@ export function useToast() {
           handler: () => {
             removeToast(toastId)
             resolve(true)
-          }
-        }
+          },
+        },
       })
 
       // キャンセル用タイマー（30秒後に自動キャンセル）
@@ -170,7 +189,7 @@ export function useToast() {
   return {
     // 状態
     toasts: readonly(toasts),
-    
+
     // メソッド
     showToast,
     showSuccess,
@@ -182,7 +201,7 @@ export function useToast() {
     clearToastsByType,
     showLoadingToast,
     updateLoadingToast,
-    showConfirmToast
+    showConfirmToast,
   }
 }
 
@@ -192,7 +211,7 @@ export const getToastIcon = (type: ToastType): string => {
     success: 'icon-check-circle',
     error: 'icon-x-circle',
     warning: 'icon-alert-triangle',
-    info: 'icon-info-circle'
+    info: 'icon-info-circle',
   }
   return icons[type]
 }
@@ -202,7 +221,7 @@ export const getToastColor = (type: ToastType): string => {
     success: '#48bb78',
     error: '#e53e3e',
     warning: '#ed8936',
-    info: '#4299e1'
+    info: '#4299e1',
   }
   return colors[type]
 }

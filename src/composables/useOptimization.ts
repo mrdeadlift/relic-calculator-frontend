@@ -1,11 +1,10 @@
-import { ref, computed, reactive } from 'vue'
-import type { 
-  OptimizationRequest, 
+import { ref, computed, reactive, readonly } from 'vue'
+import type { Relic, ApiError } from '../types'
+import type {
+  OptimizationRequest,
   OptimizationResult,
-  CalculationResult,
-  Relic,
-  ApiError
-} from '../types'
+  AttackMultiplierResult,
+} from '../types/calculation'
 import { apiService } from '../services/api'
 
 export function useOptimization() {
@@ -18,7 +17,9 @@ export function useOptimization() {
 
   // State flags
   const isOptimizing = computed(() => loading.value)
-  const hasSuggestions = computed(() => suggestions.value !== null && suggestions.value.suggestions.length > 0)
+  const hasSuggestions = computed(
+    () => suggestions.value !== null && suggestions.value.suggestions.length > 0
+  )
   const hasAnalysis = computed(() => analysisResult.value !== null)
   const hasMetaBuilds = computed(() => metaBuilds.value.length > 0)
 
@@ -29,7 +30,7 @@ export function useOptimization() {
     excludeRelicIds: [] as string[],
     preferHighRarity: false,
     preferLowDifficulty: true,
-    minImprovement: 0.1
+    minImprovement: 0.1,
   })
 
   // Helper functions
@@ -62,20 +63,29 @@ export function useOptimization() {
   const suggestOptimization = suggestOptimizations
 
   // Quick optimization for current build
-  const optimizeCurrentBuild = async (currentRelicIds: string[], combatStyle: string = 'melee') => {
+  const optimizeCurrentBuild = async (
+    currentRelicIds: string[],
+    combatStyle: string = 'melee'
+  ) => {
     const request: OptimizationRequest = {
       relic_ids: currentRelicIds,
       combat_style: combatStyle,
       constraints: {
         maxDifficulty: constraints.maxDifficulty,
-        allowedCategories: constraints.allowedCategories.length > 0 ? constraints.allowedCategories : undefined,
-        excludeRelicIds: constraints.excludeRelicIds.length > 0 ? constraints.excludeRelicIds : undefined
+        allowedCategories:
+          constraints.allowedCategories.length > 0
+            ? constraints.allowedCategories
+            : undefined,
+        excludeRelicIds:
+          constraints.excludeRelicIds.length > 0
+            ? constraints.excludeRelicIds
+            : undefined,
       },
       preferences: {
         preferHighRarity: constraints.preferHighRarity,
         preferLowDifficulty: constraints.preferLowDifficulty,
-        minImprovement: constraints.minImprovement
-      }
+        minImprovement: constraints.minImprovement,
+      },
     }
 
     await suggestOptimizations(request)
@@ -104,7 +114,10 @@ export function useOptimization() {
     clearError()
 
     try {
-      const response = await apiService.optimization.getMetaBuilds(combatStyle, constraints)
+      const response = await apiService.optimization.getMetaBuilds(
+        combatStyle,
+        constraints
+      )
       metaBuilds.value = response.data
     } catch (err) {
       const apiError = err as ApiError
@@ -131,7 +144,8 @@ export function useOptimization() {
     clearError()
 
     try {
-      const response = await apiService.optimization.batchCalculate(combinations)
+      const response =
+        await apiService.optimization.batchCalculate(combinations)
       return response.data
     } catch (err) {
       const apiError = err as ApiError
@@ -155,7 +169,7 @@ export function useOptimization() {
       excludeRelicIds: [],
       preferHighRarity: false,
       preferLowDifficulty: true,
-      minImprovement: 0.1
+      minImprovement: 0.1,
     })
   }
 
@@ -211,7 +225,7 @@ export function useOptimization() {
     clearAnalysis,
     clearMetaBuilds,
     clearAll,
-    clearError
+    clearError,
   }
 }
 
@@ -220,13 +234,15 @@ export function useOptimizationComparison() {
   const error = ref<string | null>(null)
   const comparisonResults = ref<any | null>(null)
 
-  const comparisons = ref<Array<{
-    id: string
-    name: string
-    relicIds: string[]
-    combatStyle: string
-    result?: CalculationResult
-  }>>([])
+  const comparisons = ref<
+    Array<{
+      id: string
+      name: string
+      relicIds: string[]
+      combatStyle: string
+      result?: AttackMultiplierResult
+    }>
+  >([])
 
   const isComparing = computed(() => loading.value)
   const hasComparisons = computed(() => comparisons.value.length > 0)
@@ -244,7 +260,7 @@ export function useOptimizationComparison() {
         id,
         name,
         relicIds,
-        combatStyle
+        combatStyle,
       })
     }
   }
@@ -273,7 +289,7 @@ export function useOptimizationComparison() {
         build_id: comp.id,
         name: comp.name,
         relic_ids: comp.relicIds,
-        combat_style: comp.combatStyle
+        combat_style: comp.combatStyle,
       }))
 
       const response = await apiService.relics.compare(combinations)
@@ -281,12 +297,13 @@ export function useOptimizationComparison() {
 
       // Update individual results
       comparisons.value.forEach(comp => {
-        const result = response.data.comparisons.find((r: any) => r.build_id === comp.id)
+        const result = response.data.comparisons.find(
+          (r: any) => r.build_id === comp.id
+        )
         if (result) {
           comp.result = result
         }
       })
-
     } catch (err) {
       const apiError = err as ApiError
       error.value = apiError.message || 'Comparison failed'
@@ -298,13 +315,18 @@ export function useOptimizationComparison() {
 
   const getBestBuild = computed(() => {
     if (!comparisonResults.value?.winner) return null
-    return comparisons.value.find(c => c.id === comparisonResults.value.winner.build_id)
+    return comparisons.value.find(
+      c => c.id === comparisonResults.value.winner.build_id
+    )
   })
 
   const getWorstBuild = computed(() => {
     if (!comparisonResults.value?.comparisons) return null
-    const worst = comparisonResults.value.comparisons.reduce((min: any, current: any) => 
-      current.attack_multipliers.total < min.attack_multipliers.total ? current : min
+    const worst = comparisonResults.value.comparisons.reduce(
+      (min: any, current: any) =>
+        current.attack_multipliers.total < min.attack_multipliers.total
+          ? current
+          : min
     )
     return comparisons.value.find(c => c.id === worst.build_id)
   })
@@ -327,18 +349,20 @@ export function useOptimizationComparison() {
     addComparison,
     removeComparison,
     clearComparisons,
-    runComparison
+    runComparison,
   }
 }
 
 export function useOptimizationHistory() {
-  const history = ref<Array<{
-    id: string
-    timestamp: Date
-    request: OptimizationRequest
-    result: OptimizationResult
-    type: 'optimization' | 'analysis' | 'comparison'
-  }>>([])
+  const history = ref<
+    Array<{
+      id: string
+      timestamp: Date
+      request: OptimizationRequest
+      result: OptimizationResult
+      type: 'optimization' | 'analysis' | 'comparison'
+    }>
+  >([])
 
   const maxHistorySize = 50
 
@@ -352,7 +376,7 @@ export function useOptimizationHistory() {
       timestamp: new Date(),
       request,
       result,
-      type
+      type,
     }
 
     history.value.unshift(entry)
@@ -363,7 +387,9 @@ export function useOptimizationHistory() {
     }
   }
 
-  const getHistoryByType = (type?: 'optimization' | 'analysis' | 'comparison') => {
+  const getHistoryByType = (
+    type?: 'optimization' | 'analysis' | 'comparison'
+  ) => {
     if (!type) return history.value
     return history.value.filter(entry => entry.type === type)
   }
@@ -400,6 +426,6 @@ export function useOptimizationHistory() {
     clearHistory,
     removeFromHistory,
     exportHistory,
-    importHistory
+    importHistory,
   }
 }

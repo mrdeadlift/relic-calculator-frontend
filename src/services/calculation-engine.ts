@@ -1,9 +1,9 @@
-import type { 
-  Relic, 
-  CalculationRequest, 
-  CalculationResult, 
+import type {
+  Relic,
+  CalculationRequest,
+  CalculationResult,
   ConditionalEffects,
-  RelicEffect
+  RelicEffect,
 } from '../types'
 
 // Performance monitoring
@@ -47,14 +47,17 @@ interface CalculationState {
 }
 
 export class CalculationEngine {
-  private cache = new Map<string, { result: CalculationResult; timestamp: number }>()
+  private cache = new Map<
+    string,
+    { result: CalculationResult; timestamp: number }
+  >()
   private metrics: CalculationMetrics[] = []
   private readonly cacheExpiration = 300000 // 5 minutes
   private readonly maxCacheSize = 1000
 
   // Main calculation function
   async calculate(
-    relics: Relic[], 
+    relics: Relic[],
     conditions: ConditionalEffects,
     context: CalculationContext = {},
     options: CalculationOptions = {}
@@ -66,7 +69,7 @@ export class CalculationEngine {
       duration: 0,
       relicCount: relics.length,
       cacheHits: 0,
-      cacheMisses: 0
+      cacheMisses: 0,
     }
 
     try {
@@ -88,7 +91,13 @@ export class CalculationEngine {
       const state = this.initializeState(relics, conditions, context)
 
       // Perform calculations
-      const result = await this.performCalculation(state, relics, conditions, context, options)
+      const result = await this.performCalculation(
+        state,
+        relics,
+        conditions,
+        context,
+        options
+      )
 
       // Cache the result
       if (options.useCache !== false) {
@@ -97,7 +106,6 @@ export class CalculationEngine {
       }
 
       return result
-
     } finally {
       metrics.endTime = performance.now()
       metrics.duration = metrics.endTime - metrics.startTime
@@ -134,19 +142,28 @@ export class CalculationEngine {
     this.applyComplexInteractions(state, relics, conditions)
 
     // Phase 6: Final calculations and result assembly
-    const result = this.assembleResult(state, relics, conditions, context, options)
+    const result = this.assembleResult(
+      state,
+      relics,
+      conditions,
+      context,
+      options
+    )
 
     return result
   }
 
   // Phase 1: Base multiplier calculation
-  private calculateBaseMultiplier(state: CalculationState, relics: Relic[]): void {
+  private calculateBaseMultiplier(
+    state: CalculationState,
+    relics: Relic[]
+  ): void {
     state.baseMultiplier = relics.reduce((total, relic) => {
       const multiplier = relic.attackMultiplier || 0
-      
+
       // Apply relic-specific bonuses
       const relicBonus = this.getRelicSpecificBonus(relic)
-      
+
       return total + multiplier + relicBonus
     }, 0)
   }
@@ -155,36 +172,41 @@ export class CalculationEngine {
   private calculateSynergies(state: CalculationState, relics: Relic[]): void {
     // Type-based synergies
     const typeSynergies = this.calculateTypeSynergies(relics)
-    
+
     // Effect-based synergies
     const effectSynergies = this.calculateEffectSynergies(relics)
-    
+
     // Set-based synergies (for related relics)
     const setSynergies = this.calculateSetSynergies(relics)
-    
+
     // Advanced synergy patterns
     const patternSynergies = this.calculatePatternSynergies(relics)
 
-    state.synergyMultiplier = typeSynergies + effectSynergies + setSynergies + patternSynergies
+    state.synergyMultiplier =
+      typeSynergies + effectSynergies + setSynergies + patternSynergies
   }
 
   // Phase 3: Conditional effect calculations
   private calculateConditionalEffects(
-    state: CalculationState, 
-    relics: Relic[], 
+    state: CalculationState,
+    relics: Relic[],
     conditions: ConditionalEffects
   ): void {
     let conditionalBonus = 0
 
     relics.forEach(relic => {
-      (relic.effects || []).forEach(effect => {
+      ;(relic.effects || []).forEach(effect => {
         if (this.isEffectActive(effect, conditions)) {
-          const effectValue = this.calculateEffectValue(effect, conditions, state)
+          const effectValue = this.calculateEffectValue(
+            effect,
+            conditions,
+            state
+          )
           conditionalBonus += effectValue
-          
+
           // Track active effects
           state.activeEffects.push(effect)
-          
+
           // Handle effect stacking
           this.updateEffectStacks(state, effect)
         }
@@ -195,7 +217,10 @@ export class CalculationEngine {
   }
 
   // Phase 4: Environmental bonuses
-  private calculateEnvironmentalBonuses(state: CalculationState, context: CalculationContext): void {
+  private calculateEnvironmentalBonuses(
+    state: CalculationState,
+    context: CalculationContext
+  ): void {
     let environmentalBonus = 0
 
     // Weather/time bonuses
@@ -205,12 +230,18 @@ export class CalculationEngine {
 
     // Seasonal effects
     if (context.seasonalEffects) {
-      environmentalBonus += this.getSeasonalBonuses(context.seasonalEffects, state)
+      environmentalBonus += this.getSeasonalBonuses(
+        context.seasonalEffects,
+        state
+      )
     }
 
     // Environmental hazards/bonuses
     if (context.environmentBonuses) {
-      environmentalBonus += this.getEnvironmentBonuses(context.environmentBonuses, state)
+      environmentalBonus += this.getEnvironmentBonuses(
+        context.environmentBonuses,
+        state
+      )
     }
 
     state.environmentalMultiplier = environmentalBonus
@@ -218,8 +249,8 @@ export class CalculationEngine {
 
   // Phase 5: Complex interactions and diminishing returns
   private applyComplexInteractions(
-    state: CalculationState, 
-    relics: Relic[], 
+    state: CalculationState,
+    relics: Relic[],
     conditions: ConditionalEffects
   ): void {
     // Apply diminishing returns for high multiplier stacking
@@ -243,16 +274,19 @@ export class CalculationEngine {
     context: CalculationContext,
     options: CalculationOptions
   ): CalculationResult {
-    const totalMultiplier = Math.max(0, 
-      state.baseMultiplier + 
-      state.synergyMultiplier + 
-      state.conditionalMultiplier + 
-      state.environmentalMultiplier -
-      state.penalties.reduce((sum, penalty) => sum + penalty, 0)
+    const totalMultiplier = Math.max(
+      0,
+      state.baseMultiplier +
+        state.synergyMultiplier +
+        state.conditionalMultiplier +
+        state.environmentalMultiplier -
+        state.penalties.reduce((sum, penalty) => sum + penalty, 0)
     )
 
     const precision = options.precision || 2
-    const roundedMultiplier = Math.round(totalMultiplier * Math.pow(10, precision)) / Math.pow(10, precision)
+    const roundedMultiplier =
+      Math.round(totalMultiplier * Math.pow(10, precision)) /
+      Math.pow(10, precision)
 
     // Calculate additional metrics
     const efficiency = this.calculateEfficiency(relics, roundedMultiplier)
@@ -261,15 +295,25 @@ export class CalculationEngine {
     // Generate detailed breakdown
     const relicDetails = this.generateRelicDetails(relics, state)
     const effectBreakdown = this.generateEffectBreakdown(state)
-    const calculationSteps = options.includeDebugInfo ? this.generateCalculationSteps(state) : []
+    const calculationSteps = options.includeDebugInfo
+      ? this.generateCalculationSteps(state)
+      : []
 
     return {
       attackMultipliers: {
         total: roundedMultiplier,
-        base: Math.round(state.baseMultiplier * Math.pow(10, precision)) / Math.pow(10, precision),
-        synergy: Math.round(state.synergyMultiplier * Math.pow(10, precision)) / Math.pow(10, precision),
-        conditional: Math.round(state.conditionalMultiplier * Math.pow(10, precision)) / Math.pow(10, precision),
-        environmental: Math.round(state.environmentalMultiplier * Math.pow(10, precision)) / Math.pow(10, precision)
+        base:
+          Math.round(state.baseMultiplier * Math.pow(10, precision)) /
+          Math.pow(10, precision),
+        synergy:
+          Math.round(state.synergyMultiplier * Math.pow(10, precision)) /
+          Math.pow(10, precision),
+        conditional:
+          Math.round(state.conditionalMultiplier * Math.pow(10, precision)) /
+          Math.pow(10, precision),
+        environmental:
+          Math.round(state.environmentalMultiplier * Math.pow(10, precision)) /
+          Math.pow(10, precision),
       },
       efficiency,
       obtainmentDifficulty,
@@ -281,27 +325,32 @@ export class CalculationEngine {
         clientSide: true,
         cacheKey: this.generateCacheKey(relics, conditions, context),
         performance: {
-          duration: performance.now() - (this.metrics[this.metrics.length - 1]?.startTime || 0),
+          duration:
+            performance.now() -
+            (this.metrics[this.metrics.length - 1]?.startTime || 0),
           relicCount: relics.length,
-          activeEffects: state.activeEffects.length
-        }
-      }
+          activeEffects: state.activeEffects.length,
+        },
+      },
     }
   }
 
   // Synergy calculation methods
   private calculateTypeSynergies(relics: Relic[]): number {
-    const typeGroups = relics.reduce((groups, relic) => {
-      const type = relic.type
-      groups[type] = (groups[type] || 0) + 1
-      return groups
-    }, {} as Record<string, number>)
+    const typeGroups = relics.reduce(
+      (groups, relic) => {
+        const type = relic.type
+        groups[type] = (groups[type] || 0) + 1
+        return groups
+      },
+      {} as Record<string, number>
+    )
 
     let synergyBonus = 0
     Object.entries(typeGroups).forEach(([type, count]) => {
       if (count >= 2) {
         // Escalating bonus: 2 = 0.15, 3 = 0.35, 4 = 0.60, etc.
-        synergyBonus += 0.15 * count * (count - 1) / 2
+        synergyBonus += (0.15 * count * (count - 1)) / 2
       }
     })
 
@@ -309,19 +358,22 @@ export class CalculationEngine {
   }
 
   private calculateEffectSynergies(relics: Relic[]): number {
-    const effectGroups = relics.reduce((groups, relic) => {
-      (relic.effects || []).forEach(effect => {
-        groups[effect.type] = (groups[effect.type] || 0) + 1
-      })
-      return groups
-    }, {} as Record<string, number>)
+    const effectGroups = relics.reduce(
+      (groups, relic) => {
+        ;(relic.effects || []).forEach(effect => {
+          groups[effect.type] = (groups[effect.type] || 0) + 1
+        })
+        return groups
+      },
+      {} as Record<string, number>
+    )
 
     let synergyBonus = 0
     Object.entries(effectGroups).forEach(([effectType, count]) => {
       if (count >= 2) {
         // Different scaling for different effect types
         const scaling = this.getEffectSynergyScaling(effectType)
-        synergyBonus += scaling * count * (count - 1) / 2
+        synergyBonus += (scaling * count * (count - 1)) / 2
       }
     })
 
@@ -359,7 +411,10 @@ export class CalculationEngine {
   }
 
   // Effect calculation methods
-  private isEffectActive(effect: RelicEffect, conditions: ConditionalEffects): boolean {
+  private isEffectActive(
+    effect: RelicEffect,
+    conditions: ConditionalEffects
+  ): boolean {
     if (!effect.conditions) return true
 
     const cond = effect.conditions
@@ -372,10 +427,16 @@ export class CalculationEngine {
     // Health threshold check
     if (cond.healthThreshold) {
       const threshold = cond.healthThreshold
-      if (threshold.type === 'above' && conditions.playerHealth <= threshold.value) {
+      if (
+        threshold.type === 'above' &&
+        conditions.playerHealth <= threshold.value
+      ) {
         return false
       }
-      if (threshold.type === 'below' && conditions.playerHealth >= threshold.value) {
+      if (
+        threshold.type === 'below' &&
+        conditions.playerHealth >= threshold.value
+      ) {
         return false
       }
     }
@@ -391,7 +452,10 @@ export class CalculationEngine {
     }
 
     // Environment check
-    if (cond.environment && !conditions.environmentEffects.includes(cond.environment)) {
+    if (
+      cond.environment &&
+      !conditions.environmentEffects.includes(cond.environment)
+    ) {
       return false
     }
 
@@ -399,8 +463,8 @@ export class CalculationEngine {
   }
 
   private calculateEffectValue(
-    effect: RelicEffect, 
-    conditions: ConditionalEffects, 
+    effect: RelicEffect,
+    conditions: ConditionalEffects,
     state: CalculationState
   ): number {
     let value = effect.multiplier
@@ -421,8 +485,8 @@ export class CalculationEngine {
 
   // Utility methods
   private initializeState(
-    relics: Relic[], 
-    conditions: ConditionalEffects, 
+    relics: Relic[],
+    conditions: ConditionalEffects,
     context: CalculationContext
   ): CalculationState {
     return {
@@ -432,11 +496,14 @@ export class CalculationEngine {
       environmentalMultiplier: 0,
       activeEffects: [],
       effectStacks: new Map(),
-      penalties: []
+      penalties: [],
     }
   }
 
-  private validateInputs(relics: Relic[], conditions: ConditionalEffects): void {
+  private validateInputs(
+    relics: Relic[],
+    conditions: ConditionalEffects
+  ): void {
     if (!Array.isArray(relics)) {
       throw new Error('Relics must be an array')
     }
@@ -458,14 +525,17 @@ export class CalculationEngine {
   }
 
   private generateCacheKey(
-    relics: Relic[], 
-    conditions: ConditionalEffects, 
+    relics: Relic[],
+    conditions: ConditionalEffects,
     context: CalculationContext
   ): string {
-    const relicIds = relics.map(r => r.id).sort().join(',')
+    const relicIds = relics
+      .map(r => r.id)
+      .sort()
+      .join(',')
     const conditionsHash = this.hashObject(conditions)
     const contextHash = this.hashObject(context)
-    
+
     return `calc_${relicIds}_${conditionsHash}_${contextHash}`
   }
 
@@ -474,7 +544,7 @@ export class CalculationEngine {
     let hash = 0
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i)
-      hash = ((hash << 5) - hash) + char
+      hash = (hash << 5) - hash + char
       hash = hash & hash // Convert to 32-bit integer
     }
     return hash.toString(36)
@@ -501,7 +571,7 @@ export class CalculationEngine {
 
     this.cache.set(key, {
       result,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
   }
 
@@ -513,11 +583,11 @@ export class CalculationEngine {
 
   private getEffectSynergyScaling(effectType: string): number {
     const scalingMap: Record<string, number> = {
-      'damage': 0.1,
-      'critical': 0.12,
-      'speed': 0.08,
-      'defense': 0.06,
-      'special': 0.15
+      damage: 0.1,
+      critical: 0.12,
+      speed: 0.08,
+      defense: 0.06,
+      special: 0.15,
     }
     return scalingMap[effectType] || 0.1
   }
@@ -547,17 +617,26 @@ export class CalculationEngine {
     return 0.05 // 5% bonus at night
   }
 
-  private getSeasonalBonuses(effects: string[], state: CalculationState): number {
+  private getSeasonalBonuses(
+    effects: string[],
+    state: CalculationState
+  ): number {
     return effects.length * 0.02 // 2% per seasonal effect
   }
 
-  private getEnvironmentBonuses(bonuses: string[], state: CalculationState): number {
+  private getEnvironmentBonuses(
+    bonuses: string[],
+    state: CalculationState
+  ): number {
     return bonuses.length * 0.03 // 3% per environment bonus
   }
 
   private applyDiminishingReturns(state: CalculationState): void {
-    const totalBeforeDR = state.baseMultiplier + state.synergyMultiplier + state.conditionalMultiplier
-    
+    const totalBeforeDR =
+      state.baseMultiplier +
+      state.synergyMultiplier +
+      state.conditionalMultiplier
+
     if (totalBeforeDR > 5.0) {
       // Apply diminishing returns for very high multipliers
       const excess = totalBeforeDR - 5.0
@@ -566,44 +645,63 @@ export class CalculationEngine {
     }
   }
 
-  private applyNegativeInteractions(state: CalculationState, relics: Relic[]): void {
+  private applyNegativeInteractions(
+    state: CalculationState,
+    relics: Relic[]
+  ): void {
     // Placeholder for negative interaction calculations
   }
 
   private applyLimits(state: CalculationState): void {
     // Apply hard caps to prevent broken values
     const maxMultiplier = 10.0
-    const total = state.baseMultiplier + state.synergyMultiplier + state.conditionalMultiplier + state.environmentalMultiplier
-    
+    const total =
+      state.baseMultiplier +
+      state.synergyMultiplier +
+      state.conditionalMultiplier +
+      state.environmentalMultiplier
+
     if (total > maxMultiplier) {
       const penalty = total - maxMultiplier
       state.penalties.push(penalty)
     }
   }
 
-  private handleSpecialCombinations(state: CalculationState, relics: Relic[]): void {
+  private handleSpecialCombinations(
+    state: CalculationState,
+    relics: Relic[]
+  ): void {
     // Placeholder for special combination handling
   }
 
   private calculateEfficiency(relics: Relic[], multiplier: number): number {
-    const totalDifficulty = relics.reduce((sum, r) => sum + (r.obtainmentDifficulty || 1), 0)
+    const totalDifficulty = relics.reduce(
+      (sum, r) => sum + (r.obtainmentDifficulty || 1),
+      0
+    )
     const averageDifficulty = totalDifficulty / Math.max(relics.length, 1)
     return Math.round((multiplier / Math.max(averageDifficulty, 1)) * 100) / 100
   }
 
   private calculateObtainmentDifficulty(relics: Relic[]): number {
-    const totalDifficulty = relics.reduce((sum, r) => sum + (r.obtainmentDifficulty || 1), 0)
+    const totalDifficulty = relics.reduce(
+      (sum, r) => sum + (r.obtainmentDifficulty || 1),
+      0
+    )
     return Math.round((totalDifficulty / Math.max(relics.length, 1)) * 10) / 10
   }
 
-  private generateRelicDetails(relics: Relic[], state: CalculationState): any[] {
+  private generateRelicDetails(
+    relics: Relic[],
+    state: CalculationState
+  ): any[] {
     return relics.map(relic => ({
       relicId: relic.id,
       name: relic.name,
       contribution: relic.attackMultiplier || 0,
       effects: relic.effects || [],
       synergies: [], // Would be populated with synergy information
-      conditionalBonuses: [] // Would be populated with active conditional bonuses
+      conditionalBonuses: [], // Would be populated with active conditional bonuses
     }))
   }
 
@@ -613,7 +711,7 @@ export class CalculationEngine {
       effectDescription: effect.description,
       multiplier: effect.multiplier,
       isActive: true,
-      contribution: effect.multiplier
+      contribution: effect.multiplier,
     }))
   }
 
@@ -622,37 +720,46 @@ export class CalculationEngine {
       {
         step: 1,
         description: 'Base multiplier calculation',
-        value: state.baseMultiplier
+        value: state.baseMultiplier,
       },
       {
         step: 2,
         description: 'Synergy bonuses',
-        value: state.synergyMultiplier
+        value: state.synergyMultiplier,
       },
       {
         step: 3,
         description: 'Conditional effects',
-        value: state.conditionalMultiplier
+        value: state.conditionalMultiplier,
       },
       {
         step: 4,
         description: 'Environmental bonuses',
-        value: state.environmentalMultiplier
-      }
+        value: state.environmentalMultiplier,
+      },
     ]
   }
 
-  private getConditionScaling(conditions: any, actualConditions: ConditionalEffects): number {
+  private getConditionScaling(
+    conditions: any,
+    actualConditions: ConditionalEffects
+  ): number {
     // Placeholder for condition-based scaling
     return 1.0
   }
 
-  private updateEffectStacks(state: CalculationState, effect: RelicEffect): void {
+  private updateEffectStacks(
+    state: CalculationState,
+    effect: RelicEffect
+  ): void {
     const current = state.effectStacks.get(effect.type) || 0
     state.effectStacks.set(effect.type, current + 1)
   }
 
-  private getStackingMultiplier(effectType: string, stackCount: number): number {
+  private getStackingMultiplier(
+    effectType: string,
+    stackCount: number
+  ): number {
     // Diminishing returns for stacking effects
     return 1 + (stackCount - 1) * 0.5
   }
@@ -669,14 +776,17 @@ export class CalculationEngine {
   } {
     const totalCalculations = this.metrics.length
     const totalHits = this.metrics.reduce((sum, m) => sum + m.cacheHits, 0)
-    const averageTime = totalCalculations > 0 
-      ? this.metrics.reduce((sum, m) => sum + m.duration, 0) / totalCalculations
-      : 0
+    const averageTime =
+      totalCalculations > 0
+        ? this.metrics.reduce((sum, m) => sum + m.duration, 0) /
+          totalCalculations
+        : 0
 
     return {
       size: this.cache.size,
-      hitRate: totalCalculations > 0 ? (totalHits / totalCalculations) * 100 : 0,
-      averageCalculationTime: averageTime
+      hitRate:
+        totalCalculations > 0 ? (totalHits / totalCalculations) * 100 : 0,
+      averageCalculationTime: averageTime,
     }
   }
 

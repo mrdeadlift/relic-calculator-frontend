@@ -1,17 +1,17 @@
-import type { 
-  ApiResponse, 
+import type {
+  ApiResponse,
   PaginatedResponse,
-  CalculationRequest,
-  CalculationResult,
-  OptimizationRequest,
-  OptimizationResult,
   Relic,
   Build,
   BuildCreateRequest,
   BuildUpdateRequest,
-  RelicSearchParams,
-  BuildSearchParams
 } from '../types'
+import type {
+  CalculationRequest,
+  OptimizationRequest,
+  OptimizationResult,
+  AttackMultiplierResult,
+} from '../types/calculation'
 import { httpClient } from './http'
 
 // API service functions
@@ -23,11 +23,11 @@ export const apiService = {
 
   // Relic-related endpoints
   relics: {
-    async getAll(params?: RelicSearchParams): Promise<ApiResponse<Relic[]>> {
+    async getAll(params?: any): Promise<ApiResponse<Relic[]>> {
       return httpClient.get<Relic[]>('/relics', params)
     },
 
-    async search(params: RelicSearchParams): Promise<PaginatedResponse<Relic[]>> {
+    async search(params: any): Promise<PaginatedResponse<Relic[]>> {
       const response = await httpClient.get<Relic[]>('/relics/search', params)
       return response as PaginatedResponse<Relic[]>
     },
@@ -60,16 +60,19 @@ export const apiService = {
       return httpClient.get<string[]>('/relics/effect-types')
     },
 
-    async validate(relicIds: string[], context?: any): Promise<ApiResponse<any>> {
+    async validate(
+      relicIds: string[],
+      context?: any
+    ): Promise<ApiResponse<any>> {
       return httpClient.post('/relics/validate', {
         relic_ids: relicIds,
-        ...context
+        ...context,
       })
     },
 
     async compare(combinations: any[]): Promise<ApiResponse<any>> {
       return httpClient.post('/relics/compare', {
-        combinations
+        combinations,
       })
     },
 
@@ -77,22 +80,34 @@ export const apiService = {
       return httpClient.get<Relic[]>('/relics/popular', { limit })
     },
 
-    async getRecommended(basedOn?: string[], combatStyle?: string): Promise<ApiResponse<Relic[]>> {
+    async getRecommended(
+      basedOn?: string[],
+      combatStyle?: string
+    ): Promise<ApiResponse<Relic[]>> {
       return httpClient.post<Relic[]>('/relics/recommended', {
         based_on: basedOn,
-        combat_style: combatStyle
+        combat_style: combatStyle,
       })
-    }
+    },
   },
 
   // Calculation endpoints
   calculation: {
-    async calculate(request: CalculationRequest): Promise<ApiResponse<CalculationResult>> {
-      return httpClient.post<CalculationResult>('/calculation/calculate', request)
+    async calculate(
+      request: CalculationRequest
+    ): Promise<ApiResponse<AttackMultiplierResult>> {
+      return httpClient.post<AttackMultiplierResult>(
+        '/calculation/calculate',
+        request
+      )
     },
 
-    async batchCalculate(requests: CalculationRequest[]): Promise<ApiResponse<CalculationResult[]>> {
-      return httpClient.post<CalculationResult[]>('/calculation/batch', { requests })
+    async batchCalculate(
+      requests: CalculationRequest[]
+    ): Promise<ApiResponse<AttackMultiplierResult[]>> {
+      return httpClient.post<AttackMultiplierResult[]>('/calculation/batch', {
+        requests,
+      })
     },
 
     async validate(request: CalculationRequest): Promise<ApiResponse<any>> {
@@ -101,19 +116,27 @@ export const apiService = {
 
     async getSteps(request: CalculationRequest): Promise<ApiResponse<any[]>> {
       return httpClient.post<any[]>('/calculation/steps', request)
-    }
+    },
   },
 
   // Optimization endpoints
   optimization: {
-    async suggest(request: OptimizationRequest): Promise<ApiResponse<OptimizationResult>> {
-      return httpClient.post<OptimizationResult>('/optimization/suggest', request)
+    async suggest(
+      request: OptimizationRequest
+    ): Promise<ApiResponse<OptimizationResult>> {
+      return httpClient.post<OptimizationResult>(
+        '/optimization/suggest',
+        request
+      )
     },
 
-    async analyze(relicIds: string[], context?: any): Promise<ApiResponse<any>> {
+    async analyze(
+      relicIds: string[],
+      context?: any
+    ): Promise<ApiResponse<any>> {
       return httpClient.post('/optimization/analyze', {
         relic_ids: relicIds,
-        ...context
+        ...context,
       })
     },
 
@@ -121,10 +144,13 @@ export const apiService = {
       return httpClient.post('/optimization/compare', { build_ids: buildIds })
     },
 
-    async getMetaBuilds(combatStyle: string, constraints?: any): Promise<ApiResponse<any[]>> {
+    async getMetaBuilds(
+      combatStyle: string,
+      constraints?: any
+    ): Promise<ApiResponse<any[]>> {
       return httpClient.post('/optimization/meta_builds', {
         combat_style: combatStyle,
-        ...constraints
+        ...constraints,
       })
     },
 
@@ -138,22 +164,28 @@ export const apiService = {
 
     async batchCalculate(combinations: any[]): Promise<ApiResponse<any>> {
       return httpClient.post('/optimization/batch_calculate', {
-        combinations
+        combinations,
       })
     },
 
-    async getRecommendations(buildId: string, constraints?: any): Promise<ApiResponse<any[]>> {
-      return httpClient.post<any[]>(`/optimization/${buildId}/recommendations`, constraints)
-    }
+    async getRecommendations(
+      buildId: string,
+      constraints?: any
+    ): Promise<ApiResponse<any[]>> {
+      return httpClient.post<any[]>(
+        `/optimization/${buildId}/recommendations`,
+        constraints
+      )
+    },
   },
 
   // Build management endpoints
   builds: {
-    async getAll(params?: BuildSearchParams): Promise<ApiResponse<Build[]>> {
+    async getAll(params?: any): Promise<ApiResponse<Build[]>> {
       return httpClient.get<Build[]>('/builds', params)
     },
 
-    async search(params: BuildSearchParams): Promise<PaginatedResponse<Build[]>> {
+    async search(params: any): Promise<PaginatedResponse<Build[]>> {
       const response = await httpClient.get<Build[]>('/builds/search', params)
       return response as PaginatedResponse<Build[]>
     },
@@ -166,11 +198,16 @@ export const apiService = {
       return httpClient.post<Build>('/builds', build)
     },
 
-    async update(id: string, build: BuildUpdateRequest): Promise<ApiResponse<Build>> {
+    async update(
+      id: string,
+      build: BuildUpdateRequest
+    ): Promise<ApiResponse<Build>> {
       return httpClient.patch<Build>(`/builds/${id}`, build)
     },
 
-    async delete(id: string): Promise<ApiResponse<{ deleted_build_id: string }>> {
+    async delete(
+      id: string
+    ): Promise<ApiResponse<{ deleted_build_id: string }>> {
       return httpClient.delete(`/builds/${id}`)
     },
 
@@ -178,7 +215,10 @@ export const apiService = {
       return httpClient.post<Build>(`/builds/${id}/duplicate`, { name })
     },
 
-    async share(id: string, options?: { expiresAt?: string; isPublic?: boolean }): Promise<ApiResponse<{ shareKey: string; shareUrl: string }>> {
+    async share(
+      id: string,
+      options?: { expiresAt?: string; isPublic?: boolean }
+    ): Promise<ApiResponse<{ shareKey: string; shareUrl: string }>> {
       return httpClient.post(`/builds/${id}/share`, options)
     },
 
@@ -186,31 +226,51 @@ export const apiService = {
       return httpClient.get<Build>(`/builds/shared/${shareKey}`)
     },
 
-    async calculate(id: string, context?: any): Promise<ApiResponse<CalculationResult>> {
-      return httpClient.post<CalculationResult>(`/builds/${id}/calculate`, context)
+    async calculate(
+      id: string,
+      context?: any
+    ): Promise<ApiResponse<AttackMultiplierResult>> {
+      return httpClient.post<AttackMultiplierResult>(
+        `/builds/${id}/calculate`,
+        context
+      )
     },
 
-    async optimize(id: string, constraints?: any, preferences?: any): Promise<ApiResponse<OptimizationResult>> {
+    async optimize(
+      id: string,
+      constraints?: any,
+      preferences?: any
+    ): Promise<ApiResponse<OptimizationResult>> {
       return httpClient.post<OptimizationResult>(`/builds/${id}/optimize`, {
         constraints,
-        preferences
+        preferences,
       })
     },
 
-    async addRelic(id: string, relicId: string, position?: number): Promise<ApiResponse<Build>> {
+    async addRelic(
+      id: string,
+      relicId: string,
+      position?: number
+    ): Promise<ApiResponse<Build>> {
       return httpClient.post<Build>(`/builds/${id}/relics`, {
         relic_id: relicId,
-        position
+        position,
       })
     },
 
-    async removeRelic(id: string, relicId: string): Promise<ApiResponse<Build>> {
+    async removeRelic(
+      id: string,
+      relicId: string
+    ): Promise<ApiResponse<Build>> {
       return httpClient.delete<Build>(`/builds/${id}/relics/${relicId}`)
     },
 
-    async reorderRelics(id: string, relicIds: string[]): Promise<ApiResponse<Build>> {
+    async reorderRelics(
+      id: string,
+      relicIds: string[]
+    ): Promise<ApiResponse<Build>> {
       return httpClient.patch<Build>(`/builds/${id}/reorder`, {
-        relic_ids: relicIds
+        relic_ids: relicIds,
       })
     },
 
@@ -230,13 +290,16 @@ export const apiService = {
       return httpClient.get<Build[]>('/builds/recent', { limit })
     },
 
-    async getByUser(userId: string, params?: BuildSearchParams): Promise<ApiResponse<Build[]>> {
+    async getByUser(
+      userId: string,
+      params?: any
+    ): Promise<ApiResponse<Build[]>> {
       return httpClient.get<Build[]>(`/builds/user/${userId}`, params)
     },
 
     async exportBuild(id: string, format?: 'json' | 'csv'): Promise<Blob> {
       return httpClient.download(`/builds/${id}/export`, undefined, undefined, {
-        params: { format: format || 'json' }
+        params: { format: format || 'json' },
       })
     },
 
@@ -250,7 +313,7 @@ export const apiService = {
 
     async getStats(): Promise<ApiResponse<any>> {
       return httpClient.get('/builds/stats')
-    }
+    },
   },
 
   // Admin endpoints (if needed)
@@ -263,21 +326,31 @@ export const apiService = {
       return httpClient.post<Relic>('/admin/relics', relic)
     },
 
-    async updateRelic(id: string, relic: Partial<Relic>): Promise<ApiResponse<Relic>> {
+    async updateRelic(
+      id: string,
+      relic: Partial<Relic>
+    ): Promise<ApiResponse<Relic>> {
       return httpClient.patch<Relic>(`/admin/relics/${id}`, relic)
     },
 
-    async deleteRelic(id: string): Promise<ApiResponse<{ deleted_relic_id: string }>> {
+    async deleteRelic(
+      id: string
+    ): Promise<ApiResponse<{ deleted_relic_id: string }>> {
       return httpClient.delete(`/admin/relics/${id}`)
     },
 
-    async importRelics(data: FormData): Promise<ApiResponse<{ imported: number; errors: any[] }>> {
-      return httpClient.upload<{ imported: number; errors: any[] }>('/admin/relics/import', data as any)
+    async importRelics(
+      data: FormData
+    ): Promise<ApiResponse<{ imported: number; errors: any[] }>> {
+      return httpClient.upload<{ imported: number; errors: any[] }>(
+        '/admin/relics/import',
+        data as any
+      )
     },
 
     async exportRelics(format?: 'json' | 'csv'): Promise<Blob> {
       return httpClient.download('/admin/relics/export', undefined, undefined, {
-        params: { format: format || 'json' }
+        params: { format: format || 'json' },
       })
     },
 
@@ -287,7 +360,7 @@ export const apiService = {
 
     async clearCache(): Promise<ApiResponse<any>> {
       return httpClient.delete('/admin/cache')
-    }
+    },
   },
 
   // User management endpoints
@@ -314,7 +387,7 @@ export const apiService = {
 
     async getHistory(): Promise<ApiResponse<any[]>> {
       return httpClient.get<any[]>('/users/me/history')
-    }
+    },
   },
 
   // Documentation endpoints
@@ -329,19 +402,26 @@ export const apiService = {
 
     async getChangeLog(): Promise<ApiResponse<any[]>> {
       return httpClient.get<any[]>('/documentation/changelog')
-    }
-  }
+    },
+  },
 }
 
 // Advanced API helper functions
 export const apiHelpers = {
   // Handle paginated requests with automatic pagination
   async getAllPages<T>(
-    apiCall: (page: number, perPage?: number) => Promise<PaginatedResponse<T[]>>,
+    apiCall: (
+      page: number,
+      perPage?: number
+    ) => Promise<PaginatedResponse<T[]>>,
     options: {
       maxPages?: number
       perPage?: number
-      onProgress?: (progress: { current: number; total: number; items: number }) => void
+      onProgress?: (progress: {
+        current: number
+        total: number
+        items: number
+      }) => void
     } = {}
   ): Promise<T[]> {
     const { maxPages = 50, perPage = 50, onProgress } = options
@@ -354,7 +434,7 @@ export const apiHelpers = {
       try {
         const response = await apiCall(page, perPage)
         results.push(...response.data)
-        
+
         // Update pagination info
         const pagination = response.meta?.pagination
         if (pagination) {
@@ -369,7 +449,7 @@ export const apiHelpers = {
           onProgress({
             current: page,
             total: totalPages || maxPages,
-            items: results.length
+            items: results.length,
           })
         }
 
@@ -401,8 +481,8 @@ export const apiHelpers = {
     // Process items in batches
     for (let i = 0; i < items.length; i += concurrency) {
       const batch = items.slice(i, i + concurrency)
-      
-      const batchPromises = batch.map(async (item) => {
+
+      const batchPromises = batch.map(async item => {
         try {
           const result = await requestFn(item)
           completed++
@@ -418,8 +498,8 @@ export const apiHelpers = {
       })
 
       const batchResults = await Promise.allSettled(batchPromises)
-      
-      batchResults.forEach((result) => {
+
+      batchResults.forEach(result => {
         if (result.status === 'fulfilled') {
           results.push(result.value)
         }
@@ -428,7 +508,10 @@ export const apiHelpers = {
 
     // Log errors if any
     if (errors.length > 0) {
-      console.warn(`Batch processing completed with ${errors.length} errors:`, errors)
+      console.warn(
+        `Batch processing completed with ${errors.length} errors:`,
+        errors
+      )
     }
 
     return results
@@ -483,7 +566,7 @@ export const apiHelpers = {
       return new Promise((resolve, reject) => {
         if (!inThrottle) {
           inThrottle = true
-          
+
           setTimeout(() => {
             inThrottle = false
           }, limit)
@@ -499,26 +582,27 @@ export const apiHelpers = {
   },
 
   // Cache API responses with TTL
-  createCache<T>(ttl: number = 300000) { // 5 minutes default
+  createCache<T>(ttl: number = 300000) {
+    // 5 minutes default
     const cache = new Map<string, { data: T; expires: number }>()
 
     return {
       get(key: string): T | null {
         const entry = cache.get(key)
         if (!entry) return null
-        
+
         if (Date.now() > entry.expires) {
           cache.delete(key)
           return null
         }
-        
+
         return entry.data
       },
 
       set(key: string, data: T): void {
         cache.set(key, {
           data,
-          expires: Date.now() + ttl
+          expires: Date.now() + ttl,
         })
       },
 
@@ -536,16 +620,17 @@ export const apiHelpers = {
 
       keys(): string[] {
         return Array.from(cache.keys())
-      }
+      },
     }
   },
 
   // Create cancellable API calls
-  cancellable<T>(
-    apiCall: (signal: AbortSignal) => Promise<T>
-  ): { promise: Promise<T>; cancel: () => void } {
+  cancellable<T>(apiCall: (signal: AbortSignal) => Promise<T>): {
+    promise: Promise<T>
+    cancel: () => void
+  } {
     const controller = new AbortController()
-    
+
     const promise = apiCall(controller.signal).catch(error => {
       if (error.name === 'AbortError') {
         throw new Error('Request was cancelled')
@@ -555,14 +640,14 @@ export const apiHelpers = {
 
     return {
       promise,
-      cancel: () => controller.abort()
+      cancel: () => controller.abort(),
     }
   },
 
   // URL builder helper
   buildUrl(endpoint: string, params?: Record<string, any>): string {
     const url = new URL(endpoint, httpClient.getConfig().baseURL)
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
@@ -585,7 +670,7 @@ export const apiHelpers = {
   ): Promise<ApiResponse<R>> {
     return apiCall().then(response => ({
       ...response,
-      data: transformer(response.data)
+      data: transformer(response.data),
     }))
   },
 
@@ -601,9 +686,9 @@ export const apiHelpers = {
       if (shouldUseFallback && !shouldUseFallback(error)) {
         throw error
       }
-      
+
       console.warn('Primary API call failed, using fallback:', error)
       return fallbackCall()
     }
-  }
+  },
 }

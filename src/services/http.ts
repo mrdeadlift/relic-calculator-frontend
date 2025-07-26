@@ -1,15 +1,17 @@
-import axios, { 
-  AxiosInstance, 
-  AxiosRequestConfig, 
-  AxiosResponse, 
+import axios from 'axios'
+import type {
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
   AxiosError,
-  InternalAxiosRequestConfig
+  InternalAxiosRequestConfig,
 } from 'axios'
 import type { ApiResponse, ApiError as ApiErrorType } from '../types/api'
 import { ApiError } from '../types/api'
 
 // Configuration
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
 const API_VERSION = 'v1'
 const DEFAULT_TIMEOUT = 30000
 const MAX_RETRIES = 3
@@ -18,13 +20,17 @@ const RETRY_DELAY = 1000
 // Request/Response interceptor types
 interface RequestInterceptor {
   name: string
-  onFulfilled?: (config: InternalAxiosRequestConfig) => InternalAxiosRequestConfig | Promise<InternalAxiosRequestConfig>
+  onFulfilled?: (
+    config: InternalAxiosRequestConfig
+  ) => InternalAxiosRequestConfig | Promise<InternalAxiosRequestConfig>
   onRejected?: (error: any) => any
 }
 
 interface ResponseInterceptor {
   name: string
-  onFulfilled?: (response: AxiosResponse) => AxiosResponse | Promise<AxiosResponse>
+  onFulfilled?: (
+    response: AxiosResponse
+  ) => AxiosResponse | Promise<AxiosResponse>
   onRejected?: (error: AxiosError) => any
 }
 
@@ -41,9 +47,9 @@ export class HttpClient {
       timeout: DEFAULT_TIMEOUT,
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        Accept: 'application/json',
       },
-      ...config
+      ...config,
     })
 
     this.setupDefaultInterceptors()
@@ -53,60 +59,60 @@ export class HttpClient {
     // Request interceptors
     this.addRequestInterceptor({
       name: 'auth',
-      onFulfilled: (config) => {
+      onFulfilled: config => {
         // Add authentication token if available
         const token = localStorage.getItem('auth_token')
         if (token) {
           config.headers.Authorization = `Bearer ${token}`
         }
         return config
-      }
+      },
     })
 
     this.addRequestInterceptor({
       name: 'request-id',
-      onFulfilled: (config) => {
+      onFulfilled: config => {
         // Add unique request ID for tracking
         config.headers['X-Request-ID'] = generateRequestId()
         return config
-      }
+      },
     })
 
     this.addRequestInterceptor({
       name: 'timestamp',
-      onFulfilled: (config) => {
+      onFulfilled: config => {
         // Add timestamp for request timing
-        config.metadata = { startTime: Date.now() }
+        ;(config as any).metadata = { startTime: Date.now() }
         return config
-      }
+      },
     })
 
     // Response interceptors
     this.addResponseInterceptor({
       name: 'response-time',
-      onFulfilled: (response) => {
+      onFulfilled: response => {
         // Calculate response time
-        const startTime = response.config.metadata?.startTime
+        const startTime = (response.config as any).metadata?.startTime
         if (startTime) {
           const responseTime = Date.now() - startTime
           response.headers['x-response-time'] = responseTime.toString()
         }
         return response
-      }
+      },
     })
 
     this.addResponseInterceptor({
       name: 'error-handler',
       onRejected: (error: AxiosError) => {
         return this.handleResponseError(error)
-      }
+      },
     })
 
     this.addResponseInterceptor({
       name: 'retry',
       onRejected: async (error: AxiosError) => {
         return this.handleRetry(error)
-      }
+      },
     })
   }
 
@@ -154,16 +160,16 @@ export class HttpClient {
         (data as any)?.error_code || 'HTTP_ERROR',
         data
       )
-      
+
       // Log error for monitoring
       console.error('API Error:', {
         url: error.config?.url,
         method: error.config?.method,
         status,
         message: apiError.message,
-        requestId: error.config?.headers?.['X-Request-ID']
+        requestId: error.config?.headers?.['X-Request-ID'],
       })
-      
+
       return Promise.reject(apiError)
     } else if (error.request) {
       // Network error
@@ -173,13 +179,13 @@ export class HttpClient {
         'NETWORK_ERROR',
         { request: error.request }
       )
-      
+
       console.error('Network Error:', {
         url: error.config?.url,
         method: error.config?.method,
-        message: networkError.message
+        message: networkError.message,
       })
-      
+
       return Promise.reject(networkError)
     } else {
       // Request setup error
@@ -188,12 +194,12 @@ export class HttpClient {
         0,
         'REQUEST_SETUP_ERROR'
       )
-      
+
       console.error('Request Setup Error:', {
         message: setupError.message,
-        config: error.config
+        config: error.config,
       })
-      
+
       return Promise.reject(setupError)
     }
   }
@@ -208,10 +214,12 @@ export class HttpClient {
     // Don't retry certain types of errors
     if (
       error.response?.status === 401 || // Unauthorized
-      error.response?.status === 403 || // Forbidden  
+      error.response?.status === 403 || // Forbidden
       error.response?.status === 404 || // Not Found
       error.response?.status === 422 || // Validation Error
-      (error.response?.status && error.response.status >= 400 && error.response.status < 500)
+      (error.response?.status &&
+        error.response.status >= 400 &&
+        error.response.status < 500)
     ) {
       return Promise.reject(error)
     }
@@ -230,14 +238,17 @@ export class HttpClient {
     // Calculate delay with exponential backoff and jitter
     const delay = RETRY_DELAY * Math.pow(2, retryCount) + Math.random() * 1000
 
-    console.log(`Retrying request ${retryCount + 1}/${MAX_RETRIES} after ${delay}ms:`, {
-      url: config.url,
-      method: config.method
-    })
+    console.log(
+      `Retrying request ${retryCount + 1}/${MAX_RETRIES} after ${delay}ms:`,
+      {
+        url: config.url,
+        method: config.method,
+      }
+    )
 
     // Wait and retry
     await new Promise(resolve => setTimeout(resolve, delay))
-    
+
     try {
       const response = await this.client.request(config)
       this.retryConfig.delete(retryKey) // Clear retry count on success
@@ -248,35 +259,53 @@ export class HttpClient {
   }
 
   // HTTP methods
-  async get<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async get<T>(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
     const response = await this.client.get<ApiResponse<T>>(url, config)
     return response.data
   }
 
-  async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async post<T>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
     const response = await this.client.post<ApiResponse<T>>(url, data, config)
     return response.data
   }
 
-  async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async put<T>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
     const response = await this.client.put<ApiResponse<T>>(url, data, config)
     return response.data
   }
 
-  async patch<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async patch<T>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
     const response = await this.client.patch<ApiResponse<T>>(url, data, config)
     return response.data
   }
 
-  async delete<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async delete<T>(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
     const response = await this.client.delete<ApiResponse<T>>(url, config)
     return response.data
   }
 
   // Advanced methods
   async upload<T>(
-    url: string, 
-    file: File, 
+    url: string,
+    file: File,
     onProgress?: (progress: number) => void,
     config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
@@ -287,21 +316,21 @@ export class HttpClient {
       ...config,
       headers: {
         'Content-Type': 'multipart/form-data',
-        ...config?.headers
+        ...config?.headers,
       },
-      onUploadProgress: (progressEvent) => {
+      onUploadProgress: progressEvent => {
         if (onProgress && progressEvent.total) {
           const progress = (progressEvent.loaded / progressEvent.total) * 100
           onProgress(progress)
         }
-      }
+      },
     })
 
     return response.data
   }
 
   async download(
-    url: string, 
+    url: string,
     filename?: string,
     onProgress?: (progress: number) => void,
     config?: AxiosRequestConfig
@@ -309,12 +338,12 @@ export class HttpClient {
     const response = await this.client.get(url, {
       ...config,
       responseType: 'blob',
-      onDownloadProgress: (progressEvent) => {
+      onDownloadProgress: progressEvent => {
         if (onProgress && progressEvent.total) {
           const progress = (progressEvent.loaded / progressEvent.total) * 100
           onProgress(progress)
         }
-      }
+      },
     })
 
     // Trigger download if filename provided
@@ -334,29 +363,36 @@ export class HttpClient {
   }
 
   // Batch requests
-  async batch<T>(requests: Array<() => Promise<ApiResponse<T>>>): Promise<Array<ApiResponse<T> | ApiError>> {
+  async batch<T>(
+    requests: Array<() => Promise<ApiResponse<T>>>
+  ): Promise<Array<ApiResponse<T> | ApiError>> {
     const results = await Promise.allSettled(requests.map(request => request()))
-    
+
     return results.map(result => {
       if (result.status === 'fulfilled') {
         return result.value
       } else {
-        return result.reason instanceof ApiError ? result.reason : new ApiError(
-          'Batch request failed',
-          0,
-          'BATCH_ERROR',
-          result.reason
-        )
+        return result.reason instanceof ApiError
+          ? result.reason
+          : new ApiError(
+              'Batch request failed',
+              0,
+              'BATCH_ERROR',
+              result.reason
+            )
       }
     })
   }
 
   // Request cancellation
-  createCancelToken(): { token: any; cancel: (message?: string) => void } {
-    const source = axios.CancelToken.source()
+  createCancelToken(): {
+    token: AbortSignal
+    cancel: (message?: string) => void
+  } {
+    const controller = new AbortController()
     return {
-      token: source.token,
-      cancel: source.cancel
+      token: controller.signal,
+      cancel: (message?: string) => controller.abort(),
     }
   }
 
@@ -384,8 +420,8 @@ export class HttpClient {
       retryAttempts: this.retryConfig.size,
       interceptors: {
         request: Array.from(this.requestInterceptors.keys()),
-        response: Array.from(this.responseInterceptors.keys())
-      }
+        response: Array.from(this.responseInterceptors.keys()),
+      },
     }
   }
 

@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
-import type { CalculationResult, CalculationRequest, ConditionalEffects } from '../types/calculation'
+import type {
+  CalculationResult,
+  CalculationRequest,
+  ConditionalEffects,
+} from '../types/calculation'
 import type { Relic } from '../types/relic'
 import { apiService } from '../services/api'
 import { useToast } from '../composables/useToast'
@@ -29,7 +33,7 @@ export const useCalculationStore = defineStore('calculation', () => {
     playerHealth: 100,
     comboCount: 0,
     isFirstHit: false,
-    environmentEffects: []
+    environmentEffects: [],
   })
 
   // Cache and history
@@ -50,7 +54,7 @@ export const useCalculationStore = defineStore('calculation', () => {
     totalCalculations: 0,
     cacheHits: 0,
     averageCalculationTime: 0,
-    lastCalculationTime: 0
+    lastCalculationTime: 0,
   })
 
   // Composables
@@ -61,8 +65,8 @@ export const useCalculationStore = defineStore('calculation', () => {
   const hasResult = computed(() => currentResult.value !== null)
   const selectedRelics = computed(() => relicsStore.selectedRelics)
 
-  const currentMultiplier = computed(() => 
-    currentResult.value?.attackMultipliers.total || 0
+  const currentMultiplier = computed(
+    () => currentResult.value?.attackMultipliers.total || 0
   )
 
   const calculationSummary = computed(() => {
@@ -77,27 +81,37 @@ export const useCalculationStore = defineStore('calculation', () => {
       efficiency: result.efficiency,
       difficulty: result.obtainmentDifficulty,
       relicCount: result.relicDetails.length,
-      activeEffects: result.effectBreakdown.length
+      activeEffects: result.effectBreakdown.length,
     }
   })
 
   const isOptimal = computed(() => {
     if (!currentResult.value) return false
-    return currentResult.value.efficiency > 3.0 && 
-           currentResult.value.attackMultipliers.total > 2.0
+    return (
+      currentResult.value.efficiency > 3.0 &&
+      currentResult.value.attackMultipliers.total > 2.0
+    )
   })
 
   const cacheStats = computed(() => ({
     size: cache.value.size,
-    hitRate: calculationStats.value.totalCalculations > 0 
-      ? (calculationStats.value.cacheHits / calculationStats.value.totalCalculations * 100).toFixed(1)
-      : '0',
+    hitRate:
+      calculationStats.value.totalCalculations > 0
+        ? (
+            (calculationStats.value.cacheHits /
+              calculationStats.value.totalCalculations) *
+            100
+          ).toFixed(1)
+        : '0',
     totalCalculations: calculationStats.value.totalCalculations,
-    averageTime: calculationStats.value.averageCalculationTime.toFixed(2)
+    averageTime: calculationStats.value.averageCalculationTime.toFixed(2),
   }))
 
   // Actions
-  const calculateAttackMultiplier = async (relics?: Relic[], conditions?: ConditionalEffects) => {
+  const calculateAttackMultiplier = async (
+    relics?: Relic[],
+    conditions?: ConditionalEffects
+  ) => {
     const targetRelics = relics || selectedRelics.value
     const targetConditions = conditions || conditionalEffects.value
 
@@ -109,7 +123,7 @@ export const useCalculationStore = defineStore('calculation', () => {
     // Create calculation request
     const request: CalculationRequest = {
       relicIds: targetRelics.map(r => r.id),
-      conditionalEffects: targetConditions
+      conditionalEffects: targetConditions,
     }
 
     // Check cache first
@@ -152,7 +166,6 @@ export const useCalculationStore = defineStore('calculation', () => {
       updateCalculationStats(calculationTime)
 
       return result
-
     } catch (err: any) {
       error.value = err.message || 'Calculation failed'
       showError('Failed to calculate attack multiplier')
@@ -163,7 +176,10 @@ export const useCalculationStore = defineStore('calculation', () => {
     }
   }
 
-  const calculateClientSide = (relics: Relic[], conditions: ConditionalEffects): CalculationResult => {
+  const calculateClientSide = (
+    relics: Relic[],
+    conditions: ConditionalEffects
+  ): CalculationResult => {
     // Client-side calculation implementation
     let baseMultiplier = 0
     let synergyMultiplier = 0
@@ -179,7 +195,7 @@ export const useCalculationStore = defineStore('calculation', () => {
         contribution: relicMultiplier,
         effects: relic.effects || [],
         synergies: [], // Will be calculated
-        conditionalBonuses: []
+        conditionalBonuses: [],
       }
     })
 
@@ -190,11 +206,16 @@ export const useCalculationStore = defineStore('calculation', () => {
     conditionalMultiplier = calculateConditionalBonuses(relics, conditions)
 
     // Calculate total multiplier
-    const totalMultiplier = baseMultiplier + synergyMultiplier + conditionalMultiplier
+    const totalMultiplier =
+      baseMultiplier + synergyMultiplier + conditionalMultiplier
 
     // Calculate efficiency and difficulty
-    const totalDifficulty = relics.reduce((sum, r) => sum + (r.obtainmentDifficulty || 0), 0)
-    const averageDifficulty = relics.length > 0 ? totalDifficulty / relics.length : 0
+    const totalDifficulty = relics.reduce(
+      (sum, r) => sum + (r.obtainmentDifficulty || 0),
+      0
+    )
+    const averageDifficulty =
+      relics.length > 0 ? totalDifficulty / relics.length : 0
     const efficiency = totalMultiplier / Math.max(averageDifficulty, 1)
 
     // Create effect breakdown
@@ -205,21 +226,23 @@ export const useCalculationStore = defineStore('calculation', () => {
         total: Math.round(totalMultiplier * 100) / 100,
         base: Math.round(baseMultiplier * 100) / 100,
         synergy: Math.round(synergyMultiplier * 100) / 100,
-        conditional: Math.round(conditionalMultiplier * 100) / 100
+        conditional: Math.round(conditionalMultiplier * 100) / 100,
       },
       efficiency: Math.round(efficiency * 100) / 100,
       obtainmentDifficulty: Math.round(averageDifficulty * 10) / 10,
       relicDetails,
       effectBreakdown,
-      calculationSteps: showCalculationSteps.value ? generateCalculationSteps(relics, conditions) : [],
+      calculationSteps: showCalculationSteps.value
+        ? generateCalculationSteps(relics, conditions)
+        : [],
       metadata: {
         calculatedAt: new Date().toISOString(),
         clientSide: true,
         cacheKey: generateCacheKey({
           relicIds: relics.map(r => r.id),
-          conditionalEffects: conditions
-        })
-      }
+          conditionalEffects: conditions,
+        }),
+      },
     }
   }
 
@@ -227,11 +250,14 @@ export const useCalculationStore = defineStore('calculation', () => {
     let synergyBonus = 0
 
     // Type synergies
-    const typeGroups = relics.reduce((groups, relic) => {
-      const type = relic.type
-      groups[type] = (groups[type] || 0) + 1
-      return groups
-    }, {} as Record<string, number>)
+    const typeGroups = relics.reduce(
+      (groups, relic) => {
+        const type = relic.type
+        groups[type] = (groups[type] || 0) + 1
+        return groups
+      },
+      {} as Record<string, number>
+    )
 
     Object.values(typeGroups).forEach(count => {
       if (count >= 2) {
@@ -240,12 +266,15 @@ export const useCalculationStore = defineStore('calculation', () => {
     })
 
     // Effect synergies
-    const effectGroups = relics.reduce((groups, relic) => {
-      (relic.effects || []).forEach(effect => {
-        groups[effect.type] = (groups[effect.type] || 0) + 1
-      })
-      return groups
-    }, {} as Record<string, number>)
+    const effectGroups = relics.reduce(
+      (groups, relic) => {
+        ;(relic.effects || []).forEach(effect => {
+          groups[effect.type] = (groups[effect.type] || 0) + 1
+        })
+        return groups
+      },
+      {} as Record<string, number>
+    )
 
     Object.values(effectGroups).forEach(count => {
       if (count >= 2) {
@@ -256,11 +285,14 @@ export const useCalculationStore = defineStore('calculation', () => {
     return synergyBonus
   }
 
-  const calculateConditionalBonuses = (relics: Relic[], conditions: ConditionalEffects): number => {
+  const calculateConditionalBonuses = (
+    relics: Relic[],
+    conditions: ConditionalEffects
+  ): number => {
     let conditionalBonus = 0
 
     relics.forEach(relic => {
-      (relic.effects || []).forEach(effect => {
+      ;(relic.effects || []).forEach(effect => {
         // Enemy type bonuses
         if (effect.conditions?.enemyType === conditions.enemyType) {
           conditionalBonus += effect.multiplier * 0.2
@@ -270,16 +302,22 @@ export const useCalculationStore = defineStore('calculation', () => {
         if (effect.conditions?.healthThreshold) {
           const threshold = effect.conditions.healthThreshold
           if (
-            (threshold.type === 'above' && conditions.playerHealth > threshold.value) ||
-            (threshold.type === 'below' && conditions.playerHealth < threshold.value)
+            (threshold.type === 'above' &&
+              conditions.playerHealth > threshold.value) ||
+            (threshold.type === 'below' &&
+              conditions.playerHealth < threshold.value)
           ) {
             conditionalBonus += effect.multiplier * 0.15
           }
         }
 
         // Combo bonuses
-        if (effect.conditions?.minCombo && conditions.comboCount >= effect.conditions.minCombo) {
-          conditionalBonus += effect.multiplier * Math.min(conditions.comboCount * 0.05, 0.5)
+        if (
+          effect.conditions?.minCombo &&
+          conditions.comboCount >= effect.conditions.minCombo
+        ) {
+          conditionalBonus +=
+            effect.multiplier * Math.min(conditions.comboCount * 0.05, 0.5)
         }
 
         // First hit bonuses
@@ -288,8 +326,10 @@ export const useCalculationStore = defineStore('calculation', () => {
         }
 
         // Environment bonuses
-        if (effect.conditions?.environment && 
-            conditions.environmentEffects.includes(effect.conditions.environment)) {
+        if (
+          effect.conditions?.environment &&
+          conditions.environmentEffects.includes(effect.conditions.environment)
+        ) {
           conditionalBonus += effect.multiplier * 0.25
         }
       })
@@ -298,13 +338,16 @@ export const useCalculationStore = defineStore('calculation', () => {
     return conditionalBonus
   }
 
-  const createEffectBreakdown = (relics: Relic[], conditions: ConditionalEffects) => {
+  const createEffectBreakdown = (
+    relics: Relic[],
+    conditions: ConditionalEffects
+  ) => {
     const breakdown: any[] = []
 
     relics.forEach(relic => {
-      (relic.effects || []).forEach(effect => {
+      ;(relic.effects || []).forEach(effect => {
         const isActive = checkEffectActive(effect, conditions)
-        
+
         breakdown.push({
           relicId: relic.id,
           relicName: relic.name,
@@ -312,7 +355,7 @@ export const useCalculationStore = defineStore('calculation', () => {
           effectDescription: effect.description,
           multiplier: effect.multiplier,
           isActive,
-          contribution: isActive ? effect.multiplier : 0
+          contribution: isActive ? effect.multiplier : 0,
         })
       })
     })
@@ -320,25 +363,40 @@ export const useCalculationStore = defineStore('calculation', () => {
     return breakdown
   }
 
-  const checkEffectActive = (effect: any, conditions: ConditionalEffects): boolean => {
+  const checkEffectActive = (
+    effect: any,
+    conditions: ConditionalEffects
+  ): boolean => {
     if (!effect.conditions) return true
 
     // Check all conditions
-    if (effect.conditions.enemyType && effect.conditions.enemyType !== conditions.enemyType) {
+    if (
+      effect.conditions.enemyType &&
+      effect.conditions.enemyType !== conditions.enemyType
+    ) {
       return false
     }
 
     if (effect.conditions.healthThreshold) {
       const threshold = effect.conditions.healthThreshold
-      if (threshold.type === 'above' && conditions.playerHealth <= threshold.value) {
+      if (
+        threshold.type === 'above' &&
+        conditions.playerHealth <= threshold.value
+      ) {
         return false
       }
-      if (threshold.type === 'below' && conditions.playerHealth >= threshold.value) {
+      if (
+        threshold.type === 'below' &&
+        conditions.playerHealth >= threshold.value
+      ) {
         return false
       }
     }
 
-    if (effect.conditions.minCombo && conditions.comboCount < effect.conditions.minCombo) {
+    if (
+      effect.conditions.minCombo &&
+      conditions.comboCount < effect.conditions.minCombo
+    ) {
       return false
     }
 
@@ -346,22 +404,27 @@ export const useCalculationStore = defineStore('calculation', () => {
       return false
     }
 
-    if (effect.conditions.environment && 
-        !conditions.environmentEffects.includes(effect.conditions.environment)) {
+    if (
+      effect.conditions.environment &&
+      !conditions.environmentEffects.includes(effect.conditions.environment)
+    ) {
       return false
     }
 
     return true
   }
 
-  const generateCalculationSteps = (relics: Relic[], conditions: ConditionalEffects) => {
+  const generateCalculationSteps = (
+    relics: Relic[],
+    conditions: ConditionalEffects
+  ) => {
     const steps = []
 
     steps.push({
       step: 1,
       description: 'Base multiplier calculation',
       formula: relics.map(r => r.attackMultiplier || 0).join(' + '),
-      result: relics.reduce((sum, r) => sum + (r.attackMultiplier || 0), 0)
+      result: relics.reduce((sum, r) => sum + (r.attackMultiplier || 0), 0),
     })
 
     const synergyBonus = calculateSynergies(relics)
@@ -370,7 +433,7 @@ export const useCalculationStore = defineStore('calculation', () => {
         step: 2,
         description: 'Synergy bonuses',
         formula: 'Type and effect matching bonuses',
-        result: synergyBonus
+        result: synergyBonus,
       })
     }
 
@@ -380,7 +443,7 @@ export const useCalculationStore = defineStore('calculation', () => {
         step: 3,
         description: 'Conditional bonuses',
         formula: 'Active conditional effects',
-        result: conditionalBonus
+        result: conditionalBonus,
       })
     }
 
@@ -390,7 +453,7 @@ export const useCalculationStore = defineStore('calculation', () => {
   // Conditional effects management
   const updateConditionalEffects = (updates: Partial<ConditionalEffects>) => {
     conditionalEffects.value = { ...conditionalEffects.value, ...updates }
-    
+
     if (autoCalculate.value && selectedRelics.value.length > 0) {
       calculateAttackMultiplier()
     }
@@ -402,9 +465,9 @@ export const useCalculationStore = defineStore('calculation', () => {
       playerHealth: 100,
       comboCount: 0,
       isFirstHit: false,
-      environmentEffects: []
+      environmentEffects: [],
     }
-    
+
     if (autoCalculate.value && selectedRelics.value.length > 0) {
       calculateAttackMultiplier()
     }
@@ -440,7 +503,7 @@ export const useCalculationStore = defineStore('calculation', () => {
     cache.value.set(key, {
       key,
       result,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
   }
 
@@ -450,12 +513,15 @@ export const useCalculationStore = defineStore('calculation', () => {
   }
 
   // History management
-  const addToHistory = (request: CalculationRequest, result: CalculationResult) => {
+  const addToHistory = (
+    request: CalculationRequest,
+    result: CalculationResult
+  ) => {
     const historyEntry: CalculationHistory = {
       id: `calc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       request,
       result,
-      timestamp: new Date()
+      timestamp: new Date(),
     }
 
     history.value.unshift(historyEntry)
@@ -480,10 +546,10 @@ export const useCalculationStore = defineStore('calculation', () => {
     if (entry) {
       currentResult.value = entry.result
       conditionalEffects.value = entry.request.conditionalEffects
-      
+
       // Load relics if possible
       relicsStore.selectRelicsByIds(entry.request.relicIds)
-      
+
       success('Calculation restored from history')
     }
   }
@@ -493,9 +559,10 @@ export const useCalculationStore = defineStore('calculation', () => {
     const stats = calculationStats.value
     stats.totalCalculations++
     stats.lastCalculationTime = calculationTime
-    
+
     // Update average (exponential moving average)
-    stats.averageCalculationTime = stats.averageCalculationTime * 0.9 + calculationTime * 0.1
+    stats.averageCalculationTime =
+      stats.averageCalculationTime * 0.9 + calculationTime * 0.1
   }
 
   const resetStats = () => {
@@ -503,7 +570,7 @@ export const useCalculationStore = defineStore('calculation', () => {
       totalCalculations: 0,
       cacheHits: 0,
       averageCalculationTime: 0,
-      lastCalculationTime: 0
+      lastCalculationTime: 0,
     }
   }
 
@@ -523,7 +590,7 @@ export const useCalculationStore = defineStore('calculation', () => {
   // Auto-calculation when relics change
   watch(
     () => selectedRelics.value,
-    (newRelics) => {
+    newRelics => {
       if (autoCalculate.value && newRelics.length > 0) {
         calculateAttackMultiplier()
       }
@@ -534,12 +601,15 @@ export const useCalculationStore = defineStore('calculation', () => {
   // Initialize
   const initialize = () => {
     // Load any persisted settings
-    const savedSettings = localStorage.getItem('nightreign_calculation_settings')
+    const savedSettings = localStorage.getItem(
+      'nightreign_calculation_settings'
+    )
     if (savedSettings) {
       try {
         const settings = JSON.parse(savedSettings)
         autoCalculate.value = settings.autoCalculate ?? true
-        enableClientSideCalculation.value = settings.enableClientSideCalculation ?? true
+        enableClientSideCalculation.value =
+          settings.enableClientSideCalculation ?? true
         showCalculationSteps.value = settings.showCalculationSteps ?? false
       } catch (err) {
         console.error('Failed to load calculation settings:', err)
@@ -552,10 +622,13 @@ export const useCalculationStore = defineStore('calculation', () => {
     () => ({
       autoCalculate: autoCalculate.value,
       enableClientSideCalculation: enableClientSideCalculation.value,
-      showCalculationSteps: showCalculationSteps.value
+      showCalculationSteps: showCalculationSteps.value,
     }),
-    (settings) => {
-      localStorage.setItem('nightreign_calculation_settings', JSON.stringify(settings))
+    settings => {
+      localStorage.setItem(
+        'nightreign_calculation_settings',
+        JSON.stringify(settings)
+      )
     },
     { deep: true }
   )
@@ -577,7 +650,9 @@ export const useCalculationStore = defineStore('calculation', () => {
 
     // Settings
     autoCalculate: computed(() => autoCalculate.value),
-    enableClientSideCalculation: computed(() => enableClientSideCalculation.value),
+    enableClientSideCalculation: computed(
+      () => enableClientSideCalculation.value
+    ),
     showCalculationSteps: computed(() => showCalculationSteps.value),
 
     // Actions
@@ -585,22 +660,22 @@ export const useCalculationStore = defineStore('calculation', () => {
     calculateAttackMultiplier,
     updateConditionalEffects,
     resetConditionalEffects,
-    
+
     // Cache management
     clearCache,
-    
+
     // History management
     clearHistory,
     getHistoryEntry,
     restoreFromHistory,
-    
+
     // Settings
     toggleAutoCalculate,
     toggleClientSideCalculation,
     toggleCalculationSteps,
-    
+
     // Statistics
     calculationStats: computed(() => calculationStats.value),
-    resetStats
+    resetStats,
   }
 })

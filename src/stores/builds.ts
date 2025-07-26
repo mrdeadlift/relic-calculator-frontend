@@ -1,6 +1,11 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Build, BuildFilters, BuildSearchParams, BuildStats } from '../types/build'
+import type {
+  Build,
+  BuildFilters,
+  BuildSearchParams,
+  BuildStats,
+} from '../types/build'
 import type { Relic } from '../types/relic'
 import { apiService } from '../services/api'
 import { useToast } from '../composables/useToast'
@@ -39,10 +44,11 @@ export const useBuildsStore = defineStore('builds', () => {
     // Apply search query
     if (searchQuery.value.trim()) {
       const query = searchQuery.value.toLowerCase()
-      filtered = filtered.filter(build =>
-        build.name.toLowerCase().includes(query) ||
-        build.description?.toLowerCase().includes(query) ||
-        build.tags?.some(tag => tag.toLowerCase().includes(query))
+      filtered = filtered.filter(
+        build =>
+          build.name.toLowerCase().includes(query) ||
+          build.description?.toLowerCase().includes(query) ||
+          build.tags?.some(tag => tag.toLowerCase().includes(query))
       )
     }
 
@@ -50,8 +56,10 @@ export const useBuildsStore = defineStore('builds', () => {
     const currentFilters = filters.value
 
     if (currentFilters.combatStyle && currentFilters.combatStyle.length > 0) {
-      filtered = filtered.filter(build => 
-        build.combatStyle && currentFilters.combatStyle!.includes(build.combatStyle)
+      filtered = filtered.filter(
+        build =>
+          build.combatStyle &&
+          currentFilters.combatStyle!.includes(build.combatStyle)
       )
     }
 
@@ -76,7 +84,9 @@ export const useBuildsStore = defineStore('builds', () => {
     }
 
     if (currentFilters.isPublic !== undefined) {
-      filtered = filtered.filter(build => build.isPublic === currentFilters.isPublic)
+      filtered = filtered.filter(
+        build => build.isPublic === currentFilters.isPublic
+      )
     }
 
     if (currentFilters.dateRange) {
@@ -90,17 +100,21 @@ export const useBuildsStore = defineStore('builds', () => {
     return filtered
   })
 
-  const favoriteBuilds = computed(() => 
+  const favoriteBuilds = computed(() =>
     savedBuilds.value.filter(build => build.isFavorite)
   )
 
-  const recentBuilds = computed(() => 
+  const recentBuilds = computed(() =>
     [...savedBuilds.value]
-      .sort((a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime())
+      .sort(
+        (a, b) =>
+          new Date(b.lastModified).getTime() -
+          new Date(a.lastModified).getTime()
+      )
       .slice(0, 10)
   )
 
-  const topBuilds = computed(() => 
+  const topBuilds = computed(() =>
     [...builds.value]
       .sort((a, b) => (b.attackMultiplier || 0) - (a.attackMultiplier || 0))
       .slice(0, 10)
@@ -111,17 +125,21 @@ export const useBuildsStore = defineStore('builds', () => {
     const totalCount = allBuilds.length
     const publicCount = allBuilds.filter(b => b.isPublic).length
 
-    const averageRelicCount = totalCount > 0 
-      ? allBuilds.reduce((sum, b) => sum + b.relics.length, 0) / totalCount
-      : 0
+    const averageRelicCount =
+      totalCount > 0
+        ? allBuilds.reduce((sum, b) => sum + b.relics.length, 0) / totalCount
+        : 0
 
     // Combat style distribution
-    const combatStyleDist = allBuilds.reduce((dist, build) => {
-      if (build.combatStyle) {
-        dist[build.combatStyle] = (dist[build.combatStyle] || 0) + 1
-      }
-      return dist
-    }, {} as Record<string, number>)
+    const combatStyleDist = allBuilds.reduce(
+      (dist, build) => {
+        if (build.combatStyle) {
+          dist[build.combatStyle] = (dist[build.combatStyle] || 0) + 1
+        }
+        return dist
+      },
+      {} as Record<string, number>
+    )
 
     // Popular relics
     const relicUsage = new Map<string, { name: string; count: number }>()
@@ -140,18 +158,21 @@ export const useBuildsStore = defineStore('builds', () => {
       .map(([relicId, data]) => ({
         relicId,
         name: data.name,
-        usage: data.count
+        usage: data.count,
       }))
       .sort((a, b) => b.usage - a.usage)
       .slice(0, 10)
 
     // Difficulty distribution
-    const difficultyDist = allBuilds.reduce((dist, build) => {
-      const difficulty = Math.floor(build.obtainmentDifficulty || 0)
-      const key = `${difficulty}-${difficulty + 1}`
-      dist[key] = (dist[key] || 0) + 1
-      return dist
-    }, {} as Record<string, number>)
+    const difficultyDist = allBuilds.reduce(
+      (dist, build) => {
+        const difficulty = Math.floor(build.obtainmentDifficulty || 0)
+        const key = `${difficulty}-${difficulty + 1}`
+        dist[key] = (dist[key] || 0) + 1
+        return dist
+      },
+      {} as Record<string, number>
+    )
 
     return {
       totalBuilds: totalCount,
@@ -159,15 +180,16 @@ export const useBuildsStore = defineStore('builds', () => {
       averageRelicCount: Math.round(averageRelicCount * 10) / 10,
       popularCombatStyles: combatStyleDist,
       popularRelics,
-      difficultyDistribution: difficultyDist
+      difficultyDistribution: difficultyDist,
     }
   })
 
   const hasCurrentBuild = computed(() => currentBuild.value !== null)
-  const canSaveCurrent = computed(() => 
-    currentBuild.value && 
-    currentBuild.value.name.trim().length > 0 &&
-    currentBuild.value.relics.length > 0
+  const canSaveCurrent = computed(
+    () =>
+      currentBuild.value &&
+      currentBuild.value.name.trim().length > 0 &&
+      currentBuild.value.relics.length > 0
   )
 
   // Actions
@@ -177,7 +199,7 @@ export const useBuildsStore = defineStore('builds', () => {
     const now = Date.now()
 
     // Check cache
-    if (cachedData && (now - cachedData.timestamp) < CACHE_DURATION) {
+    if (cachedData && now - cachedData.timestamp < CACHE_DURATION) {
       builds.value = cachedData.data
       totalBuilds.value = cachedData.total
       return
@@ -190,7 +212,7 @@ export const useBuildsStore = defineStore('builds', () => {
       const searchParams = {
         ...params,
         page: currentPage.value,
-        perPage: perPage.value
+        perPage: perPage.value,
       }
 
       const response = await apiService.builds.search(searchParams)
@@ -201,9 +223,8 @@ export const useBuildsStore = defineStore('builds', () => {
       cache.value.set(cacheKey, {
         data: response.data.builds,
         total: response.data.total,
-        timestamp: now
+        timestamp: now,
       })
-
     } catch (err: any) {
       error.value = err.message || 'Failed to fetch builds'
       showError('Failed to load builds')
@@ -215,14 +236,15 @@ export const useBuildsStore = defineStore('builds', () => {
 
   const getBuild = async (buildId: string): Promise<Build | null> => {
     // Check current builds first
-    const existing = builds.value.find(b => b.id === buildId) || 
-                    savedBuilds.value.find(b => b.id === buildId)
+    const existing =
+      builds.value.find(b => b.id === buildId) ||
+      savedBuilds.value.find(b => b.id === buildId)
     if (existing) return existing
 
     // Check cache
     const cacheKey = `build_${buildId}`
     const cached = cache.value.get(cacheKey)
-    if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
       return cached.data
     }
 
@@ -233,7 +255,7 @@ export const useBuildsStore = defineStore('builds', () => {
       // Cache single build
       cache.value.set(cacheKey, {
         data: build,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       })
 
       return build
@@ -261,7 +283,7 @@ export const useBuildsStore = defineStore('builds', () => {
         isFavorite: buildData.isFavorite || false,
         tags: buildData.tags || [],
         attackMultiplier: buildData.attackMultiplier || 0,
-        obtainmentDifficulty: buildData.obtainmentDifficulty || 0
+        obtainmentDifficulty: buildData.obtainmentDifficulty || 0,
       }
 
       // Save locally first
@@ -272,7 +294,6 @@ export const useBuildsStore = defineStore('builds', () => {
 
       success(`Build "${newBuild.name}" created successfully`)
       return newBuild
-
     } catch (err: any) {
       error.value = err.message || 'Failed to create build'
       showError('Failed to create build')
@@ -282,7 +303,10 @@ export const useBuildsStore = defineStore('builds', () => {
     }
   }
 
-  const updateBuild = async (buildId: string, updates: Partial<Build>): Promise<Build> => {
+  const updateBuild = async (
+    buildId: string,
+    updates: Partial<Build>
+  ): Promise<Build> => {
     isSaving.value = true
     error.value = null
 
@@ -295,7 +319,7 @@ export const useBuildsStore = defineStore('builds', () => {
       const updatedBuild = {
         ...savedBuilds.value[buildIndex],
         ...updates,
-        lastModified: new Date().toISOString()
+        lastModified: new Date().toISOString(),
       }
 
       savedBuilds.value[buildIndex] = updatedBuild
@@ -307,9 +331,8 @@ export const useBuildsStore = defineStore('builds', () => {
 
       await persistBuilds()
       success(`Build "${updatedBuild.name}" updated successfully`)
-      
-      return updatedBuild
 
+      return updatedBuild
     } catch (err: any) {
       error.value = err.message || 'Failed to update build'
       showError('Failed to update build')
@@ -336,7 +359,6 @@ export const useBuildsStore = defineStore('builds', () => {
 
       await persistBuilds()
       success(`Build "${buildName}" deleted successfully`)
-
     } catch (err: any) {
       error.value = err.message || 'Failed to delete build'
       showError('Failed to delete build')
@@ -356,7 +378,7 @@ export const useBuildsStore = defineStore('builds', () => {
       name: `${originalBuild.name} (Copy)`,
       createdAt: new Date().toISOString(),
       lastModified: new Date().toISOString(),
-      isFavorite: false
+      isFavorite: false,
     }
 
     return await createBuild(duplicatedBuild)
@@ -371,7 +393,7 @@ export const useBuildsStore = defineStore('builds', () => {
         buildHistory.value.splice(historyIndex, 1)
       }
       buildHistory.value.unshift(build)
-      
+
       // Keep only recent 50 builds in history
       if (buildHistory.value.length > 50) {
         buildHistory.value = buildHistory.value.slice(0, 50)
@@ -388,7 +410,7 @@ export const useBuildsStore = defineStore('builds', () => {
       lastModified: new Date().toISOString(),
       isPublic: false,
       isFavorite: false,
-      tags: []
+      tags: [],
     }
 
     setCurrentBuild(newBuild)
@@ -478,8 +500,8 @@ export const useBuildsStore = defineStore('builds', () => {
       exported: new Date().toISOString(),
       build: {
         ...build,
-        id: undefined // Remove ID for clean export
-      }
+        id: undefined, // Remove ID for clean export
+      },
     }
     return JSON.stringify(exportData, null, 2)
   }
@@ -501,9 +523,8 @@ export const useBuildsStore = defineStore('builds', () => {
         ...buildData,
         name: buildData.name || 'Imported Build',
         isFavorite: false,
-        isPublic: false
+        isPublic: false,
       })
-
     } catch (err: any) {
       error.value = 'Failed to import build'
       showError('Invalid build data')
@@ -517,9 +538,9 @@ export const useBuildsStore = defineStore('builds', () => {
       exported: new Date().toISOString(),
       builds: savedBuilds.value.map(build => ({
         ...build,
-        id: undefined
+        id: undefined,
       })),
-      stats: buildStats.value
+      stats: buildStats.value,
     }
     return JSON.stringify(exportData, null, 2)
   }
@@ -618,6 +639,6 @@ export const useBuildsStore = defineStore('builds', () => {
     exportAllBuilds,
 
     // Utilities
-    clearCache
+    clearCache,
   }
 })

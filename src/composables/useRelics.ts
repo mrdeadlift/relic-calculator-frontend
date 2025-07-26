@@ -1,12 +1,12 @@
-import { ref, computed, reactive, watch } from 'vue'
+import { ref, computed, reactive, watch, readonly } from 'vue'
 import type { Ref } from 'vue'
-import type { 
-  Relic, 
-  CalculationRequest, 
-  CalculationResult, 
+import type {
+  Relic,
+  CalculationRequest,
   ApiError,
-  PaginatedResponse
+  PaginatedResponse,
 } from '../types'
+import type { AttackMultiplierResult } from '../types/calculation'
 import { apiService, apiHelpers } from '../services/api'
 
 // Global relic state
@@ -20,7 +20,7 @@ export function useRelics() {
   const loading = ref(false)
   const error = ref<string | null>(null)
   const relics = ref<Relic[]>([])
-  
+
   // Pagination state
   const pagination = reactive({
     currentPage: 1,
@@ -28,7 +28,7 @@ export function useRelics() {
     totalPages: 0,
     totalCount: 0,
     hasNextPage: false,
-    hasPrevPage: false
+    hasPrevPage: false,
   })
 
   // Filter state
@@ -39,14 +39,16 @@ export function useRelics() {
     quality: '',
     minDifficulty: 1,
     maxDifficulty: 10,
-    sortBy: 'name'
+    sortBy: 'name',
   })
 
   // Computed values
   const filteredRelicsCount = computed(() => relics.value.length)
   const hasRelics = computed(() => relics.value.length > 0)
   const isFirstPage = computed(() => pagination.currentPage === 1)
-  const isLastPage = computed(() => pagination.currentPage === pagination.totalPages)
+  const isLastPage = computed(
+    () => pagination.currentPage === pagination.totalPages
+  )
 
   // Helper functions
   const setError = (message: string | null) => {
@@ -64,7 +66,7 @@ export function useRelics() {
       totalPages: paginationData.total_pages,
       totalCount: paginationData.total_count,
       hasNextPage: paginationData.has_next_page,
-      hasPrevPage: paginationData.has_prev_page
+      hasPrevPage: paginationData.has_prev_page,
     })
   }
 
@@ -84,19 +86,21 @@ export function useRelics() {
         min_difficulty: filters.minDifficulty,
         max_difficulty: filters.maxDifficulty,
         sort_by: filters.sortBy,
-        ...params
+        ...params,
       }
 
-      const response = await apiService.relics.list(requestParams) as PaginatedResponse<Relic[]>
-      
+      const response = (await apiService.relics.search(
+        requestParams
+      )) as PaginatedResponse<Relic[]>
+
       relics.value = response.data
       updatePagination(response.meta.pagination)
-      
+
       // Update cache
       response.data.forEach(relic => {
         relicsCache.value.set(relic.id, relic)
       })
-      
+
       lastUpdated.value = new Date()
     } catch (err) {
       const apiError = err as ApiError
@@ -117,12 +121,12 @@ export function useRelics() {
     clearError()
 
     try {
-      const response = await apiService.relics.get(id)
+      const response = await apiService.relics.getById(id)
       const relic = response.data
-      
+
       // Update cache
       relicsCache.value.set(id, relic)
-      
+
       return relic
     } catch (err) {
       const apiError = err as ApiError
@@ -197,7 +201,7 @@ export function useRelics() {
       quality: '',
       minDifficulty: 1,
       maxDifficulty: 10,
-      sortBy: 'name'
+      sortBy: 'name',
     })
     pagination.currentPage = 1
   }
@@ -235,11 +239,7 @@ export function useRelics() {
 
   // Initialize
   const initialize = async () => {
-    await Promise.all([
-      fetchRelics(),
-      fetchCategories(),
-      fetchRarities()
-    ])
+    await Promise.all([fetchRelics(), fetchCategories(), fetchRarities()])
   }
 
   return {
@@ -275,14 +275,14 @@ export function useRelics() {
     clearCache,
     refreshRelics,
     initialize,
-    clearError
+    clearError,
   }
 }
 
 export function useRelicCalculation() {
   const loading = ref(false)
   const error = ref<string | null>(null)
-  const result = ref<CalculationResult | null>(null)
+  const result = ref<AttackMultiplierResult | null>(null)
   const lastCalculation = ref<CalculationRequest | null>(null)
 
   const isCalculating = computed(() => loading.value)
@@ -294,7 +294,7 @@ export function useRelicCalculation() {
     error.value = null
 
     try {
-      const response = await apiService.relics.calculate(request)
+      const response = await apiService.calculation.calculate(request)
       result.value = response.data
       lastCalculation.value = { ...request }
     } catch (err) {
@@ -346,6 +346,6 @@ export function useRelicCalculation() {
     calculate,
     recalculate,
     clearResult,
-    validateCombination
+    validateCombination,
   }
 }

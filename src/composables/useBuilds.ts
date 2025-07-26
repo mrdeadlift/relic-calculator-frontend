@@ -1,14 +1,16 @@
-import { ref, computed, reactive, watch } from 'vue'
-import type { 
-  Build, 
-  BuildCreateRequest, 
+import { ref, computed, reactive, watch, readonly } from 'vue'
+import type {
+  Build,
+  BuildCreateRequest,
   BuildUpdateRequest,
   Relic,
-  CalculationResult,
-  OptimizationResult,
   ApiError,
-  PaginatedResponse
+  PaginatedResponse,
 } from '../types'
+import type {
+  AttackMultiplierResult,
+  OptimizationResult,
+} from '../types/calculation'
 import { apiService } from '../services/api'
 
 // Global build state
@@ -20,7 +22,7 @@ export function useBuilds() {
   const loading = ref(false)
   const error = ref<string | null>(null)
   const builds = ref<Build[]>([])
-  
+
   // Pagination state
   const pagination = reactive({
     currentPage: 1,
@@ -28,7 +30,7 @@ export function useBuilds() {
     totalPages: 0,
     totalCount: 0,
     hasNextPage: false,
-    hasPrevPage: false
+    hasPrevPage: false,
   })
 
   // Filter state
@@ -36,13 +38,15 @@ export function useBuilds() {
     search: '',
     combatStyle: '',
     visibility: '',
-    sortBy: 'updated_at'
+    sortBy: 'updated_at',
   })
 
   // Computed values
   const hasBuilds = computed(() => builds.value.length > 0)
   const isFirstPage = computed(() => pagination.currentPage === 1)
-  const isLastPage = computed(() => pagination.currentPage === pagination.totalPages)
+  const isLastPage = computed(
+    () => pagination.currentPage === pagination.totalPages
+  )
 
   // Helper functions
   const setError = (message: string | null) => {
@@ -60,7 +64,7 @@ export function useBuilds() {
       totalPages: paginationData.total_pages,
       totalCount: paginationData.total_count,
       hasNextPage: paginationData.has_next_page,
-      hasPrevPage: paginationData.has_prev_page
+      hasPrevPage: paginationData.has_prev_page,
     })
   }
 
@@ -77,19 +81,20 @@ export function useBuilds() {
         combat_style: filters.combatStyle || undefined,
         visibility: filters.visibility || undefined,
         sort_by: filters.sortBy,
-        ...params
+        ...params,
       }
 
-      const response = await apiService.builds.list(requestParams) as PaginatedResponse<Build[]>
-      
+      const response = (await apiService.builds.search(
+        requestParams
+      )) as PaginatedResponse<Build[]>
+
       builds.value = response.data
       updatePagination(response.meta.pagination)
-      
+
       // Update cache
       response.data.forEach(build => {
         buildsCache.value.set(build.id, build)
       })
-      
     } catch (err) {
       const apiError = err as ApiError
       setError(apiError.message || 'Failed to fetch builds')
@@ -109,12 +114,12 @@ export function useBuilds() {
     clearError()
 
     try {
-      const response = await apiService.builds.get(id)
+      const response = await apiService.builds.getById(id)
       const build = response.data
-      
+
       // Update cache
       buildsCache.value.set(id, build)
-      
+
       return build
     } catch (err) {
       const apiError = err as ApiError
@@ -126,18 +131,20 @@ export function useBuilds() {
     }
   }
 
-  const createBuild = async (buildData: BuildCreateRequest): Promise<Build | null> => {
+  const createBuild = async (
+    buildData: BuildCreateRequest
+  ): Promise<Build | null> => {
     loading.value = true
     clearError()
 
     try {
       const response = await apiService.builds.create(buildData)
       const build = response.data
-      
+
       // Update cache and local state
       buildsCache.value.set(build.id, build)
       builds.value.unshift(build)
-      
+
       return build
     } catch (err) {
       const apiError = err as ApiError
@@ -149,26 +156,29 @@ export function useBuilds() {
     }
   }
 
-  const updateBuild = async (id: string, buildData: BuildUpdateRequest): Promise<Build | null> => {
+  const updateBuild = async (
+    id: string,
+    buildData: BuildUpdateRequest
+  ): Promise<Build | null> => {
     loading.value = true
     clearError()
 
     try {
       const response = await apiService.builds.update(id, buildData)
       const updatedBuild = response.data
-      
+
       // Update cache and local state
       buildsCache.value.set(id, updatedBuild)
       const index = builds.value.findIndex(b => b.id === id)
       if (index !== -1) {
         builds.value[index] = updatedBuild
       }
-      
+
       // Update current build if it's the one being updated
       if (currentBuild.value?.id === id) {
         currentBuild.value = updatedBuild
       }
-      
+
       return updatedBuild
     } catch (err) {
       const apiError = err as ApiError
@@ -186,16 +196,16 @@ export function useBuilds() {
 
     try {
       await apiService.builds.delete(id)
-      
+
       // Remove from cache and local state
       buildsCache.value.delete(id)
       builds.value = builds.value.filter(b => b.id !== id)
-      
+
       // Clear current build if it's the one being deleted
       if (currentBuild.value?.id === id) {
         currentBuild.value = null
       }
-      
+
       return true
     } catch (err) {
       const apiError = err as ApiError
@@ -207,18 +217,21 @@ export function useBuilds() {
     }
   }
 
-  const cloneBuild = async (id: string, name?: string): Promise<Build | null> => {
+  const cloneBuild = async (
+    id: string,
+    name?: string
+  ): Promise<Build | null> => {
     loading.value = true
     clearError()
 
     try {
-      const response = await apiService.builds.clone(id, name)
+      const response = await apiService.builds.duplicate(id, name)
       const clonedBuild = response.data
-      
+
       // Update cache and local state
       buildsCache.value.set(clonedBuild.id, clonedBuild)
       builds.value.unshift(clonedBuild)
-      
+
       return clonedBuild
     } catch (err) {
       const apiError = err as ApiError
@@ -260,7 +273,7 @@ export function useBuilds() {
       search: '',
       combatStyle: '',
       visibility: '',
-      sortBy: 'updated_at'
+      sortBy: 'updated_at',
     })
     pagination.currentPage = 1
   }
@@ -331,14 +344,14 @@ export function useBuilds() {
     clearCache,
     refreshBuilds,
     clearError,
-    initialize
+    initialize,
   }
 }
 
 export function useBuildCalculation() {
   const loading = ref(false)
   const error = ref<string | null>(null)
-  const result = ref<CalculationResult | null>(null)
+  const result = ref<AttackMultiplierResult | null>(null)
 
   const isCalculating = computed(() => loading.value)
   const hasResult = computed(() => result.value !== null)
@@ -371,7 +384,7 @@ export function useBuildCalculation() {
     isCalculating,
     hasResult,
     calculateBuild,
-    clearResult
+    clearResult,
   }
 }
 
@@ -383,12 +396,20 @@ export function useBuildOptimization() {
   const isOptimizing = computed(() => loading.value)
   const hasSuggestions = computed(() => suggestions.value !== null)
 
-  const optimizeBuild = async (buildId: string, constraints?: any, preferences?: any) => {
+  const optimizeBuild = async (
+    buildId: string,
+    constraints?: any,
+    preferences?: any
+  ) => {
     loading.value = true
     error.value = null
 
     try {
-      const response = await apiService.builds.optimize(buildId, constraints, preferences)
+      const response = await apiService.builds.optimize(
+        buildId,
+        constraints,
+        preferences
+      )
       suggestions.value = response.data.optimization
     } catch (err) {
       const apiError = err as ApiError
@@ -411,7 +432,7 @@ export function useBuildOptimization() {
     isOptimizing,
     hasSuggestions,
     optimizeBuild,
-    clearSuggestions
+    clearSuggestions,
   }
 }
 
@@ -420,16 +441,21 @@ export function useBuildRelicManagement() {
   const error = ref<string | null>(null)
 
   const addRelicToBuild = async (
-    buildId: string, 
-    relicId: string, 
-    position?: number, 
+    buildId: string,
+    relicId: string,
+    position?: number,
     customConditions?: any
   ): Promise<boolean> => {
     loading.value = true
     error.value = null
 
     try {
-      await apiService.builds.addRelic(buildId, relicId, position, customConditions)
+      await apiService.builds.addRelic(
+        buildId,
+        relicId,
+        position,
+        customConditions
+      )
       return true
     } catch (err) {
       const apiError = err as ApiError
@@ -441,7 +467,10 @@ export function useBuildRelicManagement() {
     }
   }
 
-  const removeRelicFromBuild = async (buildId: string, relicId: string): Promise<boolean> => {
+  const removeRelicFromBuild = async (
+    buildId: string,
+    relicId: string
+  ): Promise<boolean> => {
     loading.value = true
     error.value = null
 
@@ -458,7 +487,10 @@ export function useBuildRelicManagement() {
     }
   }
 
-  const reorderBuildRelics = async (buildId: string, relicIds: string[]): Promise<boolean> => {
+  const reorderBuildRelics = async (
+    buildId: string,
+    relicIds: string[]
+  ): Promise<boolean> => {
     loading.value = true
     error.value = null
 
@@ -480,7 +512,7 @@ export function useBuildRelicManagement() {
     error: readonly(error),
     addRelicToBuild,
     removeRelicFromBuild,
-    reorderBuildRelics
+    reorderBuildRelics,
   }
 }
 
@@ -515,6 +547,6 @@ export function useSharedBuilds() {
     error: readonly(error),
     sharedBuild: readonly(sharedBuild),
     fetchSharedBuild,
-    clearSharedBuild
+    clearSharedBuild,
   }
 }

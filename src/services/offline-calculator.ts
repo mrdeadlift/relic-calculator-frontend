@@ -38,15 +38,15 @@ export class OfflineCalculator {
       lastSync: '',
       version: '1.0.0',
       relicCount: 0,
-      calculationCount: 0
-    }
+      calculationCount: 0,
+    },
   }
 
   private networkStatus: NetworkStatus = {
     isOnline: navigator.onLine,
     lastOnline: new Date(),
     connectionQuality: 'good',
-    retryCount: 0
+    retryCount: 0,
   }
 
   private readonly options: OfflineCalculationOptions
@@ -59,7 +59,7 @@ export class OfflineCalculator {
       enableFallbackCalculations: true,
       cacheResults: true,
       maxComplexity: 'intermediate',
-      ...options
+      ...options,
     }
 
     this.initializeOfflineCapabilities()
@@ -89,7 +89,9 @@ export class OfflineCalculator {
       // Check if we have the relics data offline
       const validRelics = this.validateOfflineRelics(relics)
       if (!validRelics.isValid) {
-        throw new Error(`Missing offline data for relics: ${validRelics.missingRelics.join(', ')}`)
+        throw new Error(
+          `Missing offline data for relics: ${validRelics.missingRelics.join(', ')}`
+        )
       }
 
       // Generate cache key
@@ -113,14 +115,13 @@ export class OfflineCalculator {
       }
 
       return this.addOfflineMetadata(result)
-
     } catch (error) {
       console.error('Offline calculation failed:', error)
-      
+
       if (this.options.enableFallbackCalculations) {
         return this.performFallbackCalculation(relics, conditions)
       }
-      
+
       throw error
     }
   }
@@ -143,8 +144,14 @@ export class OfflineCalculator {
   }
 
   // Basic calculation (sum of multipliers only)
-  private basicCalculation(relics: Relic[], conditions: ConditionalEffects): CalculationResult {
-    const baseMultiplier = relics.reduce((sum, relic) => sum + (relic.attackMultiplier || 0), 0)
+  private basicCalculation(
+    relics: Relic[],
+    conditions: ConditionalEffects
+  ): CalculationResult {
+    const baseMultiplier = relics.reduce(
+      (sum, relic) => sum + (relic.attackMultiplier || 0),
+      0
+    )
     const efficiency = this.calculateBasicEfficiency(relics, baseMultiplier)
     const difficulty = this.calculateBasicDifficulty(relics)
 
@@ -153,7 +160,7 @@ export class OfflineCalculator {
         total: Math.round(baseMultiplier * 100) / 100,
         base: Math.round(baseMultiplier * 100) / 100,
         synergy: 0,
-        conditional: 0
+        conditional: 0,
       },
       efficiency,
       obtainmentDifficulty: difficulty,
@@ -163,29 +170,37 @@ export class OfflineCalculator {
         contribution: relic.attackMultiplier || 0,
         effects: relic.effects || [],
         synergies: [],
-        conditionalBonuses: []
+        conditionalBonuses: [],
       })),
       effectBreakdown: [],
-      calculationSteps: [{
-        step: 1,
-        description: 'Basic sum of attack multipliers',
-        value: baseMultiplier
-      }],
+      calculationSteps: [
+        {
+          step: 1,
+          description: 'Basic sum of attack multipliers',
+          value: baseMultiplier,
+        },
+      ],
       metadata: {
         calculatedAt: new Date().toISOString(),
         clientSide: true,
         offline: true,
-        complexity: 'basic'
-      }
+        complexity: 'basic',
+      },
     }
   }
 
   // Intermediate calculation (includes basic synergies)
-  private intermediateCalculation(relics: Relic[], conditions: ConditionalEffects): CalculationResult {
-    const baseMultiplier = relics.reduce((sum, relic) => sum + (relic.attackMultiplier || 0), 0)
+  private intermediateCalculation(
+    relics: Relic[],
+    conditions: ConditionalEffects
+  ): CalculationResult {
+    const baseMultiplier = relics.reduce(
+      (sum, relic) => sum + (relic.attackMultiplier || 0),
+      0
+    )
     const synergyBonus = this.calculateBasicSynergies(relics)
     const conditionalBonus = this.calculateBasicConditionals(relics, conditions)
-    
+
     const totalMultiplier = baseMultiplier + synergyBonus + conditionalBonus
     const efficiency = this.calculateBasicEfficiency(relics, totalMultiplier)
     const difficulty = this.calculateBasicDifficulty(relics)
@@ -195,7 +210,7 @@ export class OfflineCalculator {
         total: Math.round(totalMultiplier * 100) / 100,
         base: Math.round(baseMultiplier * 100) / 100,
         synergy: Math.round(synergyBonus * 100) / 100,
-        conditional: Math.round(conditionalBonus * 100) / 100
+        conditional: Math.round(conditionalBonus * 100) / 100,
       },
       efficiency,
       obtainmentDifficulty: difficulty,
@@ -205,20 +220,20 @@ export class OfflineCalculator {
         contribution: relic.attackMultiplier || 0,
         effects: relic.effects || [],
         synergies: [],
-        conditionalBonuses: []
+        conditionalBonuses: [],
       })),
       effectBreakdown: this.generateBasicEffectBreakdown(relics, conditions),
       calculationSteps: [
         { step: 1, description: 'Base multipliers', value: baseMultiplier },
         { step: 2, description: 'Basic synergies', value: synergyBonus },
-        { step: 3, description: 'Basic conditionals', value: conditionalBonus }
+        { step: 3, description: 'Basic conditionals', value: conditionalBonus },
       ],
       metadata: {
         calculatedAt: new Date().toISOString(),
         clientSide: true,
         offline: true,
-        complexity: 'intermediate'
-      }
+        complexity: 'intermediate',
+      },
     }
   }
 
@@ -229,26 +244,39 @@ export class OfflineCalculator {
   ): Promise<CalculationResult> {
     try {
       // Use the full calculation engine but with offline-optimized settings
-      return await calculationEngine.calculate(relics, conditions, {}, {
-        useCache: true,
-        enableOptimizations: false, // Disable complex optimizations for speed
-        precision: 2,
-        maxComplexity: 5 // Reduced complexity for offline
-      })
+      return await calculationEngine.calculate(
+        relics,
+        conditions,
+        {},
+        {
+          useCache: true,
+          enableOptimizations: false, // Disable complex optimizations for speed
+          precision: 2,
+          maxComplexity: 5, // Reduced complexity for offline
+        }
+      )
     } catch (error) {
-      console.warn('Advanced offline calculation failed, falling back to intermediate:', error)
+      console.warn(
+        'Advanced offline calculation failed, falling back to intermediate:',
+        error
+      )
       return this.intermediateCalculation(relics, conditions)
     }
   }
 
   // Fallback calculation for error cases
-  private performFallbackCalculation(relics: Relic[], conditions: ConditionalEffects): CalculationResult {
+  private performFallbackCalculation(
+    relics: Relic[],
+    conditions: ConditionalEffects
+  ): CalculationResult {
     console.warn('Using fallback calculation due to errors')
-    
+
     // Very basic calculation as last resort
     const baseMultiplier = relics.reduce((sum, relic) => {
       // Use stored multiplier or estimate based on relic name/type
-      return sum + (relic.attackMultiplier || this.estimateRelicMultiplier(relic))
+      return (
+        sum + (relic.attackMultiplier || this.estimateRelicMultiplier(relic))
+      )
     }, 0)
 
     return {
@@ -256,41 +284,47 @@ export class OfflineCalculator {
         total: Math.max(0, Math.round(baseMultiplier * 100) / 100),
         base: Math.max(0, Math.round(baseMultiplier * 100) / 100),
         synergy: 0,
-        conditional: 0
+        conditional: 0,
       },
       efficiency: Math.max(0.1, baseMultiplier / 3), // Simple efficiency estimate
       obtainmentDifficulty: Math.min(5, relics.length), // Simple difficulty estimate
       relicDetails: relics.map(relic => ({
         relicId: relic.id,
         name: relic.name,
-        contribution: relic.attackMultiplier || this.estimateRelicMultiplier(relic),
+        contribution:
+          relic.attackMultiplier || this.estimateRelicMultiplier(relic),
         effects: [],
         synergies: [],
-        conditionalBonuses: []
+        conditionalBonuses: [],
       })),
       effectBreakdown: [],
-      calculationSteps: [{
-        step: 1,
-        description: 'Fallback calculation (sum of estimated multipliers)',
-        value: baseMultiplier
-      }],
+      calculationSteps: [
+        {
+          step: 1,
+          description: 'Fallback calculation (sum of estimated multipliers)',
+          value: baseMultiplier,
+        },
+      ],
       metadata: {
         calculatedAt: new Date().toISOString(),
         clientSide: true,
         offline: true,
         fallback: true,
-        complexity: 'fallback'
-      }
+        complexity: 'fallback',
+      },
     }
   }
 
   // Helper calculation methods
   private calculateBasicSynergies(relics: Relic[]): number {
     // Count same-type relics
-    const typeGroups = relics.reduce((groups, relic) => {
-      groups[relic.type] = (groups[relic.type] || 0) + 1
-      return groups
-    }, {} as Record<string, number>)
+    const typeGroups = relics.reduce(
+      (groups, relic) => {
+        groups[relic.type] = (groups[relic.type] || 0) + 1
+        return groups
+      },
+      {} as Record<string, number>
+    )
 
     let synergyBonus = 0
     Object.values(typeGroups).forEach(count => {
@@ -302,11 +336,14 @@ export class OfflineCalculator {
     return synergyBonus
   }
 
-  private calculateBasicConditionals(relics: Relic[], conditions: ConditionalEffects): number {
+  private calculateBasicConditionals(
+    relics: Relic[],
+    conditions: ConditionalEffects
+  ): number {
     let conditionalBonus = 0
 
     relics.forEach(relic => {
-      (relic.effects || []).forEach(effect => {
+      ;(relic.effects || []).forEach(effect => {
         // Simple conditional check
         if (this.isEffectActiveOffline(effect, conditions)) {
           conditionalBonus += (effect.multiplier || 0) * 0.5 // 50% of effect value
@@ -317,22 +354,34 @@ export class OfflineCalculator {
     return conditionalBonus
   }
 
-  private isEffectActiveOffline(effect: any, conditions: ConditionalEffects): boolean {
+  private isEffectActiveOffline(
+    effect: any,
+    conditions: ConditionalEffects
+  ): boolean {
     // Simplified conditional checking for offline mode
     if (!effect.conditions) return true
 
     // Basic enemy type check
-    if (effect.conditions.enemyType && effect.conditions.enemyType !== conditions.enemyType) {
+    if (
+      effect.conditions.enemyType &&
+      effect.conditions.enemyType !== conditions.enemyType
+    ) {
       return false
     }
 
     // Basic health check
     if (effect.conditions.healthThreshold) {
       const threshold = effect.conditions.healthThreshold
-      if (threshold.type === 'above' && conditions.playerHealth <= threshold.value) {
+      if (
+        threshold.type === 'above' &&
+        conditions.playerHealth <= threshold.value
+      ) {
         return false
       }
-      if (threshold.type === 'below' && conditions.playerHealth >= threshold.value) {
+      if (
+        threshold.type === 'below' &&
+        conditions.playerHealth >= threshold.value
+      ) {
         return false
       }
     }
@@ -340,21 +389,32 @@ export class OfflineCalculator {
     return true
   }
 
-  private calculateBasicEfficiency(relics: Relic[], multiplier: number): number {
-    const avgDifficulty = relics.reduce((sum, r) => sum + (r.obtainmentDifficulty || 1), 0) / relics.length
+  private calculateBasicEfficiency(
+    relics: Relic[],
+    multiplier: number
+  ): number {
+    const avgDifficulty =
+      relics.reduce((sum, r) => sum + (r.obtainmentDifficulty || 1), 0) /
+      relics.length
     return Math.round((multiplier / Math.max(avgDifficulty, 1)) * 100) / 100
   }
 
   private calculateBasicDifficulty(relics: Relic[]): number {
-    const totalDifficulty = relics.reduce((sum, r) => sum + (r.obtainmentDifficulty || 1), 0)
+    const totalDifficulty = relics.reduce(
+      (sum, r) => sum + (r.obtainmentDifficulty || 1),
+      0
+    )
     return Math.round((totalDifficulty / relics.length) * 10) / 10
   }
 
-  private generateBasicEffectBreakdown(relics: Relic[], conditions: ConditionalEffects): any[] {
+  private generateBasicEffectBreakdown(
+    relics: Relic[],
+    conditions: ConditionalEffects
+  ): any[] {
     const breakdown: any[] = []
 
     relics.forEach(relic => {
-      (relic.effects || []).forEach(effect => {
+      ;(relic.effects || []).forEach(effect => {
         const isActive = this.isEffectActiveOffline(effect, conditions)
         breakdown.push({
           relicId: relic.id,
@@ -363,7 +423,7 @@ export class OfflineCalculator {
           effectDescription: effect.description || 'No description',
           multiplier: effect.multiplier || 0,
           isActive,
-          contribution: isActive ? (effect.multiplier || 0) * 0.5 : 0
+          contribution: isActive ? (effect.multiplier || 0) * 0.5 : 0,
         })
       })
     })
@@ -377,12 +437,12 @@ export class OfflineCalculator {
 
     // Estimate based on rarity
     const rarityMultipliers: Record<string, number> = {
-      'common': 0.1,
-      'uncommon': 0.2,
-      'rare': 0.3,
-      'epic': 0.5,
-      'legendary': 0.8,
-      'mythic': 1.2
+      common: 0.1,
+      uncommon: 0.2,
+      rare: 0.3,
+      epic: 0.5,
+      legendary: 0.8,
+      mythic: 1.2,
     }
 
     const rarityBonus = rarityMultipliers[relic.rarity || 'common'] || 0.2
@@ -392,7 +452,11 @@ export class OfflineCalculator {
   }
 
   // Data synchronization methods
-  async syncWithServer(): Promise<{ success: boolean; syncedRelics: number; syncedCalculations: number }> {
+  async syncWithServer(): Promise<{
+    success: boolean
+    syncedRelics: number
+    syncedCalculations: number
+  }> {
     if (this.syncInProgress || !this.networkStatus.isOnline) {
       return { success: false, syncedRelics: 0, syncedCalculations: 0 }
     }
@@ -406,10 +470,10 @@ export class OfflineCalculator {
       try {
         const { typeSafeApiClient } = await import('./api-client')
         const relicsResponse = await typeSafeApiClient.relics.getAll()
-        
+
         this.offlineData.relics = relicsResponse.data
         syncedRelics = relicsResponse.data.length
-        
+
         this.offlineData.metadata.lastSync = new Date().toISOString()
         this.offlineData.metadata.relicCount = syncedRelics
       } catch (error) {
@@ -424,7 +488,6 @@ export class OfflineCalculator {
       await this.saveOfflineData()
 
       return { success: true, syncedRelics, syncedCalculations }
-
     } catch (error) {
       console.error('Sync failed:', error)
       return { success: false, syncedRelics, syncedCalculations }
@@ -441,7 +504,7 @@ export class OfflineCalculator {
         const data = JSON.parse(stored)
         this.offlineData = {
           ...data,
-          calculations: new Map(data.calculations || [])
+          calculations: new Map(data.calculations || []),
         }
       }
     } catch (error) {
@@ -453,9 +516,9 @@ export class OfflineCalculator {
     try {
       const dataToStore = {
         ...this.offlineData,
-        calculations: Array.from(this.offlineData.calculations.entries())
+        calculations: Array.from(this.offlineData.calculations.entries()),
       }
-      
+
       localStorage.setItem(this.storageKey, JSON.stringify(dataToStore))
     } catch (error) {
       console.error('Failed to save offline data:', error)
@@ -469,7 +532,7 @@ export class OfflineCalculator {
       this.networkStatus.lastOnline = new Date()
       this.networkStatus.connectionQuality = 'good'
       this.networkStatus.retryCount = 0
-      
+
       // Attempt sync when coming back online
       this.syncWithServer()
     })
@@ -482,7 +545,8 @@ export class OfflineCalculator {
 
   private setupServiceWorker(): void {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
+      navigator.serviceWorker
+        .register('/sw.js')
         .then(registration => {
           console.log('Service Worker registered for offline support')
         })
@@ -502,7 +566,10 @@ export class OfflineCalculator {
   }
 
   // Utility methods
-  private validateOfflineRelics(relics: Relic[]): { isValid: boolean; missingRelics: string[] } {
+  private validateOfflineRelics(relics: Relic[]): {
+    isValid: boolean
+    missingRelics: string[]
+  } {
     const offlineRelicIds = new Set(this.offlineData.relics.map(r => r.id))
     const missingRelics: string[] = []
 
@@ -514,15 +581,21 @@ export class OfflineCalculator {
 
     return {
       isValid: missingRelics.length === 0,
-      missingRelics
+      missingRelics,
     }
   }
 
-  private generateOfflineCacheKey(relics: Relic[], conditions: ConditionalEffects): string {
-    const relicIds = relics.map(r => r.id).sort().join(',')
+  private generateOfflineCacheKey(
+    relics: Relic[],
+    conditions: ConditionalEffects
+  ): string {
+    const relicIds = relics
+      .map(r => r.id)
+      .sort()
+      .join(',')
     const conditionsStr = JSON.stringify(conditions)
     const complexity = this.options.maxComplexity
-    
+
     return `offline_${complexity}_${relicIds}_${btoa(conditionsStr)}`
   }
 
@@ -533,8 +606,8 @@ export class OfflineCalculator {
         ...result.metadata,
         offline: true,
         offlineVersion: this.offlineData.metadata.version,
-        lastDataSync: this.offlineData.metadata.lastSync
-      }
+        lastDataSync: this.offlineData.metadata.lastSync,
+      },
     }
   }
 
@@ -550,14 +623,16 @@ export class OfflineCalculator {
     calculationCount: number
     cacheSize: string
   } {
-    const cacheSize = new Blob([JSON.stringify(Array.from(this.offlineData.calculations.entries()))]).size
-    
+    const cacheSize = new Blob([
+      JSON.stringify(Array.from(this.offlineData.calculations.entries())),
+    ]).size
+
     return {
       isOnline: this.networkStatus.isOnline,
       lastSync: this.offlineData.metadata.lastSync,
       relicCount: this.offlineData.metadata.relicCount,
       calculationCount: this.offlineData.calculations.size,
-      cacheSize: `${(cacheSize / 1024).toFixed(1)} KB`
+      cacheSize: `${(cacheSize / 1024).toFixed(1)} KB`,
     }
   }
 
@@ -569,10 +644,10 @@ export class OfflineCalculator {
         lastSync: '',
         version: '1.0.0',
         relicCount: 0,
-        calculationCount: 0
-      }
+        calculationCount: 0,
+      },
     }
-    
+
     localStorage.removeItem(this.storageKey)
   }
 
@@ -587,10 +662,12 @@ export const offlineCalculator = new OfflineCalculator({
   useBasicFormulas: true,
   enableFallbackCalculations: true,
   cacheResults: true,
-  maxComplexity: 'intermediate'
+  maxComplexity: 'intermediate',
 })
 
 // Export factory function
-export const createOfflineCalculator = (options?: Partial<OfflineCalculationOptions>): OfflineCalculator => {
+export const createOfflineCalculator = (
+  options?: Partial<OfflineCalculationOptions>
+): OfflineCalculator => {
   return new OfflineCalculator(options)
 }
