@@ -442,8 +442,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import type { Relic } from '../types'
-import BaseButton from './BaseButton.vue'
-import BaseInput from './BaseInput.vue'
+import BaseButton from './ui/BaseButton.vue'
+import BaseInput from './ui/BaseInput.vue'
 import { adminService } from '../services/admin'
 import { useToast } from '../composables/useToast'
 

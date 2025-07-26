@@ -295,11 +295,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import type { Relic, RelicCategory, RelicRarity } from '../types'
-import BaseButton from './BaseButton.vue'
-import BaseInput from './BaseInput.vue'
-import BaseModal from './BaseModal.vue'
+import BaseButton from './ui/BaseButton.vue'
+import BaseInput from './ui/BaseInput.vue'
+import BaseModal from './ui/BaseModal.vue'
 import RelicForm from './RelicForm.vue'
 import ImportForm from './ImportForm.vue'
 import { adminService } from '../services/admin'
