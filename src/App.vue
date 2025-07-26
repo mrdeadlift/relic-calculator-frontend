@@ -21,12 +21,8 @@ import BaseModal from './components/ui/BaseModal.vue'
 import BaseCard from './components/ui/BaseCard.vue'
 
 // Composables
-const {
-  initialize: initializeRelics,
-} = useRelics()
-const {
-  initialize: initializeBuilds,
-} = useBuilds()
+const { initialize: initializeRelics } = useRelics()
+const { initialize: initializeBuilds } = useBuilds()
 const {
   suggestOptimization,
   suggestions: optimizationSuggestions,
@@ -187,7 +183,9 @@ const applySuggestion = async (suggestion: OptimizationSuggestion) => {
 // Build management
 const handleBuildSelected = (build: Build) => {
   selectedBuildId.value = build.id
-  selectedRelicIds.value = build.relics.map(relic => typeof relic === 'string' ? relic : relic.id)
+  selectedRelicIds.value = build.relics.map(relic =>
+    typeof relic === 'string' ? relic : relic.id
+  )
   activeTab.value = 'calculator'
 
   if (autoCalculate.value) {
@@ -471,7 +469,8 @@ watch(
 
                     <div class="suggestions-list">
                       <div
-                        v-for="suggestion in optimizationSuggestions?.suggestions || []"
+                        v-for="suggestion in optimizationSuggestions?.suggestions ||
+                        []"
                         :key="suggestion.relicId"
                         class="suggestion-item"
                       >

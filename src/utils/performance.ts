@@ -39,10 +39,10 @@ function manualDeepClone<T>(obj: T): T {
   }
 
   if (typeof obj === 'object') {
-    const cloned = {} as { [key: string]: any }
+    const cloned = {} as { [key: string]: unknown }
     for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        cloned[key] = manualDeepClone((obj as any)[key])
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        cloned[key] = manualDeepClone((obj as Record<string, unknown>)[key])
       }
     }
     return cloned as T
@@ -215,8 +215,10 @@ export class EventPool {
 
   private setupDelegation(element: Element): void {
     // Prevent event listener duplication
-    if ((element as any).__eventPoolSetup) return
-    ;(element as any).__eventPoolSetup = true
+    if ((element as unknown as { __eventPoolSetup?: boolean }).__eventPoolSetup)
+      return
+    ;(element as unknown as { __eventPoolSetup: boolean }).__eventPoolSetup =
+      true
   }
 }
 
@@ -318,15 +320,31 @@ export class MemoryMonitor {
 
   getCurrentMemoryUsage(): number {
     if ('memory' in performance) {
-      const memory = (performance as any).memory
+      const memory = (
+        performance as unknown as {
+          memory: { usedJSHeapSize: number; jsHeapSizeLimit: number }
+        }
+      ).memory
       return (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100
     }
     return 0
   }
 
-  getMemoryInfo(): any {
+  getMemoryInfo(): {
+    usedJSHeapSize: number
+    totalJSHeapSize: number
+    jsHeapSizeLimit: number
+  } | null {
     if ('memory' in performance) {
-      return (performance as any).memory
+      return (
+        performance as unknown as {
+          memory: {
+            usedJSHeapSize: number
+            totalJSHeapSize: number
+            jsHeapSizeLimit: number
+          }
+        }
+      ).memory
     }
     return null
   }
@@ -337,8 +355,12 @@ export class MemoryMonitor {
  */
 export function analyzeComponentSize(componentName: string): void {
   if (process.env.NODE_ENV === 'development') {
-    const sizeEstimate = document.querySelectorAll(`[data-component="${componentName}"]`).length * 1000
-    console.log(`Component ${componentName} estimated size: ${sizeEstimate} bytes`)
+    const sizeEstimate =
+      document.querySelectorAll(`[data-component="${componentName}"]`).length *
+      1000
+    console.log(
+      `Component ${componentName} estimated size: ${sizeEstimate} bytes`
+    )
   }
 }
 
@@ -361,18 +383,20 @@ export function lazyImport<T>(
       return loading
     }
 
-    loading = importFn().then(module => {
-      cached = module
-      loading = null
-      return module
-    }).catch(error => {
-      loading = null
-      if (fallback) {
-        cached = fallback
-        return fallback
-      }
-      throw error
-    })
+    loading = importFn()
+      .then(module => {
+        cached = module
+        loading = null
+        return module
+      })
+      .catch(error => {
+        loading = null
+        if (fallback) {
+          cached = fallback
+          return fallback
+        }
+        throw error
+      })
 
     return loading
   }
