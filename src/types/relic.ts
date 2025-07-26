@@ -76,6 +76,8 @@ export interface Relic {
   type: string // Add missing type field
   attackMultiplier?: number // Add missing attackMultiplier field
   source?: string // Add missing source field
+  createdAt?: string
+  updatedAt?: string
 }
 
 // Build interface
@@ -135,7 +137,7 @@ export interface AttackCalculationResult {
   baseMultiplier: number
   baseAttack?: number
   finalAttack?: number
-  flatBonuses?: number[]
+  flatBonuses?: number
   stackingBonuses: StackingBonus[]
   conditionalEffects: ConditionalEffect[]
   warningsAndErrors: string[]

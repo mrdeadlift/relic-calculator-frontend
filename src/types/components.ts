@@ -1,12 +1,6 @@
 // Component Props Types for Nightreign Relic Calculator
 
-import type {
-  Relic,
-  AttackCalculationResult,
-  CombatStyle,
-  RelicCategory,
-  RelicRarity,
-} from './relic'
+import type { Relic, AttackCalculationResult } from './relic'
 
 // RelicSelector component props
 export interface RelicSelectorProps {

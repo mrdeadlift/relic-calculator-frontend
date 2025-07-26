@@ -74,6 +74,7 @@ export interface ComparisonResult {
 
 // Optimization suggestion
 export interface OptimizationSuggestion {
+  id: string
   type: 'add' | 'remove' | 'replace'
   relicId: string
   relicName: string
@@ -82,6 +83,11 @@ export interface OptimizationSuggestion {
   improvement: number
   reason: string
   confidence: number
+  priority: 'low' | 'medium' | 'high'
+  title: string
+  description: string
+  expectedImprovement: number
+  affectedBuilds?: string[]
 }
 
 // Calculation request parameters

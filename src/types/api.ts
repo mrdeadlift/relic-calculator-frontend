@@ -242,7 +242,9 @@ export interface RelicCreateRequest {
   conflicts?: string[]
 }
 
-export interface RelicUpdateRequest extends Partial<RelicCreateRequest> {}
+export interface RelicUpdateRequest extends Partial<RelicCreateRequest> {
+  id: string
+}
 
 export interface DataValidationRequest {
   checkType: 'consistency' | 'conflicts' | 'balance' | 'all'
